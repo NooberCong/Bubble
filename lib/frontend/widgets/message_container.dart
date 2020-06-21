@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class MessageContainer extends StatelessWidget {
@@ -55,6 +56,9 @@ class MessageContainer extends StatelessWidget {
         return _buildImage(context, borderRadius, boxConstraints);
       case "MessageType.sticker":
         return _buildSticker(borderRadius, boxConstraints);
+      case "MessageType.svg":
+        return _buildSvg(
+            borderRadius, boxConstraints, Theme.of(context).accentColor);
       default:
         return const SizedBox();
     }
@@ -142,5 +146,15 @@ class MessageContainer extends StatelessWidget {
             ),
           )
         : const SizedBox();
+  }
+
+  Widget _buildSvg(
+      BorderRadius borderRadius, BoxConstraints boxConstraints, Color color) {
+    return SvgPicture.asset(
+      messageData["content"] as String,
+      color: color,
+      width: 60,
+      height: 60,
+    );
   }
 }

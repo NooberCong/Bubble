@@ -4,6 +4,7 @@ import 'package:bubble/core/util/stickers.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ChatInput extends StatefulWidget {
@@ -18,11 +19,13 @@ class _ChatInputState extends State<ChatInput> {
   final _controller = TextEditingController();
   final _node = FocusNode();
   bool _showStickers = false;
+  bool _showLikeButton = true;
 
   @override
   void initState() {
     super.initState();
     _node.addListener(_onFocusChange);
+    _controller.addListener(_onInput);
   }
 
   @override
@@ -49,29 +52,34 @@ class _ChatInputState extends State<ChatInput> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Button send image
-          IconButton(
-            highlightColor: Colors.transparent,
-            icon: Icon(
-              Icons.image,
-              size: 26,
+          Material(
+            color: Colors.white,
+            child: IconButton(
+              highlightColor: Colors.transparent,
+              icon: Icon(
+                Icons.image,
+                size: 26,
+              ),
+              onPressed: () => getImage(context),
+              color: Colors.blue,
             ),
-            onPressed: () => getImage(context),
-            color: Colors.blue,
           ),
-          IconButton(
-            highlightColor: Colors.transparent,
-            icon: Icon(
-              Icons.tag_faces,
-              size: 26,
+          Material(
+            color: Colors.white,
+            child: IconButton(
+              icon: Icon(
+                Icons.tag_faces,
+                size: 26,
+              ),
+              onPressed: _getSticker,
+              color: Colors.blue,
             ),
-            onPressed: _getSticker,
-            color: Colors.blue,
           ),
 
           // Edit text
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+              padding: const EdgeInsets.all(5),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: TextField(
@@ -95,22 +103,32 @@ class _ChatInputState extends State<ChatInput> {
           ),
 
           // Button send message
-          IconButton(
-            highlightColor: Colors.transparent,
-            icon: Icon(
-              Icons.send,
-              size: 26,
-            ),
-            onPressed: () {
-              if (_controller.text.isNotEmpty) {
-                _onSendMessage(_controller.text, MessageType.text, context);
-              }
-            },
-            color: Colors.blue,
+          Material(
+            color: Colors.white,
+            child: _buildActionButton(context),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildActionButton(BuildContext context) {
+    return _showLikeButton
+        ? IconButton(
+            icon: SvgPicture.asset("assets/images/like.svg",
+                color: Colors.blue, width: 26, height: 26),
+            onPressed: () => _onSendMessage(
+                "assets/images/like.svg", MessageType.svg, context),
+          )
+        : IconButton(
+            icon: Icon(
+              Icons.send,
+              size: 26,
+            ),
+            onPressed: () =>
+                _onSendMessage(_controller.text, MessageType.text, context),
+            color: Colors.blue,
+          );
   }
 
   Widget _buildStickerBox(BuildContext context) {
@@ -211,5 +229,17 @@ class _ChatInputState extends State<ChatInput> {
     _controller.dispose();
     _node.dispose();
     super.dispose();
+  }
+
+  void _onInput() {
+    if (_showLikeButton && _controller.text.isNotEmpty) {
+      setState(() {
+        _showLikeButton = false;
+      });
+    } else if (!_showLikeButton && _controller.text.isEmpty) {
+      setState(() {
+        _showLikeButton = true;
+      });
+    }
   }
 }

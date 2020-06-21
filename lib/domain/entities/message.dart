@@ -1,4 +1,4 @@
-enum MessageType { text, image, sticker }
+enum MessageType { text, image, sticker, svg }
 
 class Message {
   final String content;

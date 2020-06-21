@@ -132,7 +132,10 @@ function parseMessage(doc) {
     return `: ${doc.content}`;
   } else if (doc.type === "MessageType.image") {
     return " sent a photo";
-  } else if (doc.type === "MessageType.sticker") {
+  } else {
+    if (doc.content === "assets/images/like.svg") {
+      return ": 👍";
+    }
     return " sent a sticker";
   }
 }

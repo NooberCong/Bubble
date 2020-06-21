@@ -122,6 +122,7 @@ class CloudDataService implements ICloudDataService {
           .document(inputData.id)
           .collection("messages")
           .orderBy("timestamp", descending: true)
+          .limit(10)
           .snapshots());
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));

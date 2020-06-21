@@ -20,7 +20,7 @@ class FullPhoto extends StatelessWidget {
       ),
       body: PhotoView(
         maxScale: 3,
-        minScale: 1,
+        minScale: PhotoViewComputedScale.contained,
         imageProvider: NetworkImage(url),
         loadFailedChild: Image.asset("assets/images/img_not_available.jpeg"),
       ),
