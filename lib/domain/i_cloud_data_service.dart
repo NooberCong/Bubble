@@ -7,12 +7,15 @@ abstract class ICloudDataService {
   Future<Either<CloudFailure, Stream>> fetchUserStatusStream(Params params);
   Future<Either<CloudFailure, User>> fetchUserByUID(Params params);
   Future<Either<CloudFailure, User>> fetchRandomUser(Params params);
-  Future<Either<CloudFailure, void>> updateUserData(Params params);
+  Future<Either<CloudFailure, Map<String, dynamic>>> updateUserData(
+      Params params);
   Future<Either<CloudFailure, void>> addConversation(Params params);
   Future<Either<CloudFailure, void>> deleteChatHistory(Params params);
   Future<Either<CloudFailure, Stream>> fetchConversationStream(Params params);
   Future<Either<CloudFailure, Stream>> fetchConverstionSnapShotsStream(
       Params params);
+  Future<Either<CloudFailure, Stream>> fetchUserDetailsStream(Params params);
   Future<Either<CloudFailure, void>> addMessage(Params params);
   Future<Either<CloudFailure, void>> deleteMessage(Params params);
+  Future<Either<CloudFailure, void>> markMessageAsSeen(Params params);
 }

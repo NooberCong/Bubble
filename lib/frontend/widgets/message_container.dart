@@ -10,12 +10,14 @@ class MessageContainer extends StatelessWidget {
   final bool isFromUser;
   final bool isFirstMessage;
   final String otherUserAvatar;
+  final bool displaySeen;
   const MessageContainer({
     Key key,
     this.messageData,
     this.isFromUser,
     this.isFirstMessage,
     this.otherUserAvatar,
+    this.displaySeen,
   }) : super(key: key);
 
   @override
@@ -25,6 +27,7 @@ class MessageContainer extends StatelessWidget {
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         _buildTimestamp(),
         _buildContent(context),
+        _buildSeenStatus()
       ]),
     );
   }
@@ -49,9 +52,16 @@ class MessageContainer extends StatelessWidget {
     final boxConstraints =
         BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 4 * 3);
     final borderRadius = BorderRadius.circular(20);
+    return Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: _buildBasedOnType(borderRadius, boxConstraints, context));
+  }
+
+  Widget _buildBasedOnType(BorderRadius borderRadius,
+      BoxConstraints boxConstraints, BuildContext context) {
     switch (messageData["type"] as String) {
       case "MessageType.text":
-        return _buildText(borderRadius, boxConstraints);
+        return _buildText(borderRadius, boxConstraints, context);
       case "MessageType.image":
         return _buildImage(context, borderRadius, boxConstraints);
       case "MessageType.sticker":
@@ -64,18 +74,18 @@ class MessageContainer extends StatelessWidget {
     }
   }
 
-  Container _buildText(
-      BorderRadius borderRadius, BoxConstraints boxConstraints) {
+  Container _buildText(BorderRadius borderRadius, BoxConstraints boxConstraints,
+      BuildContext context) {
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          color: _boxColor(),
+          color: _boxColor(context),
         ),
         constraints: boxConstraints,
         child: Text(
           messageData["content"] as String,
-          style: TextStyle(color: _textColor(), fontSize: 16),
+          style: TextStyle(color: _textColor(context), fontSize: 16),
         ));
   }
 
@@ -110,12 +120,20 @@ class MessageContainer extends StatelessWidget {
     );
   }
 
-  Color _textColor() {
-    return isFromUser ? Colors.white : Colors.black;
+  Color _textColor(BuildContext context) {
+    return isFromUser
+        ? Colors.white
+        : Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black;
   }
 
-  Color _boxColor() {
-    return isFromUser ? Colors.blue : Colors.grey[200];
+  Color _boxColor(BuildContext context) {
+    return isFromUser
+        ? Colors.blue
+        : Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey.shade800
+            : Colors.grey.shade300;
   }
 
   Widget _buildTimestamp() {
@@ -156,5 +174,18 @@ class MessageContainer extends StatelessWidget {
       width: 60,
       height: 60,
     );
+  }
+
+  Widget _buildSeenStatus() {
+    if (displaySeen) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: CircleAvatar(
+          radius: 8,
+          backgroundImage: NetworkImage(otherUserAvatar),
+        ),
+      );
+    }
+    return const SizedBox();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/domain/entities/user.dart';
-import 'package:bubble/router.gr.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -44,9 +45,8 @@ class SignUpFinish extends StatelessWidget {
     );
   }
 
-  Future<Object> _navigateToHomePage(BuildContext context, User user) {
-    return ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
-        Routes.homeScreen, (route) => false,
-        arguments: HomeScreenArguments(user: user));
+  void _navigateToHomePage(BuildContext context, User user) {
+    ExtendedNavigator.of(context).pop();
+    context.bloc<SplashScreenBloc>().add(SplashScreenEvent.authenticate(user));
   }
 }

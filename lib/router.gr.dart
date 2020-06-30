@@ -10,28 +10,39 @@ import 'package:auto_route/auto_route.dart';
 import 'package:bubble/frontend/screens/splash_screen.dart';
 import 'package:bubble/frontend/screens/login_screen.dart';
 import 'package:bubble/frontend/screens/sign_up_screen.dart';
-import 'package:bubble/frontend/screens/home_screen.dart';
+import 'package:bubble/frontend/screens/settings_screen.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/screens/home_screen.dart';
+import 'package:bubble/frontend/screens/other_user_info_screen.dart';
 import 'package:bubble/frontend/screens/chat_screen.dart';
 import 'package:bubble/frontend/screens/find_user_screen.dart';
 import 'package:bubble/frontend/screens/full_photo.dart';
+import 'package:bubble/frontend/widgets/take_picture_screen.dart';
 
 abstract class Routes {
   static const splashScreen = '/';
   static const loginScreen = '/login-screen';
   static const signUpScreen = '/sign-up-screen';
+  static const settingsScreen = '/settings-screen';
   static const homeScreen = '/home-screen';
+  static const otherUserInfoScreen = '/other-user-info-screen';
   static const chatScreen = '/chat-screen';
   static const findUserScreen = '/find-user-screen';
   static const fullPhoto = '/full-photo';
+  static const displayPictureScreen = '/display-picture-screen';
+  static const takePictureScreen = '/take-picture-screen';
   static const all = {
     splashScreen,
     loginScreen,
     signUpScreen,
+    settingsScreen,
     homeScreen,
+    otherUserInfoScreen,
     chatScreen,
     findUserScreen,
     fullPhoto,
+    displayPictureScreen,
+    takePictureScreen,
   };
 }
 
@@ -77,6 +88,17 @@ class Router extends RouterBase {
           builder: (context) => SignUpScreen(key: typedArgs.key),
           settings: settings,
         );
+      case Routes.settingsScreen:
+        if (hasInvalidArgs<SettingsScreenArguments>(args)) {
+          return misTypedArgsRoute<SettingsScreenArguments>(args);
+        }
+        final typedArgs =
+            args as SettingsScreenArguments ?? SettingsScreenArguments();
+        return MaterialPageRoute<dynamic>(
+          builder: (context) =>
+              SettingsScreen(key: typedArgs.key, user: typedArgs.user),
+          settings: settings,
+        );
       case Routes.homeScreen:
         if (hasInvalidArgs<HomeScreenArguments>(args)) {
           return misTypedArgsRoute<HomeScreenArguments>(args);
@@ -85,6 +107,17 @@ class Router extends RouterBase {
         return MaterialPageRoute<dynamic>(
           builder: (context) =>
               HomeScreen(key: typedArgs.key, user: typedArgs.user),
+          settings: settings,
+        );
+      case Routes.otherUserInfoScreen:
+        if (hasInvalidArgs<OtherUserInfoScreenArguments>(args)) {
+          return misTypedArgsRoute<OtherUserInfoScreenArguments>(args);
+        }
+        final typedArgs = args as OtherUserInfoScreenArguments ??
+            OtherUserInfoScreenArguments();
+        return MaterialPageRoute<dynamic>(
+          builder: (context) =>
+              OtherUserInfoScreen(key: typedArgs.key, user: typedArgs.user),
           settings: settings,
         );
       case Routes.chatScreen:
@@ -120,6 +153,30 @@ class Router extends RouterBase {
               key: typedArgs.key, url: typedArgs.url, title: typedArgs.title),
           settings: settings,
         );
+      case Routes.displayPictureScreen:
+        if (hasInvalidArgs<DisplayPictureScreenArguments>(args)) {
+          return misTypedArgsRoute<DisplayPictureScreenArguments>(args);
+        }
+        final typedArgs = args as DisplayPictureScreenArguments ??
+            DisplayPictureScreenArguments();
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => DisplayPictureScreen(
+              key: typedArgs.key,
+              imagePath: typedArgs.imagePath,
+              onSave: typedArgs.onSave),
+          settings: settings,
+        );
+      case Routes.takePictureScreen:
+        if (hasInvalidArgs<TakePictureScreenArguments>(args)) {
+          return misTypedArgsRoute<TakePictureScreenArguments>(args);
+        }
+        final typedArgs =
+            args as TakePictureScreenArguments ?? TakePictureScreenArguments();
+        return MaterialPageRoute<dynamic>(
+          builder: (context) =>
+              TakePictureScreen(key: typedArgs.key, onSave: typedArgs.onSave),
+          settings: settings,
+        );
       default:
         return unknownRoutePage(settings.name);
     }
@@ -148,11 +205,25 @@ class SignUpScreenArguments {
   SignUpScreenArguments({this.key});
 }
 
+//SettingsScreen arguments holder class
+class SettingsScreenArguments {
+  final Key key;
+  final User user;
+  SettingsScreenArguments({this.key, this.user});
+}
+
 //HomeScreen arguments holder class
 class HomeScreenArguments {
   final Key key;
   final User user;
   HomeScreenArguments({this.key, this.user});
+}
+
+//OtherUserInfoScreen arguments holder class
+class OtherUserInfoScreenArguments {
+  final Key key;
+  final User user;
+  OtherUserInfoScreenArguments({this.key, this.user});
 }
 
 //ChatScreen arguments holder class
@@ -176,6 +247,21 @@ class FullPhotoArguments {
   final String url;
   final String title;
   FullPhotoArguments({this.key, @required this.url, this.title});
+}
+
+//DisplayPictureScreen arguments holder class
+class DisplayPictureScreenArguments {
+  final Key key;
+  final String imagePath;
+  final void Function(String) onSave;
+  DisplayPictureScreenArguments({this.key, this.imagePath, this.onSave});
+}
+
+//TakePictureScreen arguments holder class
+class TakePictureScreenArguments {
+  final Key key;
+  final void Function(String) onSave;
+  TakePictureScreenArguments({this.key, this.onSave});
 }
 
 // *************************************************************************
@@ -207,6 +293,15 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
         arguments: SignUpScreenArguments(key: key),
       );
 
+  Future pushSettingsScreen({
+    Key key,
+    User user,
+  }) =>
+      pushNamed(
+        Routes.settingsScreen,
+        arguments: SettingsScreenArguments(key: key, user: user),
+      );
+
   Future pushHomeScreen({
     Key key,
     User user,
@@ -214,6 +309,15 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
       pushNamed(
         Routes.homeScreen,
         arguments: HomeScreenArguments(key: key, user: user),
+      );
+
+  Future pushOtherUserInfoScreen({
+    Key key,
+    User user,
+  }) =>
+      pushNamed(
+        Routes.otherUserInfoScreen,
+        arguments: OtherUserInfoScreenArguments(key: key, user: user),
       );
 
   Future pushChatScreen({
@@ -244,5 +348,25 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
       pushNamed(
         Routes.fullPhoto,
         arguments: FullPhotoArguments(key: key, url: url, title: title),
+      );
+
+  Future pushDisplayPictureScreen({
+    Key key,
+    String imagePath,
+    void Function(String) onSave,
+  }) =>
+      pushNamed(
+        Routes.displayPictureScreen,
+        arguments: DisplayPictureScreenArguments(
+            key: key, imagePath: imagePath, onSave: onSave),
+      );
+
+  Future pushTakePictureScreen({
+    Key key,
+    void Function(String) onSave,
+  }) =>
+      pushNamed(
+        Routes.takePictureScreen,
+        arguments: TakePictureScreenArguments(key: key, onSave: onSave),
       );
 }

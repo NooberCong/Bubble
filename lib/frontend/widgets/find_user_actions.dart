@@ -11,7 +11,8 @@ class FindUserActions extends StatefulWidget {
 }
 
 class _FindUserActionsState extends State<FindUserActions> {
-  final TextEditingController _controller = TextEditingController();
+  final _controller = TextEditingController();
+  final _node = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +24,17 @@ class _FindUserActionsState extends State<FindUserActions> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: TextFormField(
+                  focusNode: _node,
                   controller: _controller,
                   decoration: InputDecoration(
                       labelText: "Find user by id",
+                      labelStyle: TextStyle(color: Colors.grey.shade400),
                       border: InputBorder.none,
                       hintText: "UID",
                       hintMaxLines: 2,
-                      fillColor: Colors.grey[200],
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade200,
                       filled: true),
                 ),
               ),
@@ -39,6 +44,7 @@ class _FindUserActionsState extends State<FindUserActions> {
               icon: Icon(Icons.search),
               onPressed: () {
                 if (_controller.text.isNotEmpty) {
+                  _node.unfocus();
                   context
                       .bloc<FindUserScreenBloc>()
                       .add(FindUserScreenEvent.findUserByUID(_controller.text));
@@ -58,7 +64,9 @@ class _FindUserActionsState extends State<FindUserActions> {
                 color: Colors.grey,
               ),
             ),
-            const Text("OR"),
+            const Text(
+              "OR",
+            ),
             Flexible(
               child: Divider(
                 color: Colors.grey,

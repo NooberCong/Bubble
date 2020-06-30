@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/login_screen_bloc/login_screen_bloc.dart';
+import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/router.gr.dart';
@@ -244,7 +245,6 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _navigateToHomeScreen(BuildContext context, User user) {
-    ExtendedNavigator.of(context).popAndPushNamed(Routes.homeScreen,
-        arguments: HomeScreenArguments(user: user));
+    context.bloc<SplashScreenBloc>().add(SplashScreenEvent.authenticate(user));
   }
 }

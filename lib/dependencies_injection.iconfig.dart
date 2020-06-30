@@ -18,18 +18,21 @@ import 'package:bubble/backend/cloud_data_service.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
 import 'package:bubble/bloc/login_screen_bloc/login_screen_bloc.dart';
 import 'package:bubble/notifications.dart';
+import 'package:bubble/bloc/settings_screen_bloc/settings_screen_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_state_manager.dart';
 import 'package:bubble/core/validators/sign_up_validator.dart';
+import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/bloc/bloc/theme_bloc.dart';
 import 'package:bubble/backend/user_presence.dart';
 import 'package:bubble/bloc/user_status_ball_bloc/user_status_ball_bloc.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/bloc/find_user_screen_bloc/find_user_screen_bloc.dart';
 import 'package:bubble/bloc/home_screen_bloc/home_screen_bloc.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_screen_bloc.dart';
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-void $initGetIt(GetIt g, {String environment}) {
+Future<void> $initGetIt(GetIt g, {String environment}) async {
   final registerModule = _$RegisterModule();
   g.registerLazySingleton<FirebaseAuth>(() => registerModule.firebaseAuth);
   g.registerLazySingleton<FirebaseDatabase>(() => registerModule.database);
@@ -55,8 +58,15 @@ void $initGetIt(GetIt g, {String environment}) {
         g<FlutterLocalNotificationsPlugin>(),
         g<ICloudDataService>(),
       ));
+  g.registerFactory<SettingsScreenBloc>(
+      () => SettingsScreenBloc(g<IAuth>(), g<ICloudDataService>()));
+  final sharedPreferences = await registerModule.preferences;
+  g.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
   g.registerFactory<SignUpStateManager>(() => SignUpStateManager());
   g.registerLazySingleton<SignUpValidator>(() => SignUpValidator());
+  g.registerFactory<SplashScreenBloc>(
+      () => SplashScreenBloc(g<IAuth>(), g<ICloudDataService>()));
+  g.registerFactory<ThemeBloc>(() => ThemeBloc(g<SharedPreferences>()));
   g.registerLazySingleton<UserPresence>(
       () => UserPresence(g<FirebaseDatabase>()));
   g.registerFactory<UserStatusBallBloc>(
@@ -72,11 +82,6 @@ void $initGetIt(GetIt g, {String environment}) {
         g<ICloudDataService>(),
         stateManager: g<SignUpStateManager>(),
         validator: g<SignUpValidator>(),
-      ));
-  g.registerFactory<SplashScreenBloc>(() => SplashScreenBloc(
-        g<IAuth>(),
-        g<NotificationManager>(),
-        g<UserPresence>(),
       ));
 }
 

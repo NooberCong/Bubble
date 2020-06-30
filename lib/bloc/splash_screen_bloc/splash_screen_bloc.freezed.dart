@@ -16,8 +16,16 @@ class _$SplashScreenEventTearOff {
     return const _SplashScreenEventAuthCheck();
   }
 
-  _SplashScreenEventSignOut signOut() {
-    return const _SplashScreenEventSignOut();
+  _SplashScreenEventSignOut signOut(String uid) {
+    return _SplashScreenEventSignOut(
+      uid,
+    );
+  }
+
+  _SplashScreenEventAuthenticate authenticate(User user) {
+    return _SplashScreenEventAuthenticate(
+      user,
+    );
   }
 }
 
@@ -28,23 +36,27 @@ mixin _$SplashScreenEvent {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result requestAuthCheck(),
-    @required Result signOut(),
+    @required Result signOut(String uid),
+    @required Result authenticate(User user),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result requestAuthCheck(),
-    Result signOut(),
+    Result signOut(String uid),
+    Result authenticate(User user),
     @required Result orElse(),
   });
   @optionalTypeArgs
   Result map<Result extends Object>({
     @required Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     @required Result signOut(_SplashScreenEventSignOut value),
+    @required Result authenticate(_SplashScreenEventAuthenticate value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
     Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     Result signOut(_SplashScreenEventSignOut value),
+    Result authenticate(_SplashScreenEventAuthenticate value),
     @required Result orElse(),
   });
 }
@@ -83,12 +95,21 @@ class __$SplashScreenEventAuthCheckCopyWithImpl<$Res>
       super._value as _SplashScreenEventAuthCheck;
 }
 
-class _$_SplashScreenEventAuthCheck implements _SplashScreenEventAuthCheck {
+class _$_SplashScreenEventAuthCheck
+    with DiagnosticableTreeMixin
+    implements _SplashScreenEventAuthCheck {
   const _$_SplashScreenEventAuthCheck();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'SplashScreenEvent.requestAuthCheck()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SplashScreenEvent.requestAuthCheck'));
   }
 
   @override
@@ -103,10 +124,12 @@ class _$_SplashScreenEventAuthCheck implements _SplashScreenEventAuthCheck {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result requestAuthCheck(),
-    @required Result signOut(),
+    @required Result signOut(String uid),
+    @required Result authenticate(User user),
   }) {
     assert(requestAuthCheck != null);
     assert(signOut != null);
+    assert(authenticate != null);
     return requestAuthCheck();
   }
 
@@ -114,7 +137,8 @@ class _$_SplashScreenEventAuthCheck implements _SplashScreenEventAuthCheck {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result requestAuthCheck(),
-    Result signOut(),
+    Result signOut(String uid),
+    Result authenticate(User user),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -129,9 +153,11 @@ class _$_SplashScreenEventAuthCheck implements _SplashScreenEventAuthCheck {
   Result map<Result extends Object>({
     @required Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     @required Result signOut(_SplashScreenEventSignOut value),
+    @required Result authenticate(_SplashScreenEventAuthenticate value),
   }) {
     assert(requestAuthCheck != null);
     assert(signOut != null);
+    assert(authenticate != null);
     return requestAuthCheck(this);
   }
 
@@ -140,6 +166,7 @@ class _$_SplashScreenEventAuthCheck implements _SplashScreenEventAuthCheck {
   Result maybeMap<Result extends Object>({
     Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     Result signOut(_SplashScreenEventSignOut value),
+    Result authenticate(_SplashScreenEventAuthenticate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -158,6 +185,7 @@ abstract class _$SplashScreenEventSignOutCopyWith<$Res> {
   factory _$SplashScreenEventSignOutCopyWith(_SplashScreenEventSignOut value,
           $Res Function(_SplashScreenEventSignOut) then) =
       __$SplashScreenEventSignOutCopyWithImpl<$Res>;
+  $Res call({String uid});
 }
 
 class __$SplashScreenEventSignOutCopyWithImpl<$Res>
@@ -170,45 +198,79 @@ class __$SplashScreenEventSignOutCopyWithImpl<$Res>
   @override
   _SplashScreenEventSignOut get _value =>
       super._value as _SplashScreenEventSignOut;
-}
-
-class _$_SplashScreenEventSignOut implements _SplashScreenEventSignOut {
-  const _$_SplashScreenEventSignOut();
 
   @override
-  String toString() {
-    return 'SplashScreenEvent.signOut()';
+  $Res call({
+    Object uid = freezed,
+  }) {
+    return _then(_SplashScreenEventSignOut(
+      uid == freezed ? _value.uid : uid as String,
+    ));
+  }
+}
+
+class _$_SplashScreenEventSignOut
+    with DiagnosticableTreeMixin
+    implements _SplashScreenEventSignOut {
+  const _$_SplashScreenEventSignOut(this.uid) : assert(uid != null);
+
+  @override
+  final String uid;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'SplashScreenEvent.signOut(uid: $uid)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SplashScreenEvent.signOut'))
+      ..add(DiagnosticsProperty('uid', uid));
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _SplashScreenEventSignOut);
+    return identical(this, other) ||
+        (other is _SplashScreenEventSignOut &&
+            (identical(other.uid, uid) ||
+                const DeepCollectionEquality().equals(other.uid, uid)));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(uid);
+
+  @override
+  _$SplashScreenEventSignOutCopyWith<_SplashScreenEventSignOut> get copyWith =>
+      __$SplashScreenEventSignOutCopyWithImpl<_SplashScreenEventSignOut>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result requestAuthCheck(),
-    @required Result signOut(),
+    @required Result signOut(String uid),
+    @required Result authenticate(User user),
   }) {
     assert(requestAuthCheck != null);
     assert(signOut != null);
-    return signOut();
+    assert(authenticate != null);
+    return signOut(uid);
   }
 
   @override
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result requestAuthCheck(),
-    Result signOut(),
+    Result signOut(String uid),
+    Result authenticate(User user),
     @required Result orElse(),
   }) {
     assert(orElse != null);
     if (signOut != null) {
-      return signOut();
+      return signOut(uid);
     }
     return orElse();
   }
@@ -218,9 +280,11 @@ class _$_SplashScreenEventSignOut implements _SplashScreenEventSignOut {
   Result map<Result extends Object>({
     @required Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     @required Result signOut(_SplashScreenEventSignOut value),
+    @required Result authenticate(_SplashScreenEventAuthenticate value),
   }) {
     assert(requestAuthCheck != null);
     assert(signOut != null);
+    assert(authenticate != null);
     return signOut(this);
   }
 
@@ -229,6 +293,7 @@ class _$_SplashScreenEventSignOut implements _SplashScreenEventSignOut {
   Result maybeMap<Result extends Object>({
     Result requestAuthCheck(_SplashScreenEventAuthCheck value),
     Result signOut(_SplashScreenEventSignOut value),
+    Result authenticate(_SplashScreenEventAuthenticate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -240,7 +305,145 @@ class _$_SplashScreenEventSignOut implements _SplashScreenEventSignOut {
 }
 
 abstract class _SplashScreenEventSignOut implements SplashScreenEvent {
-  const factory _SplashScreenEventSignOut() = _$_SplashScreenEventSignOut;
+  const factory _SplashScreenEventSignOut(String uid) =
+      _$_SplashScreenEventSignOut;
+
+  String get uid;
+  _$SplashScreenEventSignOutCopyWith<_SplashScreenEventSignOut> get copyWith;
+}
+
+abstract class _$SplashScreenEventAuthenticateCopyWith<$Res> {
+  factory _$SplashScreenEventAuthenticateCopyWith(
+          _SplashScreenEventAuthenticate value,
+          $Res Function(_SplashScreenEventAuthenticate) then) =
+      __$SplashScreenEventAuthenticateCopyWithImpl<$Res>;
+  $Res call({User user});
+}
+
+class __$SplashScreenEventAuthenticateCopyWithImpl<$Res>
+    extends _$SplashScreenEventCopyWithImpl<$Res>
+    implements _$SplashScreenEventAuthenticateCopyWith<$Res> {
+  __$SplashScreenEventAuthenticateCopyWithImpl(
+      _SplashScreenEventAuthenticate _value,
+      $Res Function(_SplashScreenEventAuthenticate) _then)
+      : super(_value, (v) => _then(v as _SplashScreenEventAuthenticate));
+
+  @override
+  _SplashScreenEventAuthenticate get _value =>
+      super._value as _SplashScreenEventAuthenticate;
+
+  @override
+  $Res call({
+    Object user = freezed,
+  }) {
+    return _then(_SplashScreenEventAuthenticate(
+      user == freezed ? _value.user : user as User,
+    ));
+  }
+}
+
+class _$_SplashScreenEventAuthenticate
+    with DiagnosticableTreeMixin
+    implements _SplashScreenEventAuthenticate {
+  const _$_SplashScreenEventAuthenticate(this.user) : assert(user != null);
+
+  @override
+  final User user;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'SplashScreenEvent.authenticate(user: $user)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SplashScreenEvent.authenticate'))
+      ..add(DiagnosticsProperty('user', user));
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _SplashScreenEventAuthenticate &&
+            (identical(other.user, user) ||
+                const DeepCollectionEquality().equals(other.user, user)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(user);
+
+  @override
+  _$SplashScreenEventAuthenticateCopyWith<_SplashScreenEventAuthenticate>
+      get copyWith => __$SplashScreenEventAuthenticateCopyWithImpl<
+          _SplashScreenEventAuthenticate>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result requestAuthCheck(),
+    @required Result signOut(String uid),
+    @required Result authenticate(User user),
+  }) {
+    assert(requestAuthCheck != null);
+    assert(signOut != null);
+    assert(authenticate != null);
+    return authenticate(user);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result requestAuthCheck(),
+    Result signOut(String uid),
+    Result authenticate(User user),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (authenticate != null) {
+      return authenticate(user);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result requestAuthCheck(_SplashScreenEventAuthCheck value),
+    @required Result signOut(_SplashScreenEventSignOut value),
+    @required Result authenticate(_SplashScreenEventAuthenticate value),
+  }) {
+    assert(requestAuthCheck != null);
+    assert(signOut != null);
+    assert(authenticate != null);
+    return authenticate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result requestAuthCheck(_SplashScreenEventAuthCheck value),
+    Result signOut(_SplashScreenEventSignOut value),
+    Result authenticate(_SplashScreenEventAuthenticate value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (authenticate != null) {
+      return authenticate(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SplashScreenEventAuthenticate implements SplashScreenEvent {
+  const factory _SplashScreenEventAuthenticate(User user) =
+      _$_SplashScreenEventAuthenticate;
+
+  User get user;
+  _$SplashScreenEventAuthenticateCopyWith<_SplashScreenEventAuthenticate>
+      get copyWith;
 }
 
 class _$SplashScreenStateTearOff {
@@ -326,12 +529,20 @@ class __$SplashScreenStateInitialCopyWithImpl<$Res>
       super._value as _SplashScreenStateInitial;
 }
 
-class _$_SplashScreenStateInitial implements _SplashScreenStateInitial {
+class _$_SplashScreenStateInitial
+    with DiagnosticableTreeMixin
+    implements _SplashScreenStateInitial {
   const _$_SplashScreenStateInitial();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'SplashScreenState.initial()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'SplashScreenState.initial'));
   }
 
   @override
@@ -434,6 +645,7 @@ class _$SplashScreenStateAuthenticatedCopyWithImpl<$Res>
 }
 
 class _$SplashScreenStateAuthenticated
+    with DiagnosticableTreeMixin
     implements SplashScreenStateAuthenticated {
   const _$SplashScreenStateAuthenticated(this.user) : assert(user != null);
 
@@ -441,8 +653,16 @@ class _$SplashScreenStateAuthenticated
   final User user;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'SplashScreenState.authenticated(user: $user)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SplashScreenState.authenticated'))
+      ..add(DiagnosticsProperty('user', user));
   }
 
   @override
@@ -549,12 +769,20 @@ class __$SplashScreenStateUnauthenticatedCopyWithImpl<$Res>
 }
 
 class _$_SplashScreenStateUnauthenticated
+    with DiagnosticableTreeMixin
     implements _SplashScreenStateUnauthenticated {
   const _$_SplashScreenStateUnauthenticated();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'SplashScreenState.unauthenticated()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SplashScreenState.unauthenticated'));
   }
 
   @override

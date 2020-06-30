@@ -5,6 +5,7 @@ import 'package:bubble/core/params/params.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
@@ -15,9 +16,11 @@ part 'chat_screen_bloc.freezed.dart';
 
 @injectable
 class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
-  ICloudDataService cloudDataService;
-
+  final ICloudDataService cloudDataService;
   ChatScreenBloc(this.cloudDataService);
+  int _snapshotLimit = 20;
+  bool _endOfCollectionReached = false;
+
   @override
   ChatScreenState get initialState => const ChatScreenState.initial();
 
@@ -33,11 +36,22 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
           "data": {"chattingWith": otherUserId}
         }));
         final chatRoomId = getRoomIdFromUIDHashCode(userId, otherUserId);
-        final streamOrFailure = await cloudDataService
-            .fetchConversationStream(Params.id(chatRoomId));
-        yield streamOrFailure.fold(
-            (error) => ChatScreenState.error(error.message),
-            (stream) => ChatScreenState.loaded(stream));
+        final streamOrFailure = await cloudDataService.fetchConversationStream(
+            Params.map({
+          "limit": _snapshotLimit,
+          "roomId": chatRoomId,
+          "uid": userId
+        }));
+        yield* streamOrFailure.fold((error) async* {
+          yield ChatScreenState.error(error.message);
+        }, (stream) async* {
+          if (await allMessagesAreLoaded(stream)) {
+            _endOfCollectionReached = true;
+          } else {
+            _increaseLimit();
+          }
+          yield ChatScreenState.loaded(stream, _endOfCollectionReached);
+        });
       },
       sendMessage: (Message msg) async* {
         final sentOrFailure =
@@ -53,6 +67,17 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
           "data": {"chattingWith": ""}
         }));
       },
+      markAsSeen: (String roomId, String messageId) async* {
+        cloudDataService.markMessageAsSeen(
+            Params.map({"messageId": messageId, "roomId": roomId}));
+      },
     );
+  }
+
+  int _increaseLimit() => _snapshotLimit += 20;
+
+  Future<bool> allMessagesAreLoaded(Stream stream) async {
+    return (await stream.first as QuerySnapshot).documents.length <
+        _snapshotLimit;
   }
 }

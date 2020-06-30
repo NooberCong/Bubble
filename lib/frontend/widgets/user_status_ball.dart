@@ -19,7 +19,7 @@ class UserStatusBall extends StatelessWidget {
           return state.maybeWhen(
               userStatusStreamLoaded: (statusStream) => Row(
                     children: <Widget>[
-                      _buildStatusBall(statusStream),
+                      _buildStatusBall(statusStream, context),
                     ],
                   ),
               orElse: () => const SizedBox());
@@ -28,10 +28,11 @@ class UserStatusBall extends StatelessWidget {
     );
   }
 
-  Container _buildStatusBall(Stream statusStream) {
+  Container _buildStatusBall(Stream statusStream, BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor, shape: BoxShape.circle),
       child: StreamBuilder(
         stream: statusStream,
         builder: (context, snapshot) {

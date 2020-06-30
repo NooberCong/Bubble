@@ -9,7 +9,6 @@ exports.onMessageAdded = functions.firestore
 
     const doc = snap.data();
 
-    updateConversationLastMessage(doc, context.params.roomId);
     sendNotification(doc);
     return null;
   });
@@ -43,6 +42,42 @@ exports.onUserStatusChanged = functions.database
     return userStatusFirestoreRef.update(eventStatus);
   });
 
+exports.onUserDataChange = functions.firestore
+  .document("users/{uid}")
+  .onUpdate((change, context) => {
+    if (change.before.data().imageUrl != change.after.data().imageUrl) {
+      updateUserConversationsAvatar(
+        context.params.uid,
+        change.after.data().imageUrl
+      );
+    }
+    return null;
+  });
+
+async function updateUserConversationsAvatar(uid, imageUrl) {
+  const userConversations = await admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("conversations")
+    .get();
+  userConversations.forEach(async (doc) => {
+    const otherUserConversationSnapshot = await admin
+      .firestore()
+      .collection("users")
+      .doc(JSON.parse(doc.data().otherUser).uid)
+      .collection("conversations")
+      .doc(doc.id)
+      .get();
+    otherUserConversationSnapshot.ref.update({
+      otherUser: JSON.stringify({
+        ...JSON.parse(otherUserConversationSnapshot.data().otherUser),
+        imageUrl: imageUrl,
+      }),
+    });
+  });
+}
+
 function sendNotification(doc) {
   admin
     .firestore()
@@ -50,7 +85,7 @@ function sendNotification(doc) {
     .doc(doc.idTo)
     .get()
     .then((userTo) => {
-      if (userTo.data().token && userTo.data().chattingWith !== doc.idfrom) {
+      if (userTo.data().token && userTo.data().chattingWith !== doc.idFrom) {
         // Get info user from (sent)
         admin
           .firestore()
@@ -60,8 +95,8 @@ function sendNotification(doc) {
           .then((userFrom) => {
             const payload = {
               notification: {
-                title: `You have a message from ${userFrom.data().name}`,
-                body: doc.content,
+                title: userFrom.data().name,
+                body: userFrom.data().name + parseMessage(doc),
                 badge: "1",
                 sound: "default",
               },
@@ -69,7 +104,7 @@ function sendNotification(doc) {
                 click_action: "FLUTTER_NOTIFICATION_CLICK",
                 sound: "default",
                 status: "done",
-                roomId: "screenA",
+                otherUser: JSON.stringify(userFrom.data()),
               },
             };
             // Let push to the target device
@@ -89,50 +124,13 @@ function sendNotification(doc) {
     });
 }
 
-async function updateConversationLastMessage(doc, roomId) {
-  const userFromConversation = await admin
-    .firestore()
-    .collection("users")
-    .doc(doc.idFrom)
-    .collection("conversations")
-    .doc(roomId)
-    .get();
-
-  const userToConversation = await admin
-    .firestore()
-    .collection("users")
-    .doc(doc.idTo)
-    .collection("conversations")
-    .doc(roomId)
-    .get();
-
-  const batch = admin.firestore().batch();
-
-  if (userFromConversation.data().lastActive < doc.timestamp) {
-    batch.update(userFromConversation.ref, {
-      lastMessage: parseMessage(doc),
-      lastActive: doc.timestamp,
-      userSentLastMessage: true,
-    });
-  }
-
-  if (userFromConversation.data().lastActive < doc.timestamp) {
-    batch.update(userToConversation.ref, {
-      lastMessage: parseMessage(doc),
-      lastActive: doc.timestamp,
-      userSentLastMessage: false,
-    });
-  }
-
-  return batch.commit();
-}
-
 function parseMessage(doc) {
   if (doc.type === "MessageType.text") {
     return `: ${doc.content}`;
   } else if (doc.type === "MessageType.image") {
     return " sent a photo";
   } else {
+    //Check if sticker is like button
     if (doc.content === "assets/images/like.svg") {
       return ": 👍";
     }

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 String getRoomIdFromUIDHashCode(String idFrom, String idTo) {
@@ -33,4 +34,9 @@ String _parseTimeDifference(Duration difference) {
           : difference.inMinutes > 0
               ? "${difference.inMinutes} minute${difference.inMinutes != 1 ? 's' : ''}"
               : "${difference.inSeconds} second${difference.inSeconds != 1 ? 's' : ''}";
+}
+
+Future<PickedFile> getGaleryImage() async {
+  final imgPicker = ImagePicker();
+  return imgPicker.getImage(source: ImageSource.gallery);
 }

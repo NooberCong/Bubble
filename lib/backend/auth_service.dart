@@ -25,6 +25,10 @@ class AuthService implements IAuth {
         : Left(AuthFailure("No user found"));
   }
 
+  Future<FirebaseUser> getFirebaseUser() async {
+    return _firebaseAuth.currentUser();
+  }
+
   @override
   Future<Either<AuthFailure, User>> signInWithEmailAndPassword(
       Params params) async {
@@ -83,7 +87,7 @@ class AuthService implements IAuth {
       final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
           email: inputData.email, password: inputData.password);
       final createdUser = authResult.user;
-      await _updateDisplayName(
+      await _updateUserDetails(
           inputData.details["name"] as String, createdUser);
       await _uploadUserDetails(inputData.details, createdUser);
       return Right((await _firebaseAuth.currentUser()).toUser());
@@ -101,7 +105,7 @@ class AuthService implements IAuth {
         .setData(userDetails);
   }
 
-  Future<void> _updateDisplayName(String name, FirebaseUser createdUser) async {
+  Future<void> _updateUserDetails(String name, FirebaseUser createdUser) async {
     final userUpdateInfo = UserUpdateInfo();
     userUpdateInfo.photoUrl =
         "https://firebasestorage.googleapis.com/v0/b/bubble-dd7c6.appspot.com/o/default_user.png?alt=media&token=b85948cb-9f71-46d9-a057-d37eaa6692e4";

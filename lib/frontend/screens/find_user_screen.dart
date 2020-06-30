@@ -17,10 +17,9 @@ class FindUserScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text("Start a conversation",
-            style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xffF5F9FA),
+        title: const Text(
+          "Start a conversation",
+        ),
       ),
       body: BlocProvider(
         create: (_) => getIt<FindUserScreenBloc>(),

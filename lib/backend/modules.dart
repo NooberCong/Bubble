@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @module
 abstract class RegisterModule {
@@ -30,4 +31,8 @@ abstract class RegisterModule {
 
   @lazySingleton
   FirebaseDatabase get database => FirebaseDatabase.instance;
+
+  @lazySingleton
+  @preResolve
+  Future<SharedPreferences> get preferences => SharedPreferences.getInstance();
 }

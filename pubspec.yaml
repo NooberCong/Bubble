@@ -21,27 +21,34 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  cloud_firestore: 0.13.6
-  dartz: 0.9.1
+  cloud_firestore:
+  dartz:
   freezed_annotation:
-  firebase_messaging: 6.0.16
-  firebase_auth: 0.16.1
-  firebase_database: 3.1.6
-  photo_view: 0.9.2
-  auto_route: 0.5.0
-  firebase_storage: 3.1.6
-  google_sign_in: 4.5.1
-  flutter_local_notifications: 1.4.4+1
+  firebase_messaging:
+  shared_preferences:
+  firebase_auth:
+  camera:
+  flutter_keyboard_visibility:
+  path_provider:
+  path:
+  firebase_database:
+  photo_view:
+  auto_route:
+  firebase_storage:
+  google_sign_in:
+  flutter_local_notifications:
   injectable:
-  flutter_bloc: 4.0.1
-  dashed_circle: 0.0.1
-  cached_network_image: 2.2.0+1
-  image_picker: 0.6.7+2
-  flutter_svg: 0.17.4
-  flutter_native_image: 0.0.5+2
-  google_fonts: 1.1.0
-  transparent_image: 1.0.0
-  get_it: 4.0.2
+  flutter_bloc:
+  dashed_circle:
+  cached_network_image:
+  image_picker:
+  flutter_svg:
+  flutter_native_image:
+  google_fonts:
+  transparent_image:
+  flutter_clipboard_manager:
+  fluttertoast:
+  get_it:
 
   flutter:
     sdk: flutter
@@ -74,8 +81,10 @@ flutter:
     - assets/images/bubble.svg
     - assets/images/welcome.svg
     - assets/images/congrats.svg
+    - assets/images/theme.svg
     - assets/images/img_not_available.jpeg
     - assets/images/like.svg
+    - assets/images/logout.svg
     - assets/stickers/mimi1.gif
     - assets/stickers/mimi2.gif
     - assets/stickers/mimi3.gif

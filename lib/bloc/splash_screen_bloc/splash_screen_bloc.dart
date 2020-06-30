@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:bubble/backend/user_presence.dart';
 import 'package:bubble/core/params/params.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/domain/i_auth.dart';
-import 'package:bubble/notifications.dart';
+import 'package:bubble/domain/i_cloud_data_service.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
@@ -17,11 +18,9 @@ part 'splash_screen_state.dart';
 @injectable
 class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
   final IAuth authService;
-  final NotificationManager notificationManager;
-  final UserPresence userPresence;
+  final ICloudDataService cloudDataService;
 
-  SplashScreenBloc(
-      this.authService, this.notificationManager, this.userPresence);
+  SplashScreenBloc(this.authService, this.cloudDataService);
   @override
   SplashScreenState get initialState => const SplashScreenState.initial();
 
@@ -35,15 +34,21 @@ class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
             await authService.getSignedInUser(const Params.noParams());
         yield* userOrFailure.fold((_) async* {
           yield const SplashScreenState.unauthenticated();
-        }, (user) async* {
-          await notificationManager.initializeNotification(user.uid);
-          await userPresence.initializePresence(user.uid);
-          yield SplashScreenState.authenticated(user);
-        });
+        }, _logUserIn);
       },
-      signOut: () async* {
+      signOut: (String uid) async* {
+        authService.signOut(const Params.noParams());
+        cloudDataService.updateUserData(Params.map({
+          "uid": uid,
+          "data": {"token": ""}
+        }));
         yield const SplashScreenState.unauthenticated();
       },
+      authenticate: _logUserIn,
     );
+  }
+
+  Stream<SplashScreenState> _logUserIn(User user) async* {
+    yield SplashScreenState.authenticated(user);
   }
 }

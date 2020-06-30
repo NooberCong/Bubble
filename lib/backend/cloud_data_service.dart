@@ -29,6 +29,8 @@ class CloudDataService implements ICloudDataService {
         //If message type is image change content from file path to storage path
         await _updateMessageContentToImageUrl(messageJsonData);
       }
+      _updateConversationLastMessage(
+          message, getRoomIdFromUIDHashCode(message.idFrom, message.idTo));
       return Right(await _saveMessageToCloud(messageJsonData));
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
@@ -115,14 +117,15 @@ class CloudDataService implements ICloudDataService {
   @override
   Future<Either<CloudFailure, Stream>> fetchConversationStream(
       Params params) async {
+    final inputData = params as ParamsMap;
+    _markLastMessageInConversationSnapshotAsSeen(inputData.data);
     try {
-      final inputData = params as ParamsID;
       return Right(store
           .collection("rooms")
-          .document(inputData.id)
+          .document(inputData.data["roomId"] as String)
           .collection("messages")
           .orderBy("timestamp", descending: true)
-          .limit(10)
+          .limit(inputData.data["limit"] as int)
           .snapshots());
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
@@ -164,14 +167,19 @@ class CloudDataService implements ICloudDataService {
   }
 
   @override
-  Future<Either<CloudFailure, void>> updateUserData(Params params) async {
+  Future<Either<CloudFailure, Map<String, dynamic>>> updateUserData(
+      Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
       final userId = inputData["uid"] as String;
-      return Right(await store
-          .collection("users")
-          .document(userId)
-          .updateData(inputData["data"] as Map<String, dynamic>));
+      final updateData = inputData["data"] as Map<String, dynamic>;
+      if (updateData.keys.contains("imageUrl")) {
+        final uploadedImageUrl =
+            await _uploadPhoto(inputData["imagePath"] as String);
+        updateData["imageUrl"] = uploadedImageUrl;
+      }
+      await store.collection("users").document(userId).updateData(updateData);
+      return Right(updateData);
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
@@ -232,6 +240,101 @@ class CloudDataService implements ICloudDataService {
           .map((event) => UserStatus.fromJson(event.data)));
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<CloudFailure, Stream>> fetchUserDetailsStream(
+      Params params) async {
+    try {
+      final inputData = params as ParamsID;
+      return Right(
+          store.collection("users").document(inputData.id).snapshots());
+    } on Exception catch (e) {
+      return Left(CloudFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<CloudFailure, void>> markMessageAsSeen(Params params) async {
+    try {
+      final inputData = (params as ParamsMap).data;
+      return Right(await store
+          .collection("rooms")
+          .document(inputData["roomId"] as String)
+          .collection("messages")
+          .document(inputData["messageId"] as String)
+          .updateData({"seen": true}));
+    } on Exception {
+      return Left(CloudFailure(""));
+    }
+  }
+
+  Future<void> _markLastMessageInConversationSnapshotAsSeen(
+      Map<String, dynamic> data) {
+    return store
+        .collection("users")
+        .document(data["uid"] as String)
+        .collection("conversations")
+        .document(data["roomId"] as String)
+        .updateData({"seen": true});
+  }
+
+  Future<void> _updateConversationLastMessage(
+      Message message, String roomId) async {
+    final userFromConversation = await store
+        .collection("users")
+        .document(message.idFrom)
+        .collection("conversations")
+        .document(roomId)
+        .get();
+
+    final userToConversation = await store
+        .collection("users")
+        .document(message.idTo)
+        .collection("conversations")
+        .document(roomId)
+        .get();
+
+    final batch = store.batch();
+
+    if (int.parse(userFromConversation.data["lastActive"] as String) <
+        int.parse(message.timestamp)) {
+      batch.updateData(userFromConversation.reference, {
+        "lastMessage": parseMessage(message),
+        "lastActive": message.timestamp,
+        "userSentLastMessage": true,
+        "seen": true,
+      });
+    }
+
+    if (int.parse(userToConversation.data["lastActive"] as String) <
+        int.parse(message.timestamp)) {
+      final userTo =
+          await store.collection("users").document(message.idTo).get();
+      batch.updateData(userToConversation.reference, {
+        "lastMessage": parseMessage(message),
+        "lastActive": message.timestamp,
+        "userSentLastMessage": false,
+        "seen": userTo.data["state"] == "online" &&
+            userTo.data["chattingWith"] == message.idFrom,
+      });
+    }
+
+    return batch.commit();
+  }
+
+  String parseMessage(Message message) {
+    if (message.type.toString() == "MessageType.text") {
+      return ": ${message.content}";
+    } else if (message.type.toString() == "MessageType.image") {
+      return " sent a photo";
+    } else {
+      //Check if sticker is like button
+      if (message.content == "assets/images/like.svg") {
+        return ": 👍";
+      }
+      return " sent a sticker";
     }
   }
 }

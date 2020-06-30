@@ -1,11 +1,16 @@
+import 'dart:async';
+
+import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/core/util/stickers.dart';
+import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/message.dart';
+import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ChatInput extends StatefulWidget {
   final String otherUserId;
@@ -16,16 +21,27 @@ class ChatInput extends StatefulWidget {
 }
 
 class _ChatInputState extends State<ChatInput> {
-  final _controller = TextEditingController();
-  final _node = FocusNode();
+  TextEditingController _controller;
+  FocusNode _node;
+  StreamSubscription _keyboardVisibilitySubscription;
   bool _showStickers = false;
   bool _showLikeButton = true;
+  bool _expandToolBar = true;
 
   @override
   void initState() {
     super.initState();
-    _node.addListener(_onFocusChange);
-    _controller.addListener(_onInput);
+    _controller = TextEditingController()..addListener(_onInput);
+    _node = FocusNode()..addListener(_onFocusChange);
+    _keyboardVisibilitySubscription =
+        KeyboardVisibility.onChange.listen((isVisible) {
+      if (isVisible == false) {
+        setState(() {
+          _expandToolBar = true;
+        });
+        _node.unfocus();
+      }
+    });
   }
 
   @override
@@ -46,57 +62,46 @@ class _ChatInputState extends State<ChatInput> {
       width: double.infinity,
       height: 50.0,
       decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.grey[200], width: 0.5)),
-          color: Colors.white),
+        border: Border(
+            top: BorderSide(
+                color: Colors.yellow,
+                width: 0,
+                style: Theme.of(context).brightness == Brightness.dark
+                    ? BorderStyle.none
+                    : BorderStyle.solid)),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Button send image
-          Material(
-            color: Colors.white,
-            child: IconButton(
-              highlightColor: Colors.transparent,
-              icon: Icon(
-                Icons.image,
-                size: 26,
-              ),
-              onPressed: () => getImage(context),
-              color: Colors.blue,
-            ),
-          ),
-          Material(
-            color: Colors.white,
-            child: IconButton(
-              icon: Icon(
-                Icons.tag_faces,
-                size: 26,
-              ),
-              onPressed: _getSticker,
-              color: Colors.blue,
-            ),
-          ),
+          _buildToolBar(),
 
           // Edit text
           Flexible(
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: TextField(
-                  style: const TextStyle(
-                    fontSize: 15.0,
+            child: GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: TextField(
+                    textCapitalization: TextCapitalization.sentences,
+                    style: const TextStyle(
+                      fontSize: 15.0,
+                    ),
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      contentPadding:
+                          const EdgeInsets.only(left: 10, right: 10, bottom: 7),
+                      border: InputBorder.none,
+                      filled: true,
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade200,
+                      hintText: 'Type your message...',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                    ),
+                    focusNode: _node,
                   ),
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    contentPadding:
-                        const EdgeInsets.only(left: 10, right: 10, bottom: 7),
-                    border: InputBorder.none,
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    hintText: 'Type your message...',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                  ),
-                  focusNode: _node,
                 ),
               ),
             ),
@@ -104,7 +109,6 @@ class _ChatInputState extends State<ChatInput> {
 
           // Button send message
           Material(
-            color: Colors.white,
             child: _buildActionButton(context),
           ),
         ],
@@ -117,7 +121,7 @@ class _ChatInputState extends State<ChatInput> {
         ? IconButton(
             icon: SvgPicture.asset("assets/images/like.svg",
                 color: Colors.blue, width: 26, height: 26),
-            onPressed: () => _onSendMessage(
+            onPressed: () => onSendMessage(
                 "assets/images/like.svg", MessageType.svg, context),
           )
         : IconButton(
@@ -126,7 +130,7 @@ class _ChatInputState extends State<ChatInput> {
               size: 26,
             ),
             onPressed: () =>
-                _onSendMessage(_controller.text, MessageType.text, context),
+                onSendMessage(_controller.text, MessageType.text, context),
             color: Colors.blue,
           );
   }
@@ -152,7 +156,7 @@ class _ChatInputState extends State<ChatInput> {
     return _stickerFilePaths()
         .map((path) => FlatButton(
               onPressed: () =>
-                  _onSendMessage(path, MessageType.sticker, context),
+                  onSendMessage(path, MessageType.sticker, context),
               child: Image.asset(
                 path,
                 width: 65,
@@ -172,14 +176,13 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Future getImage(BuildContext context) async {
-    final imgPicker = ImagePicker();
-    final imageFile = await imgPicker.getImage(source: ImageSource.gallery);
+    final imageFile = await getGaleryImage();
     if (imageFile != null) {
-      _onSendMessage(imageFile.path, MessageType.image, context);
+      onSendMessage(imageFile.path, MessageType.image, context);
     }
   }
 
-  void _onSendMessage(String text, MessageType type, BuildContext context) {
+  void onSendMessage(String text, MessageType type, BuildContext context) {
     if (type == MessageType.text) {
       _controller.clear();
     }
@@ -200,7 +203,10 @@ class _ChatInputState extends State<ChatInput> {
 
   void _onFocusChange() {
     if (_node.hasFocus) {
-      // Hide sticker when keyboard appear
+      // Hide sticker and toolbar when keyboard appear
+      setState(() {
+        _expandToolBar = false;
+      });
       closeStickersBox();
     }
   }
@@ -209,6 +215,15 @@ class _ChatInputState extends State<ChatInput> {
     setState(() {
       _showStickers = false;
     });
+  }
+
+  void _openCamera() {
+    ExtendedNavigator.of(context).pushNamed(Routes.takePictureScreen,
+        arguments: TakePictureScreenArguments(onSave: (imagePath) {
+      onSendMessage(imagePath, MessageType.image, context);
+      ExtendedNavigator.of(context)
+          .popUntil((route) => route.settings.name == Routes.chatScreen);
+    }));
   }
 
   Future<bool> _onWillPop(BuildContext context) {
@@ -228,10 +243,16 @@ class _ChatInputState extends State<ChatInput> {
   void dispose() {
     _controller.dispose();
     _node.dispose();
+    _keyboardVisibilitySubscription.cancel();
     super.dispose();
   }
 
   void _onInput() {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        _expandToolBar = false;
+      });
+    }
     if (_showLikeButton && _controller.text.isNotEmpty) {
       setState(() {
         _showLikeButton = false;
@@ -241,5 +262,59 @@ class _ChatInputState extends State<ChatInput> {
         _showLikeButton = true;
       });
     }
+  }
+
+  Widget _buildToolBar() {
+    return _expandToolBar
+        ? Row(
+            children: <Widget>[
+              Material(
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  icon: Icon(
+                    Icons.camera_alt,
+                    size: 26,
+                  ),
+                  onPressed: _openCamera,
+                  color: Colors.blue,
+                ),
+              ),
+              Material(
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  icon: Icon(
+                    Icons.image,
+                    size: 26,
+                  ),
+                  onPressed: () => getImage(context),
+                  color: Colors.blue,
+                ),
+              ),
+              Material(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.tag_faces,
+                    size: 26,
+                  ),
+                  onPressed: _getSticker,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          )
+        : Material(
+            child: IconButton(
+              icon: Icon(
+                Icons.chevron_right,
+                size: 26,
+              ),
+              onPressed: () {
+                setState(() {
+                  _expandToolBar = true;
+                });
+              },
+              color: Colors.blue,
+            ),
+          );
   }
 }

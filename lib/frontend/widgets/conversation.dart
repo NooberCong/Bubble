@@ -45,10 +45,13 @@ class Conversation extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(otherUser.username,
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    )),
                 Text(_lastMessage(otherUser.username),
-                    style: TextStyle(color: Colors.grey, fontSize: 14))
+                    style: TextStyle(
+                        color: _colorFromSeenStatus(context), fontSize: 14))
               ],
             ),
           ),
@@ -66,6 +69,14 @@ class Conversation extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _colorFromSeenStatus(BuildContext context) {
+    return data["seen"] as bool
+        ? Colors.grey
+        : Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black;
   }
 
   String _lastMessage(String otherUserName) {
