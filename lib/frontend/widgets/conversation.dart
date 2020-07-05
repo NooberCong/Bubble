@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/frontend/widgets/user_status_ball.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/domain/entities/user.dart';
@@ -11,13 +13,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Conversation extends StatelessWidget {
+  final DocumentSnapshot conversationSnapshot;
   final Map<String, dynamic> data;
-  const Conversation({Key key, this.data}) : super(key: key);
+  final User otherUser;
+  Conversation({Key key, this.conversationSnapshot})
+      : data = conversationSnapshot.data,
+        otherUser = User.fromJson(
+            json.decode(conversationSnapshot.data["otherUser"] as String)
+                as Map<String, dynamic>),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final otherUser = User.fromJson(
-        json.decode(data["otherUser"] as String) as Map<String, dynamic>);
     return FlatButton(
       onPressed: () => _navigateToChatScreen(context, otherUser),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -49,7 +56,7 @@ class Conversation extends StatelessWidget {
                   children: <Widget>[
                     Flexible(
                       child: Text(
-                        _displayName(otherUser, context),
+                        data["otherUserNickname"] as String,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -59,7 +66,7 @@ class Conversation extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(_lastMessage(otherUser.username),
+                Text(_lastMessage(),
                     style: TextStyle(
                         color: _colorFromSeenStatus(context), fontSize: 14))
               ],
@@ -81,16 +88,6 @@ class Conversation extends StatelessWidget {
     );
   }
 
-  String _displayName(User otherUser, BuildContext context) {
-    return otherUser.username !=
-            (context.bloc<SplashScreenBloc>().state
-                    as SplashScreenStateAuthenticated)
-                .user
-                .username
-        ? otherUser.username
-        : "Just you";
-  }
-
   Color _colorFromSeenStatus(BuildContext context) {
     return data["seen"] as bool
         ? Colors.grey
@@ -99,23 +96,30 @@ class Conversation extends StatelessWidget {
             : Colors.black;
   }
 
-  String _lastMessage(String otherUserName) {
-    return "${_prefix(data['userSentLastMessage'], otherUserName)}${data["lastMessage"]}";
+  String _lastMessage() {
+    return "${_prefix(data['userSentLastMessage'])}${data["lastMessage"]}";
   }
 
   void _navigateToChatScreen(BuildContext context, User otherUser) {
-    ExtendedNavigator.of(context).pushNamed(Routes.chatScreen,
-        arguments: ChatScreenArguments(
-            user: (context.bloc<SplashScreenBloc>().state
-                    as SplashScreenStateAuthenticated)
-                .user,
-            otherUser: otherUser));
+    ExtendedNavigator.of(context).pushNamed(
+      Routes.chatScreen,
+      arguments: ChatScreenArguments(
+          user: (context.bloc<SplashScreenBloc>().state
+                  as SplashScreenStateAuthenticated)
+              .user,
+          otherUser: otherUser,
+          conversationSpecifics: ConversationSpecifics.fromJson(data),
+          conversationSpecificsStream: conversationSnapshot.reference
+              .snapshots()
+              .map(
+                  (snapshot) => ConversationSpecifics.fromJson(snapshot.data))),
+    );
   }
 
-  String _prefix(dynamic userSentLastMessage, String otherUserName) {
+  String _prefix(dynamic userSentLastMessage) {
     if (userSentLastMessage == null) {
       return "";
     }
-    return (userSentLastMessage as bool) ? "You" : otherUserName;
+    return (userSentLastMessage as bool) ? "You" : otherUser.username;
   }
 }

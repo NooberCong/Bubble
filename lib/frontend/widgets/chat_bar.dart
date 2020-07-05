@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
+import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
 import 'package:bubble/frontend/widgets/user_status_ball.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
@@ -67,10 +69,7 @@ class _ChatBarState extends State<ChatBar> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(widget.otherUser.username,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14)),
+                  _realTimeNickname(),
                   UserStatusBall(
                     uid: widget.otherUser.uid,
                     showText: true,
@@ -82,6 +81,19 @@ class _ChatBarState extends State<ChatBar> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _realTimeNickname() {
+    return StreamBuilder(
+      stream: ConversationSpecificsProvider.of(context).stream,
+      initialData: ConversationSpecificsProvider.of(context).initialData,
+      builder: (BuildContext context,
+              AsyncSnapshot<ConversationSpecifics> snapshot) =>
+          Text(snapshot.data.otherUserNickname,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
     );
   }
 

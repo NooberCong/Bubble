@@ -1,6 +1,8 @@
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
 import 'package:bubble/frontend/widgets/message_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,44 +68,37 @@ class _ChatBodyState extends State<ChatBody> {
             orElse: () {});
       },
       child: Flexible(
-        child: Stack(
-          children: <Widget>[
-            buildLoading(),
-            StreamBuilder(
-              initialData: _initialData(),
-              stream: messageStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  final messageList = snapshot.data as List<Message>;
-                  _saveCurrentMessages(messageList);
-                  _markMessagesAsSeen(messageList);
-                  return messageList.isNotEmpty
-                      ? ListView.builder(
-                          padding: const EdgeInsets.all(10.0),
-                          itemBuilder: (context, index) {
-                            final message = messageList[index];
-                            return MessageContainer(
-                              message: message,
-                              isFromUser: _isFromUser(message),
-                              isFirstMessage: _isFirst(index, messageList),
-                              displaySeen:
-                                  index == _lastSeenMessage(messageList),
-                              otherUserAvatar: widget.otherUser.imageUrl,
-                            );
-                          },
-                          itemCount: messageList.length,
-                          reverse: true,
-                          controller: _controller,
-                        )
-                      : Center(
-                          child: Text("Say hi to ${widget.otherUser.username}"),
-                        );
-                }
-              },
-            ),
-          ],
+        child: StreamBuilder(
+          initialData: _initialData(),
+          stream: messageStream,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              final messageList = snapshot.data as List<Message>;
+              _saveCurrentMessages(messageList);
+              _markMessagesAsSeen(messageList);
+              return messageList.isNotEmpty
+                  ? StreamBuilder(
+                      stream: ConversationSpecificsProvider.of(context).stream,
+                      initialData:
+                          ConversationSpecificsProvider.of(context).initialData,
+                      builder: (BuildContext context,
+                              AsyncSnapshot<ConversationSpecifics> snapshot) =>
+                          ListView(
+                        padding: const EdgeInsets.all(10.0),
+                        reverse: true,
+                        controller: _controller,
+                        addAutomaticKeepAlives: false,
+                        children: _buildMessages(
+                            messageList, snapshot.data.themeColorCode),
+                      ),
+                    )
+                  : Center(
+                      child: Text("Say hi to ${widget.otherUser.username}"),
+                    );
+            }
+          },
         ),
       ),
     );
@@ -156,13 +151,29 @@ class _ChatBodyState extends State<ChatBody> {
     return context.bloc<ChatScreenBloc>().cachedConversation;
   }
 
-  Widget buildLoading() {
+  Widget _buildLoading() {
     return Container(
-      height: 80,
+      height: 50,
       width: double.infinity,
       child: isLoading && messageStream != const Stream.empty()
           ? const Center(child: CircularProgressIndicator())
           : const SizedBox(),
     );
+  }
+
+  List<Widget> _buildMessages(List<Message> messages, int colorCode) {
+    final widgets = <Widget>[];
+    for (int i = 0; i < messages.length; i++) {
+      final message = messages[i];
+      widgets.add(MessageContainer(
+        mainColor: Color(colorCode),
+        message: message,
+        isFromUser: _isFromUser(message),
+        isFirstMessage: _isFirst(i, messages),
+        displaySeen: i == _lastSeenMessage(messages),
+        otherUserAvatar: widget.otherUser.imageUrl,
+      ));
+    }
+    return widgets..add(_buildLoading());
   }
 }

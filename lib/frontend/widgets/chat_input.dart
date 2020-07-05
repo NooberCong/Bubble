@@ -5,7 +5,9 @@ import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/core/util/stickers.dart';
 import 'package:bubble/core/util/utils.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
+import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +27,7 @@ class _ChatInputState extends State<ChatInput> {
   FocusNode _node;
   StreamSubscription _keyboardVisibilitySubscription;
   bool _showStickers = false;
-  bool _showLikeButton = true;
+  bool _showMainEmoji = true;
   bool _expandToolBar = true;
 
   @override
@@ -48,16 +50,23 @@ class _ChatInputState extends State<ChatInput> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => _onWillPop(context),
-      child: Column(
-        children: <Widget>[
-          _buildStickerBox(context),
-          _buildInputBar(context),
-        ],
+      child: StreamBuilder(
+        stream: ConversationSpecificsProvider.of(context).stream,
+        initialData: ConversationSpecificsProvider.of(context).initialData,
+        builder: (BuildContext context,
+                AsyncSnapshot<ConversationSpecifics> snapshot) =>
+            Column(
+          children: <Widget>[
+            _buildStickerBox(context),
+            _buildInputBar(context, snapshot.data)
+          ],
+        ),
       ),
     );
   }
 
-  Container _buildInputBar(BuildContext context) {
+  Container _buildInputBar(
+      BuildContext context, ConversationSpecifics conversationSpecifics) {
     return Container(
       width: double.infinity,
       height: 50.0,
@@ -72,7 +81,7 @@ class _ChatInputState extends State<ChatInput> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Button send image
-          _buildToolBar(),
+          _buildToolBar(conversationSpecifics.themeColorCode),
 
           // Edit text
           Flexible(
@@ -107,28 +116,30 @@ class _ChatInputState extends State<ChatInput> {
 
           // Button send message
           Material(
-            child: _buildActionButton(context),
+            child: _buildActionButton(context, conversationSpecifics),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(BuildContext context) {
-    return _showLikeButton
+  Widget _buildActionButton(
+      BuildContext context, ConversationSpecifics conversationSpecifics) {
+    return _showMainEmoji
         ? IconButton(
-            icon: SvgPicture.asset("assets/images/like.svg",
-                color: Colors.blue, width: 26, height: 26),
-            onPressed: () => onSendMessage(
-                "assets/images/like.svg", MessageType.svg, context),
+            icon: SvgPicture.asset(conversationSpecifics.mainEmoji,
+                color: Color(conversationSpecifics.themeColorCode),
+                width: 26,
+                height: 26),
+            onPressed: () =>
+                onSendMessage(conversationSpecifics.mainEmoji, MessageType.svg),
           )
         : IconButton(
             icon: Icon(
               Icons.send,
               size: 26,
             ),
-            onPressed: () =>
-                onSendMessage(_controller.text, MessageType.text, context),
+            onPressed: () => onSendMessage(_controller.text, MessageType.text),
             color: Colors.blue,
           );
   }
@@ -164,8 +175,7 @@ class _ChatInputState extends State<ChatInput> {
   List<FlatButton> _buildStickers(double size) {
     return _stickerFilePaths()
         .map((path) => FlatButton(
-              onPressed: () =>
-                  onSendMessage(path, MessageType.sticker, context),
+              onPressed: () => onSendMessage(path, MessageType.sticker),
               child: Image.asset(
                 path,
                 width: size,
@@ -187,11 +197,11 @@ class _ChatInputState extends State<ChatInput> {
   Future getImage(BuildContext context) async {
     final imageFile = await getGaleryImage();
     if (imageFile != null) {
-      onSendMessage(imageFile.path, MessageType.image, context);
+      onSendMessage(imageFile.path, MessageType.image);
     }
   }
 
-  void onSendMessage(String text, MessageType type, BuildContext context) {
+  void onSendMessage(String text, MessageType type) {
     if (type == MessageType.text) {
       _controller.clear();
     }
@@ -232,7 +242,7 @@ class _ChatInputState extends State<ChatInput> {
   void _openCamera() {
     ExtendedNavigator.of(context).pushNamed(Routes.takePictureScreen,
         arguments: TakePictureScreenArguments(onSave: (imagePath) {
-      onSendMessage(imagePath, MessageType.image, context);
+      onSendMessage(imagePath, MessageType.image);
       ExtendedNavigator.of(context)
           .popUntil((route) => route.settings.name == Routes.chatScreen);
     }));
@@ -265,18 +275,18 @@ class _ChatInputState extends State<ChatInput> {
         _expandToolBar = false;
       });
     }
-    if (_showLikeButton && _controller.text.isNotEmpty) {
+    if (_showMainEmoji && _controller.text.isNotEmpty) {
       setState(() {
-        _showLikeButton = false;
+        _showMainEmoji = false;
       });
-    } else if (!_showLikeButton && _controller.text.isEmpty) {
+    } else if (!_showMainEmoji && _controller.text.isEmpty) {
       setState(() {
-        _showLikeButton = true;
+        _showMainEmoji = true;
       });
     }
   }
 
-  Widget _buildToolBar() {
+  Widget _buildToolBar(int colorCode) {
     return _expandToolBar
         ? Row(
             children: <Widget>[
@@ -288,7 +298,7 @@ class _ChatInputState extends State<ChatInput> {
                     size: 26,
                   ),
                   onPressed: _openCamera,
-                  color: Colors.blue,
+                  color: Color(colorCode),
                 ),
               ),
               Material(
@@ -299,7 +309,7 @@ class _ChatInputState extends State<ChatInput> {
                     size: 26,
                   ),
                   onPressed: () => getImage(context),
-                  color: Colors.blue,
+                  color: Color(colorCode),
                 ),
               ),
               Material(
@@ -309,7 +319,7 @@ class _ChatInputState extends State<ChatInput> {
                     size: 26,
                   ),
                   onPressed: _getSticker,
-                  color: Colors.blue,
+                  color: Color(colorCode),
                 ),
               ),
             ],
@@ -325,7 +335,7 @@ class _ChatInputState extends State<ChatInput> {
                   _expandToolBar = true;
                 });
               },
-              color: Colors.blue,
+              color: Color(colorCode),
             ),
           );
   }

@@ -83,7 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     return Conversation(
-                                      data: conversations[index].data,
+                                      conversationSnapshot:
+                                          conversations[index],
                                     );
                                   },
                                 )

@@ -84,6 +84,7 @@ flutter:
     - assets/images/img_not_available.jpeg
     - assets/images/like.svg
     - assets/images/logout.svg
+    - assets/images/heart.svg
     - assets/stickers/mimi1.gif
     - assets/stickers/mimi2.gif
     - assets/stickers/mimi4.gif

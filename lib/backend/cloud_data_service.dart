@@ -118,7 +118,6 @@ class CloudDataService implements ICloudDataService {
   Future<Either<CloudFailure, Stream>> fetchConversationStream(
       Params params) async {
     final inputData = params as ParamsMap;
-    _markLastMessageInConversationSnapshotAsSeen(inputData.data);
     try {
       return Right(store
           .collection("rooms")
@@ -201,10 +200,16 @@ class CloudDataService implements ICloudDataService {
 
       //If conversation is not present in user conversations, add it
       if (!userConversationDoc.exists) {
-        userConversationDoc.reference.setData({
+        await userConversationDoc.reference.setData({
           "otherUser": json.encode(otherUser.toJson()),
           "lastMessage": "You have just connected with ${otherUser.username}",
           "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+          //Check if user is chatting with him/herself and choose special nickname for that case
+          "otherUserNickname":
+              user.uid != otherUser.uid ? otherUser.username : "Just you",
+          "userNickname": user.uid != otherUser.uid ? user.username : "You",
+          "mainEmoji": "asssets/images/like.svg",
+          "themeColorCode": 4280391411
         });
       }
 
@@ -220,6 +225,10 @@ class CloudDataService implements ICloudDataService {
           "otherUser": json.encode(user.toJson()),
           "lastMessage": "You have just connected with ${user.username}",
           "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+          "userNickname": otherUser.username,
+          "otherUserNickname": user.username,
+          "mainEmoji": "asssets/images/like.svg",
+          "themeColorCode": 4280391411
         });
       }
       return const Right(null);
@@ -270,15 +279,15 @@ class CloudDataService implements ICloudDataService {
     }
   }
 
-  Future<void> _markLastMessageInConversationSnapshotAsSeen(
-      Map<String, dynamic> data) {
-    return store
-        .collection("users")
-        .document(data["uid"] as String)
-        .collection("conversations")
-        .document(data["roomId"] as String)
-        .updateData({"seen": true});
-  }
+  // Future<void> _markLastMessageInConversationSnapshotAsSeen(
+  //     Map<String, dynamic> data) {
+  //   return store
+  //       .collection("users")
+  //       .document(data["uid"] as String)
+  //       .collection("conversations")
+  //       .document(data["roomId"] as String)
+  //       .updateData({"seen": true});
+  // }
 
   Future<void> _updateConversationLastMessage(
       Message message, String roomId) async {

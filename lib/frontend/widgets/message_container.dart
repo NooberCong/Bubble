@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class MessageContainer extends StatelessWidget {
+  final Color mainColor;
   final Message message;
   final bool isFromUser;
   final bool isFirstMessage;
@@ -20,6 +21,7 @@ class MessageContainer extends StatelessWidget {
     this.isFirstMessage,
     this.otherUserAvatar,
     this.displaySeen,
+    this.mainColor,
   }) : super(key: key);
 
   @override
@@ -69,27 +71,27 @@ class MessageContainer extends StatelessWidget {
       case MessageType.sticker:
         return _buildSticker(borderRadius, boxConstraints);
       case MessageType.svg:
-        return _buildSvg(
-            borderRadius, boxConstraints, Theme.of(context).accentColor);
+        return _buildSvg(borderRadius, boxConstraints);
       default:
         return const SizedBox();
     }
   }
 
-  Container _buildText(BorderRadius borderRadius, BoxConstraints boxConstraints,
+  Widget _buildText(BorderRadius borderRadius, BoxConstraints boxConstraints,
       BuildContext context) {
     return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: _boxColor(context, message.content),
-        ),
-        constraints: boxConstraints,
-        child: Text(
-          message.content,
-          style: TextStyle(
-              color: _textColor(context), fontSize: fontSize(message.content)),
-        ));
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        color: _boxColor(context, message.content),
+      ),
+      constraints: boxConstraints,
+      child: Text(
+        message.content,
+        style: TextStyle(
+            color: _textColor(context), fontSize: fontSize(message.content)),
+      ),
+    );
   }
 
   Container _buildSticker(
@@ -136,7 +138,7 @@ class MessageContainer extends StatelessWidget {
     return _isAllEmojis(content)
         ? Colors.transparent
         : isFromUser
-            ? Colors.blue
+            ? mainColor
             : Theme.of(context).brightness == Brightness.dark
                 ? Colors.grey.shade800
                 : Colors.grey.shade300;
@@ -174,11 +176,10 @@ class MessageContainer extends StatelessWidget {
         : const SizedBox();
   }
 
-  Widget _buildSvg(
-      BorderRadius borderRadius, BoxConstraints boxConstraints, Color color) {
+  Widget _buildSvg(BorderRadius borderRadius, BoxConstraints boxConstraints) {
     return SvgPicture.asset(
       message.content,
-      color: color,
+      color: mainColor,
       width: 60,
       height: 60,
     );
@@ -188,9 +189,9 @@ class MessageContainer extends StatelessWidget {
     if (displaySeen) {
       return Align(
         alignment: Alignment.centerRight,
-        child: CircleAvatar(
+        child: CachedCircularImage(
+          imageUrl: otherUserAvatar,
           radius: 8,
-          backgroundImage: NetworkImage(otherUserAvatar),
         ),
       );
     }

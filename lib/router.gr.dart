@@ -3,6 +3,7 @@
 // **************************************************************************
 // AutoRouteGenerator
 // **************************************************************************
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,7 @@ import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/screens/home_screen.dart';
 import 'package:bubble/frontend/screens/other_user_info_screen.dart';
 import 'package:bubble/frontend/screens/chat_screen.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/frontend/screens/find_user_screen.dart';
 import 'package:bubble/frontend/screens/full_photo.dart';
 import 'package:bubble/frontend/screens/take_picture_screen.dart';
@@ -129,7 +131,10 @@ class Router extends RouterBase {
           builder: (context) => ChatScreen(
               key: typedArgs.key,
               user: typedArgs.user,
-              otherUser: typedArgs.otherUser),
+              otherUser: typedArgs.otherUser,
+              conversationSpecifics: typedArgs.conversationSpecifics,
+              conversationSpecificsStream:
+                  typedArgs.conversationSpecificsStream),
           settings: settings,
         );
       case Routes.findUserScreen:
@@ -231,7 +236,14 @@ class ChatScreenArguments {
   final Key key;
   final User user;
   final User otherUser;
-  ChatScreenArguments({this.key, this.user, this.otherUser});
+  final ConversationSpecifics conversationSpecifics;
+  final Stream<ConversationSpecifics> conversationSpecificsStream;
+  ChatScreenArguments(
+      {this.key,
+      this.user,
+      this.otherUser,
+      this.conversationSpecifics,
+      this.conversationSpecificsStream});
 }
 
 //FindUserScreen arguments holder class
@@ -324,11 +336,17 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
     Key key,
     User user,
     User otherUser,
+    ConversationSpecifics conversationSpecifics,
+    Stream<ConversationSpecifics> conversationSpecificsStream,
   }) =>
       pushNamed(
         Routes.chatScreen,
-        arguments:
-            ChatScreenArguments(key: key, user: user, otherUser: otherUser),
+        arguments: ChatScreenArguments(
+            key: key,
+            user: user,
+            otherUser: otherUser,
+            conversationSpecifics: conversationSpecifics,
+            conversationSpecificsStream: conversationSpecificsStream),
       );
 
   Future pushFindUserScreen({

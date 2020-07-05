@@ -58,13 +58,13 @@ class _FindUserActionsState extends State<FindUserActions> {
           height: 10,
         ),
         Row(
-          children: <Widget>[
+          children: const <Widget>[
             Flexible(
               child: Divider(
                 color: Colors.grey,
               ),
             ),
-            const Text(
+            Text(
               "OR",
             ),
             Flexible(
