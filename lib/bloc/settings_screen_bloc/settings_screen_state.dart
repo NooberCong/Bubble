@@ -8,4 +8,6 @@ abstract class SettingsScreenState with _$SettingsScreenState {
       _SettingsScreenStateUserStreamLoaded;
   const factory SettingsScreenState.notify(String message) =
       SettingsScreenStateNotify;
+  const factory SettingsScreenState.processing() =
+      _SettingsScrenStateProcessing;
 }

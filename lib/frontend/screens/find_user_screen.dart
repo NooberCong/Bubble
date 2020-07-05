@@ -55,9 +55,9 @@ class FindUserScreen extends StatelessWidget {
                             height: 20,
                           ),
                           Text(otherUser.username,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text(user.bio),
+                          Text(otherUser.bio),
                           RaisedButton(
                             color: Colors.blue,
                             onPressed: () {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
-
 import 'core/params/params.dart';
 
 @lazySingleton
@@ -18,40 +18,32 @@ class NotificationManager {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final ICloudDataService cloudDataService;
 
-  static Future<dynamic> myBackgroundMessageHandler(
-      Map<dynamic, dynamic> message) async {
-    return Future.value(true);
-  }
-
   NotificationManager(this.firebaseMessaging,
       this.flutterLocalNotificationsPlugin, this.cloudDataService);
 
   Future<void> initializeNotification(String uid, BuildContext context) async {
-    _configureCloudMessaging(context);
     _configureLocalNotification(context);
-    return _updateUserDeviceToken(uid);
+    _configureCloudMessaging(context);
+    return _updateUserToken(uid);
   }
 
   void _configureCloudMessaging(BuildContext context) {
-    firebaseMessaging.configure(
-        onMessage: (message) async {
-          _showNotification(message);
-          return;
-        },
-        onBackgroundMessage: myBackgroundMessageHandler,
-        onResume: (Map<String, dynamic> message) async {
-          return _navigateToChatScreen(
-              message["data"] as Map<dynamic, dynamic>, context);
-        },
-        onLaunch: (Map<String, dynamic> message) async {
-          return;
-        });
+    firebaseMessaging.configure(onMessage: (message) async {
+      _showNotification(message);
+      return;
+    }, onResume: (Map<String, dynamic> message) async {
+      return _navigateToChatScreen(
+          message["data"] as Map<dynamic, dynamic>, context);
+    }, onLaunch: (Map<String, dynamic> message) async {
+      return;
+    });
   }
 
-  Future _updateUserDeviceToken(String uid) async {
-    cloudDataService.updateUserData(Params.map({
+  Future<void> _updateUserToken(String uid) async {
+    final deviceToken = await firebaseMessaging.getToken();
+    return cloudDataService.updateUserData(Params.map({
       "uid": uid,
-      "data": {"token": await firebaseMessaging.getToken()}
+      "data": {"token": deviceToken}
     }));
   }
 

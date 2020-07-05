@@ -30,6 +30,7 @@ class SettingsScreenBloc
   ) async* {
     yield* event.when(
       editAvatar: (imagePath) async* {
+        yield const SettingsScreenState.processing();
         final currentUser =
             await (authService as AuthService).getFirebaseUser();
         if (currentUser != null) {
@@ -53,6 +54,7 @@ class SettingsScreenBloc
         }
       },
       editBio: (uid, bio) async* {
+        yield const SettingsScreenState.processing();
         final updateResult = await cloudDataService.updateUserData(Params.map({
           "uid": uid,
           "data": {"bio": bio},
@@ -60,7 +62,7 @@ class SettingsScreenBloc
         yield* updateResult.fold((error) async* {
           yield SettingsScreenState.notify(error.message);
         }, (_) async* {
-          yield const SettingsScreenState.notify("Avatar updated successfully");
+          yield const SettingsScreenState.notify("Bio updated successfully");
         });
       },
       requestUserStream: (String uid) async* {

@@ -60,11 +60,11 @@ class UserStatusBall extends StatelessWidget {
   Widget _showLastActive(UserStatus userStatus) {
     return showText
         ? userStatus.isOnline
-            ? Text("  Active",
+            ? const Text("  Active",
                 style: TextStyle(color: Colors.grey, fontSize: 12))
             : Text(
                 "  ${userStatus.lastActive}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
                 ),

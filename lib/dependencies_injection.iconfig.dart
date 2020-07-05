@@ -10,7 +10,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_local_notifications/src/flutter_local_notifications_plugin.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:bubble/backend/auth_service.dart';
 import 'package:bubble/domain/i_auth.dart';
@@ -71,8 +71,12 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
       () => UserPresence(g<FirebaseDatabase>()));
   g.registerFactory<UserStatusBallBloc>(
       () => UserStatusBallBloc(g<ICloudDataService>()));
-  g.registerFactory<ChatScreenBloc>(
-      () => ChatScreenBloc(g<ICloudDataService>()));
+  g.registerFactoryParam<ChatScreenBloc, String, dynamic>(
+      (chatRoomId, _) => ChatScreenBloc(
+            g<ICloudDataService>(),
+            g<SharedPreferences>(),
+            chatRoomId,
+          ));
   g.registerFactory<FindUserScreenBloc>(
       () => FindUserScreenBloc(g<ICloudDataService>()));
   g.registerFactory<HomeScreenBloc>(

@@ -21,20 +21,6 @@ class _ActionMenuState extends State<ActionMenu> {
       children: <Widget>[
         FlatButton(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          onPressed: () => _onLogOut(context),
-          child: Row(
-            children: <Widget>[
-              SvgPicture.asset(
-                "assets/images/logout.svg",
-                width: 40,
-                height: 40,
-              ),
-              const Text("  Log out", style: TextStyle(fontSize: 16))
-            ],
-          ),
-        ),
-        FlatButton(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           onPressed: () {},
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,6 +75,20 @@ class _ActionMenuState extends State<ActionMenu> {
                   },
                 ),
               )
+            ],
+          ),
+        ),
+        FlatButton(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          onPressed: () => _onLogOut(context),
+          child: Row(
+            children: <Widget>[
+              SvgPicture.asset(
+                "assets/images/logout.svg",
+                width: 40,
+                height: 40,
+              ),
+              const Text("  Log out", style: TextStyle(fontSize: 16))
             ],
           ),
         ),

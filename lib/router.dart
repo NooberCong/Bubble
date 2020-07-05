@@ -8,7 +8,7 @@ import 'package:bubble/frontend/screens/other_user_info_screen.dart';
 import 'package:bubble/frontend/screens/settings_screen.dart';
 import 'package:bubble/frontend/screens/sign_up_screen.dart';
 import 'package:bubble/frontend/screens/splash_screen.dart';
-import 'package:bubble/frontend/widgets/take_picture_screen.dart';
+import 'package:bubble/frontend/screens/take_picture_screen.dart';
 
 @MaterialAutoRouter(generateNavigationHelperExtension: true)
 class $Router {

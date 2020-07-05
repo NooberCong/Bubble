@@ -71,37 +71,41 @@ class _LoginFormState extends State<LoginForm> {
             child: Form(
               autovalidate: _autoValidate,
               key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Email",
-                      prefixIcon: Icon(
-                        Icons.email,
-                      ),
-                    ),
-                    controller: _emailController,
-                    validator: (text) =>
-                        text.isEmpty ? "This field must not be empty" : null,
-                  ),
-                  TextFormField(
-                      obscureText: true,
+              child: Theme(
+                data: Theme.of(context).copyWith(primaryColor: Colors.pink),
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
                       decoration: const InputDecoration(
-                        labelText: "Password",
+                        labelText: "Email",
                         prefixIcon: Icon(
-                          Icons.vpn_key,
+                          Icons.email,
                         ),
                       ),
+                      controller: _emailController,
                       validator: (text) =>
                           text.isEmpty ? "This field must not be empty" : null,
-                      controller: _passwordController),
-                ],
+                    ),
+                    TextFormField(
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: "Password",
+                          prefixIcon: Icon(
+                            Icons.vpn_key,
+                          ),
+                        ),
+                        validator: (text) => text.isEmpty
+                            ? "This field must not be empty"
+                            : null,
+                        controller: _passwordController),
+                  ],
+                ),
               ),
             ),
           ),
           const SizedBox(height: 20),
           RaisedButton(
-            color: _isLoading ? Colors.grey : Theme.of(context).primaryColor,
+            color: _isLoading ? Colors.grey : Colors.pink,
             onPressed: () {
               enableAutoValidate();
               if (_formKey.currentState.validate()) {
@@ -128,7 +132,7 @@ class _LoginFormState extends State<LoginForm> {
                 height: 1,
                 color: Colors.grey,
               )),
-              Text("OR", style: TextStyle(color: Colors.grey)),
+              const Text("OR", style: TextStyle(color: Colors.grey)),
               Flexible(
                   child: Container(
                 height: 1,
@@ -145,7 +149,7 @@ class _LoginFormState extends State<LoginForm> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
               width: MediaQuery.of(context).size.width - 100,
-              child: Text("Continue with Google",
+              child: const Text("Continue with Google",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.red)),
             ),

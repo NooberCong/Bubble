@@ -3,13 +3,13 @@ import 'package:bubble/bloc/settings_screen_bloc/settings_screen_bloc.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_clipboard_manager/flutter_clipboard_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class UserInfo extends StatefulWidget {
   final User user;
@@ -30,12 +30,15 @@ class _UserInfoState extends State<UserInfo> {
       child: BlocConsumer<SettingsScreenBloc, SettingsScreenState>(
         listener: (_, state) {
           Fluttertoast.showToast(
-              msg: (state as SettingsScreenStateNotify).message);
+              msg: state.maybeWhen(
+                  notify: (msg) => msg,
+                  processing: () => "Processing...",
+                  orElse: () => ""));
         },
-        listenWhen: (_, state) =>
-            state.maybeWhen(notify: (_) => true, orElse: () => false),
-        buildWhen: (_, state) =>
-            state.maybeWhen(notify: (_) => false, orElse: () => true),
+        listenWhen: (_, state) => state.maybeWhen(
+            notify: (_) => true, processing: () => true, orElse: () => false),
+        buildWhen: (_, state) => state.maybeWhen(
+            notify: (_) => false, processing: () => false, orElse: () => true),
         builder: (context, state) {
           return state.maybeWhen(
               userStreamLoaded: (stream) =>
@@ -60,7 +63,7 @@ class _UserInfoState extends State<UserInfo> {
   Text _buildName(String name) {
     return Text(
       name,
-      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
     );
   }
 
@@ -112,22 +115,16 @@ class _UserInfoState extends State<UserInfo> {
     );
   }
 
-  Stack _buildAvatar(User realtimeUser, BuildContext context) {
+  Stack _buildAvatar(User user, BuildContext context) {
     return Stack(
       children: <Widget>[
         GestureDetector(
           onTap: () => ExtendedNavigator.of(context).pushNamed(Routes.fullPhoto,
-              arguments: FullPhotoArguments(
-                  url: realtimeUser.imageUrl, title: realtimeUser.username)),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(60),
-            child: FadeInImage.memoryNetwork(
-              placeholder: kTransparentImage,
-              image: realtimeUser.imageUrl,
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-            ),
+              arguments:
+                  FullPhotoArguments(url: user.imageUrl, title: user.username)),
+          child: CachedCircularImage(
+            imageUrl: user.imageUrl,
+            radius: 60,
           ),
         ),
         if (widget.modifiable)
@@ -154,18 +151,18 @@ class _UserInfoState extends State<UserInfo> {
     );
   }
 
-  Widget _buildUID(User realtimeUser) {
+  Widget _buildUID(User user) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
+        const Text(
           "UID: ",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        Text(realtimeUser.uid),
+        Text(user.uid),
         IconButton(
           icon: Icon(Icons.content_copy),
-          onPressed: () => _onCopyUid(realtimeUser.uid),
+          onPressed: () => _onCopyUid(user.uid),
         ),
       ],
     );

@@ -143,13 +143,13 @@ class CloudDataService implements ICloudDataService {
   }
 
   Future<void> _saveMessageToCloud(Map<String, dynamic> data) {
-    final documentReference = store
+    return store
         .collection('rooms')
         .document(getRoomIdFromUIDHashCode(
             data["idFrom"] as String, data["idTo"] as String))
         .collection("messages")
-        .document(generateRandomNumString());
-    return documentReference.setData(data);
+        .document(data["messageId"] as String)
+        .setData(data);
   }
 
   @override
@@ -298,8 +298,8 @@ class CloudDataService implements ICloudDataService {
 
     final batch = store.batch();
 
-    if (int.parse(userFromConversation.data["lastActive"] as String) <
-        int.parse(message.timestamp)) {
+    if (_isNotOutdated(
+        userFromConversation.data["lastActive"] as String, message.timestamp)) {
       batch.updateData(userFromConversation.reference, {
         "lastMessage": parseMessage(message),
         "lastActive": message.timestamp,
@@ -308,8 +308,9 @@ class CloudDataService implements ICloudDataService {
       });
     }
 
-    if (int.parse(userToConversation.data["lastActive"] as String) <
-        int.parse(message.timestamp)) {
+    if (_isNotOutdated(
+            userToConversation["lastActive"] as String, message.timestamp) &&
+        !_isSameUser(message)) {
       final userTo =
           await store.collection("users").document(message.idTo).get();
       batch.updateData(userToConversation.reference, {
@@ -324,6 +325,10 @@ class CloudDataService implements ICloudDataService {
     return batch.commit();
   }
 
+  bool _isNotOutdated(String lastActiveTimestamp, String messageTimestamp) {
+    return int.parse(lastActiveTimestamp) < int.parse(messageTimestamp);
+  }
+
   String parseMessage(Message message) {
     if (message.type.toString() == "MessageType.text") {
       return ": ${message.content}";
@@ -336,5 +341,9 @@ class CloudDataService implements ICloudDataService {
       }
       return " sent a sticker";
     }
+  }
+
+  bool _isSameUser(Message message) {
+    return message.idFrom == message.idTo;
   }
 }

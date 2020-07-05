@@ -485,6 +485,10 @@ class _$SettingsScreenStateTearOff {
       message,
     );
   }
+
+  _SettingsScrenStateProcessing processing() {
+    return const _SettingsScrenStateProcessing();
+  }
 }
 
 // ignore: unused_element
@@ -496,12 +500,14 @@ mixin _$SettingsScreenState {
     @required Result initial(),
     @required Result userStreamLoaded(Stream<dynamic> stream),
     @required Result notify(String message),
+    @required Result processing(),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
     Result userStreamLoaded(Stream<dynamic> stream),
     Result notify(String message),
+    Result processing(),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -510,12 +516,14 @@ mixin _$SettingsScreenState {
     @required
         Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     @required Result notify(SettingsScreenStateNotify value),
+    @required Result processing(_SettingsScrenStateProcessing value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
     Result initial(_SettingsScreenStateInitial value),
     Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     Result notify(SettingsScreenStateNotify value),
+    Result processing(_SettingsScrenStateProcessing value),
     @required Result orElse(),
   });
 }
@@ -576,10 +584,12 @@ class _$_SettingsScreenStateInitial implements _SettingsScreenStateInitial {
     @required Result initial(),
     @required Result userStreamLoaded(Stream<dynamic> stream),
     @required Result notify(String message),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return initial();
   }
 
@@ -589,6 +599,7 @@ class _$_SettingsScreenStateInitial implements _SettingsScreenStateInitial {
     Result initial(),
     Result userStreamLoaded(Stream<dynamic> stream),
     Result notify(String message),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -605,10 +616,12 @@ class _$_SettingsScreenStateInitial implements _SettingsScreenStateInitial {
     @required
         Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     @required Result notify(SettingsScreenStateNotify value),
+    @required Result processing(_SettingsScrenStateProcessing value),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return initial(this);
   }
 
@@ -618,6 +631,7 @@ class _$_SettingsScreenStateInitial implements _SettingsScreenStateInitial {
     Result initial(_SettingsScreenStateInitial value),
     Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     Result notify(SettingsScreenStateNotify value),
+    Result processing(_SettingsScrenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -699,10 +713,12 @@ class _$_SettingsScreenStateUserStreamLoaded
     @required Result initial(),
     @required Result userStreamLoaded(Stream<dynamic> stream),
     @required Result notify(String message),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return userStreamLoaded(stream);
   }
 
@@ -712,6 +728,7 @@ class _$_SettingsScreenStateUserStreamLoaded
     Result initial(),
     Result userStreamLoaded(Stream<dynamic> stream),
     Result notify(String message),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -728,10 +745,12 @@ class _$_SettingsScreenStateUserStreamLoaded
     @required
         Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     @required Result notify(SettingsScreenStateNotify value),
+    @required Result processing(_SettingsScrenStateProcessing value),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return userStreamLoaded(this);
   }
 
@@ -741,6 +760,7 @@ class _$_SettingsScreenStateUserStreamLoaded
     Result initial(_SettingsScreenStateInitial value),
     Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     Result notify(SettingsScreenStateNotify value),
+    Result processing(_SettingsScrenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -823,10 +843,12 @@ class _$SettingsScreenStateNotify implements SettingsScreenStateNotify {
     @required Result initial(),
     @required Result userStreamLoaded(Stream<dynamic> stream),
     @required Result notify(String message),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return notify(message);
   }
 
@@ -836,6 +858,7 @@ class _$SettingsScreenStateNotify implements SettingsScreenStateNotify {
     Result initial(),
     Result userStreamLoaded(Stream<dynamic> stream),
     Result notify(String message),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -852,10 +875,12 @@ class _$SettingsScreenStateNotify implements SettingsScreenStateNotify {
     @required
         Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     @required Result notify(SettingsScreenStateNotify value),
+    @required Result processing(_SettingsScrenStateProcessing value),
   }) {
     assert(initial != null);
     assert(userStreamLoaded != null);
     assert(notify != null);
+    assert(processing != null);
     return notify(this);
   }
 
@@ -865,6 +890,7 @@ class _$SettingsScreenStateNotify implements SettingsScreenStateNotify {
     Result initial(_SettingsScreenStateInitial value),
     Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
     Result notify(SettingsScreenStateNotify value),
+    Result processing(_SettingsScrenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -881,4 +907,109 @@ abstract class SettingsScreenStateNotify implements SettingsScreenState {
 
   String get message;
   $SettingsScreenStateNotifyCopyWith<SettingsScreenStateNotify> get copyWith;
+}
+
+abstract class _$SettingsScrenStateProcessingCopyWith<$Res> {
+  factory _$SettingsScrenStateProcessingCopyWith(
+          _SettingsScrenStateProcessing value,
+          $Res Function(_SettingsScrenStateProcessing) then) =
+      __$SettingsScrenStateProcessingCopyWithImpl<$Res>;
+}
+
+class __$SettingsScrenStateProcessingCopyWithImpl<$Res>
+    extends _$SettingsScreenStateCopyWithImpl<$Res>
+    implements _$SettingsScrenStateProcessingCopyWith<$Res> {
+  __$SettingsScrenStateProcessingCopyWithImpl(
+      _SettingsScrenStateProcessing _value,
+      $Res Function(_SettingsScrenStateProcessing) _then)
+      : super(_value, (v) => _then(v as _SettingsScrenStateProcessing));
+
+  @override
+  _SettingsScrenStateProcessing get _value =>
+      super._value as _SettingsScrenStateProcessing;
+}
+
+class _$_SettingsScrenStateProcessing implements _SettingsScrenStateProcessing {
+  const _$_SettingsScrenStateProcessing();
+
+  @override
+  String toString() {
+    return 'SettingsScreenState.processing()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _SettingsScrenStateProcessing);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result userStreamLoaded(Stream<dynamic> stream),
+    @required Result notify(String message),
+    @required Result processing(),
+  }) {
+    assert(initial != null);
+    assert(userStreamLoaded != null);
+    assert(notify != null);
+    assert(processing != null);
+    return processing();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result userStreamLoaded(Stream<dynamic> stream),
+    Result notify(String message),
+    Result processing(),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (processing != null) {
+      return processing();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_SettingsScreenStateInitial value),
+    @required
+        Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
+    @required Result notify(SettingsScreenStateNotify value),
+    @required Result processing(_SettingsScrenStateProcessing value),
+  }) {
+    assert(initial != null);
+    assert(userStreamLoaded != null);
+    assert(notify != null);
+    assert(processing != null);
+    return processing(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_SettingsScreenStateInitial value),
+    Result userStreamLoaded(_SettingsScreenStateUserStreamLoaded value),
+    Result notify(SettingsScreenStateNotify value),
+    Result processing(_SettingsScrenStateProcessing value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (processing != null) {
+      return processing(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SettingsScrenStateProcessing implements SettingsScreenState {
+  const factory _SettingsScrenStateProcessing() =
+      _$_SettingsScrenStateProcessing;
 }

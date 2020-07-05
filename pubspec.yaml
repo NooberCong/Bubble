@@ -29,6 +29,7 @@ dependencies:
   firebase_auth:
   camera:
   flutter_keyboard_visibility:
+  cached_network_image:
   path_provider:
   path:
   firebase_database:
@@ -40,11 +41,9 @@ dependencies:
   injectable:
   flutter_bloc:
   dashed_circle:
-  cached_network_image:
   image_picker:
   flutter_svg:
   flutter_native_image:
-  google_fonts:
   transparent_image:
   flutter_clipboard_manager:
   fluttertoast:
@@ -87,13 +86,52 @@ flutter:
     - assets/images/logout.svg
     - assets/stickers/mimi1.gif
     - assets/stickers/mimi2.gif
-    - assets/stickers/mimi3.gif
     - assets/stickers/mimi4.gif
     - assets/stickers/mimi5.gif
     - assets/stickers/mimi6.gif
     - assets/stickers/mimi7.gif
     - assets/stickers/mimi8.gif
     - assets/stickers/mimi9.gif
+    - assets/stickers/giphy (1)-min.gif
+    - assets/stickers/giphy (2)-min.gif
+    - assets/stickers/giphy (3)-min.gif
+    - assets/stickers/giphy (4)-min.gif
+    - assets/stickers/giphy (5)-min.gif
+    - assets/stickers/giphy (6)-min.gif
+    - assets/stickers/giphy (7)-min.gif
+    - assets/stickers/giphy (8)-min.gif
+    - assets/stickers/giphy (9)-min.gif
+    - assets/stickers/giphy (10)-min.gif
+    - assets/stickers/giphy (11)-min.gif
+    - assets/stickers/giphy (12)-min.gif
+    - assets/stickers/giphy (13)-min.gif
+    - assets/stickers/giphy (14)-min.gif
+    - assets/stickers/giphy (15)-min.gif
+    - assets/stickers/giphy (16)-min.gif
+    - assets/stickers/giphy (17)-min.gif
+    - assets/stickers/giphy (18)-min.gif
+    - assets/stickers/giphy (19)-min.gif
+    - assets/stickers/giphy (20)-min.gif
+    - assets/stickers/giphy (21)-min.gif
+    - assets/stickers/giphy (22)-min.gif
+    - assets/stickers/giphy (23)-min.gif
+    - assets/stickers/giphy (24)-min.gif
+    - assets/stickers/giphy (25)-min.gif
+    - assets/stickers/giphy (26)-min.gif
+    - assets/stickers/giphy (27)-min.gif
+    - assets/stickers/giphy (28)-min.gif
+    - assets/stickers/giphy (29)-min.gif
+    - assets/stickers/giphy (30)-min.gif
+    - assets/stickers/giphy (31)-min.gif
+    - assets/stickers/giphy (32)-min.gif
+    - assets/stickers/giphy (33)-min.gif
+    - assets/stickers/giphy (34)-min.gif
+    - assets/stickers/giphy (35)-min.gif
+    - assets/stickers/giphy (36)-min.gif
+    - assets/stickers/giphy (37)-min.gif
+    - assets/stickers/giphy (38)-min.gif
+    - assets/stickers/giphy (39)-min.gif
+    - assets/stickers/giphy (40)-min.gif
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see
@@ -103,17 +141,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Paprika
+      fonts:
+        - asset: assets/fonts/Paprika-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -45,13 +45,16 @@ class _SignUpStageState extends State<SignUpStage> {
                 ),
               ),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _controller,
-                obscureText: _shouldObscureText(widget.state),
-                decoration: InputDecoration(
-                    helperText: _getErrorMessage(widget.state),
-                    helperMaxLines: 3,
-                    helperStyle: TextStyle(color: Colors.red)),
+              Theme(
+                data: Theme.of(context).copyWith(primaryColor: Colors.pink),
+                child: TextFormField(
+                  controller: _controller,
+                  obscureText: _shouldObscureText(widget.state),
+                  decoration: InputDecoration(
+                      helperText: _getErrorMessage(widget.state),
+                      helperMaxLines: 3,
+                      helperStyle: const TextStyle(color: Colors.red)),
+                ),
               ),
               RaisedButton(
                 onPressed: () => nextScreen(context, _controller.text),

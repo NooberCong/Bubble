@@ -85,7 +85,11 @@ function sendNotification(doc) {
     .doc(doc.idTo)
     .get()
     .then((userTo) => {
-      if (userTo.data().token && userTo.data().chattingWith !== doc.idFrom) {
+      if (
+        userTo.data().token &&
+        userTo.data().chattingWith !== doc.idFrom &&
+        doc.idFrom !== doc.idTo
+      ) {
         // Get info user from (sent)
         admin
           .firestore()

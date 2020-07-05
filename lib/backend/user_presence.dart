@@ -9,23 +9,16 @@ class UserPresence {
   Future<void> initializePresence(String uid) async {
     final userStatusDatabaseRef = database.reference().child("/status/$uid");
 
-    final isOfflineForDatabase = {
-      "state": "offline",
-      "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-      "chattingWith": ""
-    };
-
-    final isOnlineForDatabase = {
-      "state": "online",
-      "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-    };
-
     database.reference().child(".info/connected").onValue.listen((event) async {
       if (event.snapshot.value == true) {
-        userStatusDatabaseRef
-            .onDisconnect()
-            .set(isOfflineForDatabase)
-            .then((_) => userStatusDatabaseRef.set(isOnlineForDatabase));
+        userStatusDatabaseRef.onDisconnect().set({
+          "state": "offline",
+          "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+          "chattingWith": ""
+        }).then((_) => userStatusDatabaseRef.set({
+              "state": "online",
+              "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+            }));
       }
     });
   }

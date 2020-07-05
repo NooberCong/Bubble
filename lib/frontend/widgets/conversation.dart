@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/frontend/widgets/user_status_ball.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
@@ -24,15 +25,15 @@ class Conversation extends StatelessWidget {
         children: <Widget>[
           Stack(
             children: <Widget>[
-              CircleAvatar(
-                backgroundImage: NetworkImage(otherUser.imageUrl),
-                backgroundColor: Colors.grey,
+              CachedCircularImage(
+                imageUrl: otherUser.imageUrl,
                 radius: 30,
               ),
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: UserStatusBall(
+                  key: UniqueKey(),
                   uid: otherUser.uid,
                   showText: false,
                 ),
@@ -44,11 +45,20 @@ class Conversation extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(otherUser.username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    )),
+                Row(
+                  children: <Widget>[
+                    Flexible(
+                      child: Text(
+                        _displayName(otherUser, context),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
                 Text(_lastMessage(otherUser.username),
                     style: TextStyle(
                         color: _colorFromSeenStatus(context), fontSize: 14))
@@ -64,11 +74,21 @@ class Conversation extends StatelessWidget {
                 ),
               ),
             ),
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
           )
         ],
       ),
     );
+  }
+
+  String _displayName(User otherUser, BuildContext context) {
+    return otherUser.username !=
+            (context.bloc<SplashScreenBloc>().state
+                    as SplashScreenStateAuthenticated)
+                .user
+                .username
+        ? otherUser.username
+        : "Just you";
   }
 
   Color _colorFromSeenStatus(BuildContext context) {
@@ -80,8 +100,7 @@ class Conversation extends StatelessWidget {
   }
 
   String _lastMessage(String otherUserName) {
-    final messageIsFromUser = data["userSentLastMessage"] as bool;
-    return "${messageIsFromUser ? 'You' : otherUserName}${data["lastMessage"]}";
+    return "${_prefix(data['userSentLastMessage'], otherUserName)}${data["lastMessage"]}";
   }
 
   void _navigateToChatScreen(BuildContext context, User otherUser) {
@@ -91,5 +110,12 @@ class Conversation extends StatelessWidget {
                     as SplashScreenStateAuthenticated)
                 .user,
             otherUser: otherUser));
+  }
+
+  String _prefix(dynamic userSentLastMessage, String otherUserName) {
+    if (userSentLastMessage == null) {
+      return "";
+    }
+    return (userSentLastMessage as bool) ? "You" : otherUserName;
   }
 }

@@ -21,8 +21,8 @@ class AuthService implements IAuth {
   Future<Either<AuthFailure, User>> getSignedInUser(Params _) async {
     final userOrNull = await _firebaseAuth.currentUser();
     return userOrNull != null
-        ? Right(userOrNull.toUser())
-        : Left(AuthFailure("No user found"));
+        ? Right((await _syncedUser(userOrNull)).toUser())
+        : Left(AuthFailure("No authenticated user"));
   }
 
   Future<FirebaseUser> getFirebaseUser() async {
@@ -112,5 +112,16 @@ class AuthService implements IAuth {
     userUpdateInfo.displayName = name;
     await createdUser.updateProfile(userUpdateInfo);
     await createdUser.reload();
+  }
+
+  Future<FirebaseUser> _syncedUser(FirebaseUser currentUser) async {
+    final databaseUser =
+        await _store.collection("users").document(currentUser.uid).get();
+    if (databaseUser.data["imageUrl"] != currentUser.photoUrl) {
+      await currentUser.updateProfile(
+          UserUpdateInfo()..photoUrl = databaseUser.data["imageUrl"] as String);
+      await currentUser.reload();
+    }
+    return _firebaseAuth.currentUser();
   }
 }

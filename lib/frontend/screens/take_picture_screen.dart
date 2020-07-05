@@ -39,6 +39,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       // Wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner
       // until the controller has finished initializing.
+      backgroundColor: Colors.black,
       body: Stack(
         children: <Widget>[
           FutureBuilder<CameraController>(
@@ -50,7 +51,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                     ? const Center(
                         child: Text("Camera pemission was not granted"),
                       )
-                    : CameraPreview(snapshot.data);
+                    : AspectRatio(
+                        aspectRatio: snapshot.data.value.aspectRatio,
+                        child: CameraPreview(snapshot.data));
               } else {
                 // Otherwise, display a loading indicator.
                 return const Center(child: CircularProgressIndicator());
@@ -119,7 +122,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       // Get a specific camera from the list of available cameras.
       cameras[cameraInd],
       // Define the resolution to use.
-      ResolutionPreset.medium,
+      ResolutionPreset.max,
     );
     await _controller.initialize();
     return _controller;

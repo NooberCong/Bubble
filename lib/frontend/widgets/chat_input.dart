@@ -64,11 +64,9 @@ class _ChatInputState extends State<ChatInput> {
       decoration: BoxDecoration(
         border: Border(
             top: BorderSide(
-                color: Colors.yellow,
-                width: 0,
-                style: Theme.of(context).brightness == Brightness.dark
-                    ? BorderStyle.none
-                    : BorderStyle.solid)),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade200)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,7 +84,7 @@ class _ChatInputState extends State<ChatInput> {
                   child: TextField(
                     textCapitalization: TextCapitalization.sentences,
                     style: const TextStyle(
-                      fontSize: 15.0,
+                      fontSize: 15,
                     ),
                     controller: _controller,
                     decoration: InputDecoration(
@@ -136,31 +134,42 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Widget _buildStickerBox(BuildContext context) {
+    final stickerSize = (MediaQuery.of(context).size.width - 10) / 4;
     if (!_showStickers) {
       return const SizedBox();
     }
     return Container(
       decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.grey[200], width: 0.5)),
-          color: Colors.white),
-      padding: const EdgeInsets.all(5.0),
-      height: 180.0,
+        border: Border(
+            top: BorderSide(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5)),
+      ),
+      padding: const EdgeInsets.all(5),
+      height: 180,
       width: double.infinity,
-      child: Wrap(
-        children: _buildStickers(),
+      child: SingleChildScrollView(
+        child: ButtonTheme(
+          padding: EdgeInsets.zero,
+          child: Wrap(
+            children: _buildStickers(stickerSize),
+          ),
+        ),
       ),
     );
   }
 
-  List<FlatButton> _buildStickers() {
+  List<FlatButton> _buildStickers(double size) {
     return _stickerFilePaths()
         .map((path) => FlatButton(
               onPressed: () =>
                   onSendMessage(path, MessageType.sticker, context),
               child: Image.asset(
                 path,
-                width: 65,
-                height: 65,
+                width: size,
+                height: size,
                 fit: BoxFit.cover,
               ),
             ))
@@ -192,7 +201,10 @@ class _ChatInputState extends State<ChatInput> {
             .user
             .uid,
         idTo: widget.otherUserId,
+        seen: false,
+        timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
         content: text,
+        messageId: generateRandomNumString(),
         type: type)));
   }
 

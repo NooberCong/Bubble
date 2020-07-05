@@ -1,19 +1,21 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/core/util/utils.dart';
+import 'package:bubble/domain/entities/message.dart';
+import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class MessageContainer extends StatelessWidget {
-  final Map<String, dynamic> messageData;
+  final Message message;
   final bool isFromUser;
   final bool isFirstMessage;
   final String otherUserAvatar;
   final bool displaySeen;
   const MessageContainer({
     Key key,
-    this.messageData,
+    this.message,
     this.isFromUser,
     this.isFirstMessage,
     this.otherUserAvatar,
@@ -59,14 +61,14 @@ class MessageContainer extends StatelessWidget {
 
   Widget _buildBasedOnType(BorderRadius borderRadius,
       BoxConstraints boxConstraints, BuildContext context) {
-    switch (messageData["type"] as String) {
-      case "MessageType.text":
+    switch (message.type) {
+      case MessageType.text:
         return _buildText(borderRadius, boxConstraints, context);
-      case "MessageType.image":
+      case MessageType.image:
         return _buildImage(context, borderRadius, boxConstraints);
-      case "MessageType.sticker":
+      case MessageType.sticker:
         return _buildSticker(borderRadius, boxConstraints);
-      case "MessageType.svg":
+      case MessageType.svg:
         return _buildSvg(
             borderRadius, boxConstraints, Theme.of(context).accentColor);
       default:
@@ -80,24 +82,25 @@ class MessageContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          color: _boxColor(context),
+          color: _boxColor(context, message.content),
         ),
         constraints: boxConstraints,
         child: Text(
-          messageData["content"] as String,
-          style: TextStyle(color: _textColor(context), fontSize: 16),
+          message.content,
+          style: TextStyle(
+              color: _textColor(context), fontSize: fontSize(message.content)),
         ));
   }
 
   Container _buildSticker(
       BorderRadius borderRadius, BoxConstraints boxConstraints) {
     return Container(
-      width: 300,
-      height: 300,
+      width: 200,
+      height: 200,
       decoration: BoxDecoration(borderRadius: borderRadius),
       constraints: boxConstraints,
       child: Image.asset(
-        messageData["content"] as String,
+        message.content,
         fit: BoxFit.cover,
       ),
     );
@@ -106,7 +109,7 @@ class MessageContainer extends StatelessWidget {
   GestureDetector _buildImage(BuildContext context, BorderRadius borderRadius,
       BoxConstraints boxConstraints) {
     return GestureDetector(
-      onTap: () => _viewImage(context, messageData["content"] as String),
+      onTap: () => _viewImage(context, message.content),
       child: Container(
         decoration: BoxDecoration(borderRadius: borderRadius),
         clipBehavior: Clip.hardEdge,
@@ -115,7 +118,7 @@ class MessageContainer extends StatelessWidget {
             placeholder: kTransparentImage,
             placeholderErrorBuilder: (_, __, ___) =>
                 Image.asset("assets/images/img_not_available.jpeg"),
-            image: messageData["content"] as String),
+            image: message.content),
       ),
     );
   }
@@ -128,19 +131,24 @@ class MessageContainer extends StatelessWidget {
             : Colors.black;
   }
 
-  Color _boxColor(BuildContext context) {
-    return isFromUser
-        ? Colors.blue
-        : Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey.shade800
-            : Colors.grey.shade300;
+  Color _boxColor(BuildContext context, String content) {
+    // ignore: unnecessary_raw_strings
+    return _isAllEmojis(content)
+        ? Colors.transparent
+        : isFromUser
+            ? Colors.blue
+            : Theme.of(context).brightness == Brightness.dark
+                ? Colors.grey.shade800
+                : Colors.grey.shade300;
   }
+
+  bool _isAllEmojis(String content) => !content.contains(RegExp(r"\w"));
 
   Widget _buildTimestamp() {
     return isFirstMessage
         ? Text(
-            messageTimestampFormat(messageData["timestamp"] as String),
-            style: TextStyle(color: Colors.grey),
+            messageTimestampFormat(message.timestamp),
+            style: const TextStyle(color: Colors.grey),
           )
         : const SizedBox();
   }
@@ -158,8 +166,8 @@ class MessageContainer extends StatelessWidget {
     return !isFromUser
         ? Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(otherUserAvatar),
+            child: CachedCircularImage(
+              imageUrl: otherUserAvatar,
               radius: 15,
             ),
           )
@@ -169,7 +177,7 @@ class MessageContainer extends StatelessWidget {
   Widget _buildSvg(
       BorderRadius borderRadius, BoxConstraints boxConstraints, Color color) {
     return SvgPicture.asset(
-      messageData["content"] as String,
+      message.content,
       color: color,
       width: 60,
       height: 60,
@@ -187,5 +195,9 @@ class MessageContainer extends StatelessWidget {
       );
     }
     return const SizedBox();
+  }
+
+  double fontSize(String message) {
+    return _isAllEmojis(message) ? 32 : 16;
   }
 }

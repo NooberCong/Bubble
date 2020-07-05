@@ -3,7 +3,6 @@ import 'package:bubble/frontend/screens/home_screen.dart';
 import 'package:bubble/frontend/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key key}) : super(key: key);
@@ -19,9 +18,10 @@ class SplashScreen extends StatelessWidget {
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
                     color: Colors.pink,
-                    child: Center(
+                    child: const Center(
                       child: Text("Bubble",
-                          style: GoogleFonts.paprika(
+                          style: TextStyle(
+                              fontFamily: "Paprika",
                               color: Colors.white,
                               fontSize: 40,
                               fontWeight: FontWeight.bold)),

@@ -3,13 +3,13 @@ import 'package:bubble/backend/user_presence.dart';
 import 'package:bubble/bloc/home_screen_bloc/home_screen_bloc.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/frontend/widgets/conversation.dart';
 import 'package:bubble/notifications.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -22,7 +22,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getIt<NotificationManager>()
         .initializeNotification(widget.user.uid, context);
@@ -40,15 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               GestureDetector(
                 onTap: () => _navigateToSettings(context),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: FadeInImage.memoryNetwork(
-                    width: 40,
-                    height: 40,
-                    placeholder: kTransparentImage,
-                    image: widget.user.imageUrl,
-                    fit: BoxFit.cover,
-                  ),
+                child: CachedCircularImage(
+                  imageUrl: widget.user.imageUrl,
+                  radius: 25,
                 ),
               ),
               const Text("\t\t\tChat"),
