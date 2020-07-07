@@ -12,4 +12,6 @@ abstract class ChatScreenEvent with _$ChatScreenEvent {
       _ChatScreenEventMarkAsSeen;
   const factory ChatScreenEvent.cacheConversation(List<Message> messages) =
       _ChatScreenEventCache;
+  const factory ChatScreenEvent.updateConversationData(
+      Map<String, dynamic> data) = _ChatScreenEventUpdateConversation;
 }

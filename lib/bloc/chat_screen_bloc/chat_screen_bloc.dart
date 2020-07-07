@@ -89,6 +89,16 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         cachedConversation = messages;
         _cacheConversationData(messages);
       },
+      updateConversationData: (Map<String, dynamic> data) async* {
+        yield const ChatScreenState.processing();
+        final updateResult = await cloudDataService.updateConversationData(
+            Params.map(data..addAll({"roomId": chatRoomId})));
+        yield updateResult.fold(
+            (error) =>
+                const ChatScreenState.notification("Update operation failed"),
+            (success) => const ChatScreenState.notification(
+                "Update operation succeeded"));
+      },
     );
   }
 

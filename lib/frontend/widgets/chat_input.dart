@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
-import 'package:bubble/core/util/stickers.dart';
+import 'package:bubble/core/constants/fonts.dart';
+import 'package:bubble/core/constants/stickers.dart';
+import 'package:bubble/core/constants/svgs.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
@@ -12,6 +14,7 @@ import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ChatInput extends StatefulWidget {
@@ -25,10 +28,16 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> {
   TextEditingController _controller;
   FocusNode _node;
+  ConversationSpecifics specifics;
+  StreamSubscription _specificsSubscription;
   StreamSubscription _keyboardVisibilitySubscription;
-  bool _showStickers = false;
+  PersistentBottomSheetController _bottomSheetController;
+  //variable to controll tool bar
+  //-1 means no toolbar item is open, 0 for miscellaneous, 1 for stickerbox
+  int _toolbarTabIndex = -1;
   bool _showMainEmoji = true;
   bool _expandToolBar = true;
+  String _inputHintText = "Aa";
 
   @override
   void initState() {
@@ -40,8 +49,23 @@ class _ChatInputState extends State<ChatInput> {
       if (isVisible == false) {
         setState(() {
           _expandToolBar = true;
+          _inputHintText = "Aa";
         });
         _node.unfocus();
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    specifics = ConversationSpecificsProvider.of(context).initialData;
+    _specificsSubscription =
+        ConversationSpecificsProvider.of(context).stream.listen((value) {
+      if (_shouldUpdate(value)) {
+        setState(() {
+          specifics = value;
+        });
       }
     });
   }
@@ -50,23 +74,17 @@ class _ChatInputState extends State<ChatInput> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => _onWillPop(context),
-      child: StreamBuilder(
-        stream: ConversationSpecificsProvider.of(context).stream,
-        initialData: ConversationSpecificsProvider.of(context).initialData,
-        builder: (BuildContext context,
-                AsyncSnapshot<ConversationSpecifics> snapshot) =>
-            Column(
-          children: <Widget>[
-            _buildStickerBox(context),
-            _buildInputBar(context, snapshot.data)
-          ],
-        ),
+      child: Column(
+        children: <Widget>[
+          _buildBottomTab(0, _buildMiscellaneousItems),
+          _buildBottomTab(1, _buildStickers),
+          _buildInputBar()
+        ],
       ),
     );
   }
 
-  Container _buildInputBar(
-      BuildContext context, ConversationSpecifics conversationSpecifics) {
+  Container _buildInputBar() {
     return Container(
       width: double.infinity,
       height: 50.0,
@@ -81,7 +99,7 @@ class _ChatInputState extends State<ChatInput> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           // Button send image
-          _buildToolBar(conversationSpecifics.themeColorCode),
+          _buildToolBar(),
 
           // Edit text
           Flexible(
@@ -104,8 +122,9 @@ class _ChatInputState extends State<ChatInput> {
                       fillColor: Theme.of(context).brightness == Brightness.dark
                           ? Colors.grey.shade800
                           : Colors.grey.shade200,
-                      hintText: 'Type your message...',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      hintText: _inputHintText,
+                      hintStyle:
+                          TextStyle(color: Colors.grey[400], fontSize: 16),
                     ),
                     focusNode: _node,
                   ),
@@ -116,23 +135,23 @@ class _ChatInputState extends State<ChatInput> {
 
           // Button send message
           Material(
-            child: _buildActionButton(context, conversationSpecifics),
+            child: _buildActionButton(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(
-      BuildContext context, ConversationSpecifics conversationSpecifics) {
+  Widget _buildActionButton(BuildContext context) {
     return _showMainEmoji
         ? IconButton(
-            icon: SvgPicture.asset(conversationSpecifics.mainEmoji,
-                color: Color(conversationSpecifics.themeColorCode),
+            icon: SvgPicture.asset(specifics.mainEmoji,
+                color: colorForSvg(
+                    specifics.mainEmoji, Color(specifics.themeColorCode)),
                 width: 26,
                 height: 26),
             onPressed: () =>
-                onSendMessage(conversationSpecifics.mainEmoji, MessageType.svg),
+                onSendMessage(specifics.mainEmoji, MessageType.svg),
           )
         : IconButton(
             icon: Icon(
@@ -144,9 +163,8 @@ class _ChatInputState extends State<ChatInput> {
           );
   }
 
-  Widget _buildStickerBox(BuildContext context) {
-    final stickerSize = (MediaQuery.of(context).size.width - 10) / 4;
-    if (!_showStickers) {
+  Widget _buildBottomTab(int tabIndex, List<Widget> Function() itemBuilder) {
+    if (_toolbarTabIndex != tabIndex) {
       return const SizedBox();
     }
     return Container(
@@ -165,14 +183,15 @@ class _ChatInputState extends State<ChatInput> {
         child: ButtonTheme(
           padding: EdgeInsets.zero,
           child: Wrap(
-            children: _buildStickers(stickerSize),
+            children: itemBuilder(),
           ),
         ),
       ),
     );
   }
 
-  List<FlatButton> _buildStickers(double size) {
+  List<FlatButton> _buildStickers() {
+    final size = (MediaQuery.of(context).size.width - 10) / 4;
     return _stickerFilePaths()
         .map((path) => FlatButton(
               onPressed: () => onSendMessage(path, MessageType.sticker),
@@ -188,13 +207,12 @@ class _ChatInputState extends State<ChatInput> {
 
   void _getSticker() {
     // Hide keyboard when sticker appear
-    _node.unfocus();
     setState(() {
-      _showStickers = !_showStickers;
+      _toolbarTabIndex = _toolbarTabIndex != 1 ? 1 : -1;
     });
   }
 
-  Future getImage(BuildContext context) async {
+  Future getImage() async {
     final imageFile = await getGaleryImage();
     if (imageFile != null) {
       onSendMessage(imageFile.path, MessageType.image);
@@ -228,15 +246,10 @@ class _ChatInputState extends State<ChatInput> {
       // Hide sticker and toolbar when keyboard appear
       setState(() {
         _expandToolBar = false;
+        _inputHintText = "Type your message here...";
+        _toolbarTabIndex = -1;
       });
-      closeStickersBox();
     }
-  }
-
-  void closeStickersBox() {
-    setState(() {
-      _showStickers = false;
-    });
   }
 
   void _openCamera() {
@@ -248,17 +261,30 @@ class _ChatInputState extends State<ChatInput> {
     }));
   }
 
-  Future<bool> _onWillPop(BuildContext context) {
-    if (_showStickers) {
-      closeStickersBox();
-      return Future.value(false);
+  Future<bool> _onWillPop(BuildContext context) async {
+    if (_toolbarTabIndex != -1) {
+      if (_bottomSheetController != null) {
+        _disposeBottomSheet();
+      } else {
+        setState(() {
+          _toolbarTabIndex = -1;
+        });
+      }
+      return false;
     }
     context.bloc<ChatScreenBloc>().add(ChatScreenEvent.popScreen((context
             .bloc<SplashScreenBloc>()
             .state as SplashScreenStateAuthenticated)
         .user
         .uid));
-    return Future.value(true);
+    return true;
+  }
+
+  void _disposeBottomSheet() {
+    _bottomSheetController.close();
+    setState(() {
+      _bottomSheetController = null;
+    });
   }
 
   @override
@@ -266,6 +292,7 @@ class _ChatInputState extends State<ChatInput> {
     _controller.dispose();
     _node.dispose();
     _keyboardVisibilitySubscription.cancel();
+    _specificsSubscription.cancel();
     super.dispose();
   }
 
@@ -286,10 +313,26 @@ class _ChatInputState extends State<ChatInput> {
     }
   }
 
-  Widget _buildToolBar(int colorCode) {
+  Widget _buildToolBar() {
     return _expandToolBar
         ? Row(
             children: <Widget>[
+              Material(
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  icon: SvgPicture.asset(
+                    "assets/images/more.svg",
+                    height: 26,
+                    width: 26,
+                    color: Color(specifics.themeColorCode),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _toolbarTabIndex = _toolbarTabIndex != 0 ? 0 : -1;
+                    });
+                  },
+                ),
+              ),
               Material(
                 child: IconButton(
                   highlightColor: Colors.transparent,
@@ -298,7 +341,7 @@ class _ChatInputState extends State<ChatInput> {
                     size: 26,
                   ),
                   onPressed: _openCamera,
-                  color: Color(colorCode),
+                  color: Color(specifics.themeColorCode),
                 ),
               ),
               Material(
@@ -308,8 +351,8 @@ class _ChatInputState extends State<ChatInput> {
                     Icons.image,
                     size: 26,
                   ),
-                  onPressed: () => getImage(context),
-                  color: Color(colorCode),
+                  onPressed: () => getImage,
+                  color: Color(specifics.themeColorCode),
                 ),
               ),
               Material(
@@ -319,7 +362,7 @@ class _ChatInputState extends State<ChatInput> {
                     size: 26,
                   ),
                   onPressed: _getSticker,
-                  color: Color(colorCode),
+                  color: Color(specifics.themeColorCode),
                 ),
               ),
             ],
@@ -335,8 +378,178 @@ class _ChatInputState extends State<ChatInput> {
                   _expandToolBar = true;
                 });
               },
-              color: Color(colorCode),
+              color: Color(specifics.themeColorCode),
             ),
           );
+  }
+
+  List<Widget> _buildColorPicker() {
+    return [
+      MaterialColorPicker(
+        allowShades: false,
+        colors: [
+          Colors.green,
+          Colors.amber,
+          Colors.cyan,
+          Colors.indigo,
+          Colors.blue,
+          Colors.orange,
+          Colors.pink,
+          Colors.teal
+        ],
+        circleSize: MediaQuery.of(context).size.width / 6,
+        spacing: 5,
+        elevation: 1,
+        shrinkWrap: true,
+        onMainColorChange: (value) => _updateConversationData(
+            {"themeColorCode": value.value},
+            (context.bloc<SplashScreenBloc>().state
+                        as SplashScreenStateAuthenticated)
+                    .user
+                    .uid !=
+                widget.otherUserId),
+        selectedColor: Color(specifics.themeColorCode),
+      )
+    ];
+  }
+
+  bool _shouldUpdate(ConversationSpecifics newValue) {
+    return specifics.mainEmoji != newValue.mainEmoji ||
+        specifics.themeColorCode != newValue.themeColorCode;
+  }
+
+  void _updateConversationData(
+      Map<String, dynamic> updateData, bool shouldMerge) {
+    final user = (context.bloc<SplashScreenBloc>().state
+            as SplashScreenStateAuthenticated)
+        .user;
+    context.bloc<ChatScreenBloc>().add(ChatScreenEvent.updateConversationData({
+          "otherUserId": widget.otherUserId,
+          "userId": user.uid,
+          //Only merge data on both user conversation when user is not chatting with his own account!
+          "merge": shouldMerge,
+          "updateData": updateData
+        }));
+  }
+
+  List<Widget> _buildMiscellaneousItems() {
+    final size = MediaQuery.of(context).size.width / 6;
+    return [
+      FlatButton(
+        padding: const EdgeInsets.all(10),
+        onPressed: () => _showBottomItemsMenu(_buildColorPicker),
+        child: Column(
+          children: <Widget>[
+            SvgPicture.asset(
+              "assets/images/color-wheel.svg",
+              width: size,
+              height: size,
+            ),
+            const SizedBox(height: 5),
+            const Text("Color Theme")
+          ],
+        ),
+      ),
+      FlatButton(
+        padding: const EdgeInsets.all(10),
+        onPressed: () => _showBottomItemsMenu(_buildMainEmojis),
+        child: Column(
+          children: <Widget>[
+            SvgPicture.asset(
+              specifics.mainEmoji,
+              width: size,
+              height: size,
+              color: colorForSvg(
+                  specifics.mainEmoji, Color(specifics.themeColorCode)),
+            ),
+            const SizedBox(height: 5),
+            const Text("Main emoji")
+          ],
+        ),
+      ),
+      FlatButton(
+        padding: const EdgeInsets.all(10),
+        onPressed: () => _showBottomItemsMenu(_buildFonts),
+        child: Column(
+          children: <Widget>[
+            SvgPicture.asset(
+              "assets/images/font.svg",
+              width: size,
+              height: size,
+            ),
+            const SizedBox(height: 5),
+            const Text("Custom font")
+          ],
+        ),
+      ),
+    ];
+  }
+
+  void _showBottomItemsMenu(List<Widget> Function() itemBuilder) {
+    setState(() {
+      _bottomSheetController = (Scaffold.of(context).showBottomSheet(
+        (context) => SizedBox(
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Wrap(children: itemBuilder()),
+              FlatButton(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _bottomSheetController = null;
+                  });
+                },
+                child: const Text(
+                  "Close",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ]),
+          ),
+        ),
+      ))
+        ..closed.then((_) => setState(() {
+              _bottomSheetController = null;
+            }));
+    });
+  }
+
+  List<Widget> _buildMainEmojis() {
+    final emojiSize = MediaQuery.of(context).size.width / 6;
+    return svgs
+        .map(
+          (svg) => FlatButton(
+            padding: const EdgeInsets.all(10),
+            onPressed: () => _updateConversationData({"mainEmoji": svg}, true),
+            child: SvgPicture.asset(svg,
+                width: emojiSize,
+                height: emojiSize,
+                color: colorForSvg(svg, Color(specifics.themeColorCode))),
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> _buildFonts() {
+    return fonts
+        .map(
+          (font) => FlatButton(
+            padding: const EdgeInsets.all(10),
+            onPressed: () =>
+                _updateConversationData({"fontFamily": font}, false),
+            child: Text(
+              "$font font family demo",
+              style: TextStyle(fontSize: 16, fontFamily: font),
+            ),
+          ),
+        )
+        .toList();
   }
 }

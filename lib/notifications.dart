@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
+import 'package:bubble/backend/cloud_data_service.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/core/util/utils.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
 import 'package:bubble/router.gr.dart';
@@ -85,15 +88,36 @@ class NotificationManager {
   }
 
   Future<void> _navigateToChatScreen(
-      Map<dynamic, dynamic> messageData, BuildContext context) {
+      Map<dynamic, dynamic> messageData, BuildContext context) async {
+    final user = (context.bloc<SplashScreenBloc>().state
+            as SplashScreenStateAuthenticated)
+        .user;
+    final otherUser = User.fromJson(json
+        .decode(messageData["otherUser"] as String) as Map<String, dynamic>);
+    final docSnapshotOrFailure = await (cloudDataService as CloudDataService)
+        .fetchConversationData(Params.map({
+      "userId": user.uid,
+      "roomId": getRoomIdFromUIDHashCode(user.uid, otherUser.uid)
+    }));
     ExtendedNavigator.of(context).popUntil((route) => route.isFirst);
-    return ExtendedNavigator.of(context).pushNamed(Routes.chatScreen,
-        arguments: ChatScreenArguments(
-            user: (context.bloc<SplashScreenBloc>().state
-                    as SplashScreenStateAuthenticated)
-                .user,
-            otherUser: User.fromJson(
-                json.decode(messageData["otherUser"] as String)
-                    as Map<String, dynamic>)));
+    docSnapshotOrFailure.fold(
+        (error) => {},
+        (snapshot) => {
+              ExtendedNavigator.of(context).pushNamed(
+                Routes.chatScreen,
+                arguments: ChatScreenArguments(
+                    user: (context.bloc<SplashScreenBloc>().state
+                            as SplashScreenStateAuthenticated)
+                        .user,
+                    otherUser: otherUser,
+                    conversationSpecifics:
+                        ConversationSpecifics.fromJson(snapshot.data),
+                    conversationSpecificsStream: snapshot.reference
+                        .snapshots()
+                        .map((snapshot) =>
+                            ConversationSpecifics.fromJson(snapshot.data))),
+              )
+            });
+    return;
   }
 }

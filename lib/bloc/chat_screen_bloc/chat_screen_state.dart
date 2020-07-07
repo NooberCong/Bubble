@@ -10,4 +10,5 @@ abstract class ChatScreenState with _$ChatScreenState {
       ChatScreenStateNotification;
   const factory ChatScreenState.messageSent() = _ChatScreenStateMessageSent;
   const factory ChatScreenState.loading() = _ChatScreenStateLoading;
+  const factory ChatScreenState.processing() = _ChatScreenStateProcessing;
 }

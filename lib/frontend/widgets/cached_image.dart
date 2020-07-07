@@ -19,7 +19,11 @@ class CachedCircularImage extends StatelessWidget {
       ),
       errorWidget: (context, url, error) =>
           Image.asset("assets/images/img_not_available.jpeg"),
-      placeholder: (_, url) => const CircularProgressIndicator(),
+      placeholder: (_, url) => Container(
+          width: radius * 2,
+          height: radius * 2,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: const CircularProgressIndicator()),
     );
   }
 }

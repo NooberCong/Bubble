@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bubble/core/constants/svgs.dart';
 import 'package:bubble/core/util/utils.dart';
+import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/router.gr.dart';
@@ -7,13 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class MessageContainer extends StatelessWidget {
-  final Color mainColor;
+class MessageContainer extends StatefulWidget {
+  final ConversationSpecifics specifics;
   final Message message;
   final bool isFromUser;
+  final bool displayDetails;
   final bool isFirstMessage;
   final String otherUserAvatar;
   final bool displaySeen;
+  final void Function() showDetails;
+  static const Duration animationDuration = Duration(milliseconds: 250);
   const MessageContainer({
     Key key,
     this.message,
@@ -21,53 +26,70 @@ class MessageContainer extends StatelessWidget {
     this.isFirstMessage,
     this.otherUserAvatar,
     this.displaySeen,
-    this.mainColor,
+    this.specifics,
+    this.showDetails,
+    this.displayDetails,
   }) : super(key: key);
 
+  @override
+  _MessageContainerState createState() => _MessageContainerState();
+}
+
+class _MessageContainerState extends State<MessageContainer> {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         _buildTimestamp(),
-        _buildContent(context),
+        _buildContent(),
         _buildSeenStatus()
       ]),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent() {
     return Padding(
       padding: _padding(),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
             //Push messages to the left if it is from the current user otherwise push it to the right
-            isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            widget.isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: <Widget>[
           _buildAvatar(),
-          _buildMessage(context),
+          _buildMessage(),
         ],
       ),
     );
   }
 
-  Widget _buildMessage(BuildContext context) {
+  Widget _buildMessage() {
     final boxConstraints =
         BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 4 * 3);
     final borderRadius = BorderRadius.circular(20);
     return Padding(
         padding: const EdgeInsets.only(right: 10),
-        child: _buildBasedOnType(borderRadius, boxConstraints, context));
+        child: GestureDetector(
+            onTap: _onMessageTap,
+            child: _buildBasedOnType(borderRadius, boxConstraints)));
   }
 
-  Widget _buildBasedOnType(BorderRadius borderRadius,
-      BoxConstraints boxConstraints, BuildContext context) {
-    switch (message.type) {
+  void _onMessageTap() {
+    if (widget.message.type != MessageType.image) {
+      widget.showDetails();
+    } else {
+      _viewImage(context, widget.message.content);
+    }
+  }
+
+  Widget _buildBasedOnType(
+      BorderRadius borderRadius, BoxConstraints boxConstraints) {
+    switch (widget.message.type) {
       case MessageType.text:
-        return _buildText(borderRadius, boxConstraints, context);
+        return _buildText(borderRadius, boxConstraints);
       case MessageType.image:
-        return _buildImage(context, borderRadius, boxConstraints);
+        return _buildImage(borderRadius, boxConstraints);
       case MessageType.sticker:
         return _buildSticker(borderRadius, boxConstraints);
       case MessageType.svg:
@@ -77,19 +99,20 @@ class MessageContainer extends StatelessWidget {
     }
   }
 
-  Widget _buildText(BorderRadius borderRadius, BoxConstraints boxConstraints,
-      BuildContext context) {
+  Widget _buildText(BorderRadius borderRadius, BoxConstraints boxConstraints) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-        color: _boxColor(context, message.content),
+        color: _boxColor(context, widget.message.content),
       ),
       constraints: boxConstraints,
       child: Text(
-        message.content,
+        widget.message.content,
         style: TextStyle(
-            color: _textColor(context), fontSize: fontSize(message.content)),
+            color: _textColor(context),
+            fontSize: fontSize(widget.message.content),
+            fontFamily: widget.specifics.fontFamily),
       ),
     );
   }
@@ -102,31 +125,27 @@ class MessageContainer extends StatelessWidget {
       decoration: BoxDecoration(borderRadius: borderRadius),
       constraints: boxConstraints,
       child: Image.asset(
-        message.content,
+        widget.message.content,
         fit: BoxFit.cover,
       ),
     );
   }
 
-  GestureDetector _buildImage(BuildContext context, BorderRadius borderRadius,
-      BoxConstraints boxConstraints) {
-    return GestureDetector(
-      onTap: () => _viewImage(context, message.content),
-      child: Container(
-        decoration: BoxDecoration(borderRadius: borderRadius),
-        clipBehavior: Clip.hardEdge,
-        constraints: boxConstraints,
-        child: FadeInImage.memoryNetwork(
-            placeholder: kTransparentImage,
-            placeholderErrorBuilder: (_, __, ___) =>
-                Image.asset("assets/images/img_not_available.jpeg"),
-            image: message.content),
-      ),
+  Widget _buildImage(BorderRadius borderRadius, BoxConstraints boxConstraints) {
+    return Container(
+      decoration: BoxDecoration(borderRadius: borderRadius),
+      clipBehavior: Clip.hardEdge,
+      constraints: boxConstraints,
+      child: FadeInImage.memoryNetwork(
+          placeholder: kTransparentImage,
+          placeholderErrorBuilder: (_, __, ___) =>
+              Image.asset("assets/images/img_not_available.jpeg"),
+          image: widget.message.content),
     );
   }
 
   Color _textColor(BuildContext context) {
-    return isFromUser
+    return widget.isFromUser
         ? Colors.white
         : Theme.of(context).brightness == Brightness.dark
             ? Colors.white
@@ -135,24 +154,31 @@ class MessageContainer extends StatelessWidget {
 
   Color _boxColor(BuildContext context, String content) {
     // ignore: unnecessary_raw_strings
-    return _isAllEmojis(content)
-        ? Colors.transparent
-        : isFromUser
-            ? mainColor
-            : Theme.of(context).brightness == Brightness.dark
-                ? Colors.grey.shade800
-                : Colors.grey.shade300;
+    return (_isAllEmojis(content)
+            ? Colors.transparent
+            : widget.isFromUser
+                ? Color(widget.specifics.themeColorCode)
+                : Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade300)
+        .withOpacity(widget.displayDetails ? .75 : 1);
   }
 
   bool _isAllEmojis(String content) => !content.contains(RegExp(r"\w"));
 
   Widget _buildTimestamp() {
-    return isFirstMessage
-        ? Text(
-            messageTimestampFormat(message.timestamp),
-            style: const TextStyle(color: Colors.grey),
-          )
-        : const SizedBox();
+    return AnimatedOpacity(
+      opacity: (widget.isFirstMessage || widget.displayDetails) ? 1 : 0,
+      duration: MessageContainer.animationDuration,
+      child: AnimatedContainer(
+        height: (widget.isFirstMessage || widget.displayDetails) ? 20 : 0,
+        duration: MessageContainer.animationDuration,
+        child: Text(
+          messageTimestampFormat(widget.message.timestamp),
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
   }
 
   EdgeInsets _padding() {
@@ -165,11 +191,11 @@ class MessageContainer extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    return !isFromUser
+    return !widget.isFromUser
         ? Padding(
             padding: const EdgeInsets.only(right: 10),
             child: CachedCircularImage(
-              imageUrl: otherUserAvatar,
+              imageUrl: widget.otherUserAvatar,
               radius: 15,
             ),
           )
@@ -178,24 +204,43 @@ class MessageContainer extends StatelessWidget {
 
   Widget _buildSvg(BorderRadius borderRadius, BoxConstraints boxConstraints) {
     return SvgPicture.asset(
-      message.content,
-      color: mainColor,
+      widget.message.content,
+      color: colorForSvg(
+          widget.message.content,
+          Color(widget.specifics.themeColorCode)
+              .withOpacity(widget.displayDetails ? .75 : 1)),
       width: 60,
       height: 60,
     );
   }
 
   Widget _buildSeenStatus() {
-    if (displaySeen) {
-      return Align(
-        alignment: Alignment.centerRight,
-        child: CachedCircularImage(
-          imageUrl: otherUserAvatar,
-          radius: 8,
+    return Column(
+      children: <Widget>[
+        AnimatedOpacity(
+          duration: MessageContainer.animationDuration,
+          opacity: widget.displayDetails ? 1 : 0,
+          child: AnimatedContainer(
+            duration: MessageContainer.animationDuration,
+            height: widget.displayDetails ? 20 : 0,
+            child: Text(
+              widget.message.seen ? "Seen" : "Sent",
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
         ),
-      );
-    }
-    return const SizedBox();
+        if (widget.displaySeen)
+          Align(
+            alignment: Alignment.centerRight,
+            child: CachedCircularImage(
+              imageUrl: widget.otherUserAvatar,
+              radius: 8,
+            ),
+          )
+        else
+          const SizedBox(),
+      ],
+    );
   }
 
   double fontSize(String message) {

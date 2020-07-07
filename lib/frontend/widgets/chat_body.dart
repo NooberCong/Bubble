@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
@@ -19,10 +21,13 @@ class ChatBody extends StatefulWidget {
 
 class _ChatBodyState extends State<ChatBody> {
   //Initial context
+  int _showMessageDetailsIndex = -1;
   Stream<dynamic> messageStream = const Stream.empty();
   bool canLoadMore = false;
   bool isLoading = false;
   ScrollController _controller;
+  StreamSubscription _specificsSubscription;
+  ConversationSpecifics specifics;
   @override
   void initState() {
     // TODO: implement initState
@@ -31,6 +36,20 @@ class _ChatBodyState extends State<ChatBody> {
     _controller.addListener(() {
       if (_reachedTop() && canLoadMore) {
         _loadMoreMessages();
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    specifics = ConversationSpecificsProvider.of(context).initialData;
+    _specificsSubscription =
+        ConversationSpecificsProvider.of(context).stream.listen((value) {
+      if (_shouldUpdate(value)) {
+        setState(() {
+          specifics = value;
+        });
       }
     });
   }
@@ -79,21 +98,7 @@ class _ChatBodyState extends State<ChatBody> {
               _saveCurrentMessages(messageList);
               _markMessagesAsSeen(messageList);
               return messageList.isNotEmpty
-                  ? StreamBuilder(
-                      stream: ConversationSpecificsProvider.of(context).stream,
-                      initialData:
-                          ConversationSpecificsProvider.of(context).initialData,
-                      builder: (BuildContext context,
-                              AsyncSnapshot<ConversationSpecifics> snapshot) =>
-                          ListView(
-                        padding: const EdgeInsets.all(10.0),
-                        reverse: true,
-                        controller: _controller,
-                        addAutomaticKeepAlives: false,
-                        children: _buildMessages(
-                            messageList, snapshot.data.themeColorCode),
-                      ),
-                    )
+                  ? _buildBody(messageList)
                   : Center(
                       child: Text("Say hi to ${widget.otherUser.username}"),
                     );
@@ -110,6 +115,7 @@ class _ChatBodyState extends State<ChatBody> {
 
   @override
   void dispose() {
+    _specificsSubscription.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -161,19 +167,36 @@ class _ChatBodyState extends State<ChatBody> {
     );
   }
 
-  List<Widget> _buildMessages(List<Message> messages, int colorCode) {
+  Widget _buildBody(List<Message> messages) {
     final widgets = <Widget>[];
     for (int i = 0; i < messages.length; i++) {
       final message = messages[i];
       widgets.add(MessageContainer(
-        mainColor: Color(colorCode),
+        key: ValueKey(message.timestamp),
+        specifics: specifics,
         message: message,
         isFromUser: _isFromUser(message),
         isFirstMessage: _isFirst(i, messages),
         displaySeen: i == _lastSeenMessage(messages),
         otherUserAvatar: widget.otherUser.imageUrl,
+        displayDetails: i == _showMessageDetailsIndex,
+        showDetails: () {
+          setState(() {
+            _showMessageDetailsIndex = _showMessageDetailsIndex == i ? -1 : i;
+          });
+        },
       ));
     }
-    return widgets..add(_buildLoading());
+    return ListView(
+        padding: const EdgeInsets.all(10.0),
+        reverse: true,
+        controller: _controller,
+        addAutomaticKeepAlives: false,
+        children: widgets..add(_buildLoading()));
+  }
+
+  bool _shouldUpdate(ConversationSpecifics value) {
+    return specifics.themeColorCode != value.themeColorCode ||
+        specifics.fontFamily != value.fontFamily;
   }
 }

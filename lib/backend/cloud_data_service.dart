@@ -117,14 +117,15 @@ class CloudDataService implements ICloudDataService {
   @override
   Future<Either<CloudFailure, Stream>> fetchConversationStream(
       Params params) async {
-    final inputData = params as ParamsMap;
+    final inputData = (params as ParamsMap).data;
     try {
+      _markLastMessageInConversationSnapshotAsSeen(inputData);
       return Right(store
           .collection("rooms")
-          .document(inputData.data["roomId"] as String)
+          .document(inputData["roomId"] as String)
           .collection("messages")
           .orderBy("timestamp", descending: true)
-          .limit(inputData.data["limit"] as int)
+          .limit(inputData["limit"] as int)
           .snapshots());
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
@@ -209,7 +210,8 @@ class CloudDataService implements ICloudDataService {
               user.uid != otherUser.uid ? otherUser.username : "Just you",
           "userNickname": user.uid != otherUser.uid ? user.username : "You",
           "mainEmoji": "asssets/images/like.svg",
-          "themeColorCode": 4280391411
+          "themeColorCode": 4280391411,
+          "fontFamily": "Roboto"
         });
       }
 
@@ -228,7 +230,8 @@ class CloudDataService implements ICloudDataService {
           "userNickname": otherUser.username,
           "otherUserNickname": user.username,
           "mainEmoji": "asssets/images/like.svg",
-          "themeColorCode": 4280391411
+          "themeColorCode": 4280391411,
+          "fontFamily": "Roboto"
         });
       }
       return const Right(null);
@@ -268,26 +271,27 @@ class CloudDataService implements ICloudDataService {
   Future<Either<CloudFailure, void>> markMessageAsSeen(Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
-      return Right(await store
+      await store
           .collection("rooms")
           .document(inputData["roomId"] as String)
           .collection("messages")
           .document(inputData["messageId"] as String)
-          .updateData({"seen": true}));
+          .updateData({"seen": true});
+      return const Right(null);
     } on Exception {
       return Left(CloudFailure(""));
     }
   }
 
-  // Future<void> _markLastMessageInConversationSnapshotAsSeen(
-  //     Map<String, dynamic> data) {
-  //   return store
-  //       .collection("users")
-  //       .document(data["uid"] as String)
-  //       .collection("conversations")
-  //       .document(data["roomId"] as String)
-  //       .updateData({"seen": true});
-  // }
+  Future<void> _markLastMessageInConversationSnapshotAsSeen(
+      Map<String, dynamic> data) {
+    return store
+        .collection("users")
+        .document(data["uid"] as String)
+        .collection("conversations")
+        .document(data["roomId"] as String)
+        .updateData({"seen": true});
+  }
 
   Future<void> _updateConversationLastMessage(
       Message message, String roomId) async {
@@ -354,5 +358,52 @@ class CloudDataService implements ICloudDataService {
 
   bool _isSameUser(Message message) {
     return message.idFrom == message.idTo;
+  }
+
+  @override
+  Future<Either<CloudFailure, void>> updateConversationData(
+      Params params) async {
+    try {
+      final inputData = (params as ParamsMap).data;
+      final batch = store.batch();
+      batch.updateData(
+          store
+              .collection("users")
+              .document(inputData["userId"] as String)
+              .collection("conversations")
+              .document(inputData["roomId"] as String),
+          inputData["updateData"] as Map<String, dynamic>);
+      //Check if user is chatting with him/herself
+      if (inputData["merge"] as bool) {
+        batch.updateData(
+            store
+                .collection("users")
+                .document(inputData["otherUserId"] as String)
+                .collection("conversations")
+                .document(inputData["roomId"] as String),
+            inputData["updateData"] as Map<String, dynamic>);
+      }
+      await batch.commit();
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(CloudFailure(e.toString()));
+    }
+  }
+
+  //Non-contract functions
+  Future<Either<CloudFailure, DocumentSnapshot>> fetchConversationData(
+      Params params) async {
+    try {
+      final inputData = (params as ParamsMap).data;
+      final document = await store
+          .collection("users")
+          .document(inputData["userId"] as String)
+          .collection("conversations")
+          .document(inputData["roomId"] as String)
+          .get();
+      return Right(document);
+    } on Exception catch (e) {
+      return Left(CloudFailure(e.toString()));
+    }
   }
 }

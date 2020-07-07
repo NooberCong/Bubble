@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/find_user_screen_bloc/find_user_screen_bloc.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/frontend/widgets/find_user_actions.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:dashed_circle/dashed_circle.dart';
@@ -43,11 +44,9 @@ class FindUserScreen extends StatelessWidget {
                             color: Colors.blue,
                             child: Padding(
                               padding: const EdgeInsets.all(6.0),
-                              child: CircleAvatar(
+                              child: CachedCircularImage(
+                                imageUrl: otherUser.imageUrl,
                                 radius: 70,
-                                backgroundColor: Colors.transparent,
-                                backgroundImage:
-                                    NetworkImage(otherUser.imageUrl),
                               ),
                             ),
                           ),
@@ -58,6 +57,9 @@ class FindUserScreen extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           Text(otherUser.bio),
+                          const SizedBox(
+                            height: 20,
+                          ),
                           RaisedButton(
                             color: Colors.blue,
                             onPressed: () {

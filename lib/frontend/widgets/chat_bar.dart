@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
@@ -22,7 +24,30 @@ class ChatBar extends StatefulWidget {
 }
 
 class _ChatBarState extends State<ChatBar> {
+  ConversationSpecifics specifics;
+  StreamSubscription _specificsSubscription;
   bool connectionEstablished = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    specifics = ConversationSpecificsProvider.of(context).initialData;
+    _specificsSubscription =
+        ConversationSpecificsProvider.of(context).stream.listen((value) {
+      if (_shouldUpdate(value)) {
+        setState(() {
+          specifics = value;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _specificsSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<ChatScreenBloc, ChatScreenState>(
@@ -51,7 +76,7 @@ class _ChatBarState extends State<ChatBar> {
               iconSize: 32,
               icon: Icon(
                 Icons.info,
-                color: Colors.blue,
+                color: Color(specifics.themeColorCode),
               ),
               onPressed: () => _navigateToOtherUserInfoScreen(context),
             ),
@@ -69,7 +94,10 @@ class _ChatBarState extends State<ChatBar> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _realTimeNickname(),
+                  Text(specifics.otherUserNickname,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
                   UserStatusBall(
                     uid: widget.otherUser.uid,
                     showText: true,
@@ -81,19 +109,6 @@ class _ChatBarState extends State<ChatBar> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _realTimeNickname() {
-    return StreamBuilder(
-      stream: ConversationSpecificsProvider.of(context).stream,
-      initialData: ConversationSpecificsProvider.of(context).initialData,
-      builder: (BuildContext context,
-              AsyncSnapshot<ConversationSpecifics> snapshot) =>
-          Text(snapshot.data.otherUserNickname,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
     );
   }
 
@@ -109,5 +124,10 @@ class _ChatBarState extends State<ChatBar> {
             "Connecting...",
             style: TextStyle(color: Colors.red, fontSize: 12),
           );
+  }
+
+  bool _shouldUpdate(ConversationSpecifics value) {
+    return specifics.otherUserNickname != value.otherUserNickname ||
+        specifics.themeColorCode != value.themeColorCode;
   }
 }

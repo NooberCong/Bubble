@@ -51,6 +51,9 @@ exports.onUserDataChange = functions.firestore
         change.after.data().imageUrl
       );
     }
+    if (change.before.data().bio != change.after.data().bio) {
+      updateUserConversationsBio(context.params.uid, change.after.data().bio);
+    }
     return null;
   });
 
@@ -73,6 +76,30 @@ async function updateUserConversationsAvatar(uid, imageUrl) {
       otherUser: JSON.stringify({
         ...JSON.parse(otherUserConversationSnapshot.data().otherUser),
         imageUrl: imageUrl,
+      }),
+    });
+  });
+}
+
+async function updateUserConversationsBio(uid, bio) {
+  const userConversations = await admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("conversations")
+    .get();
+  userConversations.forEach(async (doc) => {
+    const otherUserConversationSnapshot = await admin
+      .firestore()
+      .collection("users")
+      .doc(JSON.parse(doc.data().otherUser).uid)
+      .collection("conversations")
+      .doc(doc.id)
+      .get();
+    otherUserConversationSnapshot.ref.update({
+      otherUser: JSON.stringify({
+        ...JSON.parse(otherUserConversationSnapshot.data().otherUser),
+        bio: bio,
       }),
     });
   });
