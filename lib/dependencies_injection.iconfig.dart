@@ -23,10 +23,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_state_manager.dart';
 import 'package:bubble/core/validators/sign_up_validator.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
-import 'package:bubble/bloc/bloc/theme_bloc.dart';
+import 'package:bubble/bloc/theme_bloc/theme_bloc.dart';
 import 'package:bubble/backend/user_presence.dart';
 import 'package:bubble/bloc/user_status_ball_bloc/user_status_ball_bloc.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/bloc/photo_showcase_bloc/conversation_photos_showcase_bloc.dart';
 import 'package:bubble/bloc/find_user_screen_bloc/find_user_screen_bloc.dart';
 import 'package:bubble/bloc/home_screen_bloc/home_screen_bloc.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_screen_bloc.dart';
@@ -77,6 +78,8 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
             g<SharedPreferences>(),
             chatRoomId,
           ));
+  g.registerFactory<ConversationPhotosShowcaseBloc>(
+      () => ConversationPhotosShowcaseBloc(g<ICloudDataService>()));
   g.registerFactory<FindUserScreenBloc>(
       () => FindUserScreenBloc(g<ICloudDataService>()));
   g.registerFactory<HomeScreenBloc>(

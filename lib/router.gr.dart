@@ -13,10 +13,10 @@ import 'package:bubble/frontend/screens/sign_up_screen.dart';
 import 'package:bubble/frontend/screens/settings_screen.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/screens/home_screen.dart';
-import 'package:bubble/frontend/screens/other_user_info_screen.dart';
 import 'package:bubble/frontend/screens/chat_screen.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'dart:async';
+import 'package:bubble/frontend/screens/conversation_details_screen.dart';
 import 'package:bubble/frontend/screens/find_user_screen.dart';
 import 'package:bubble/frontend/screens/full_photo.dart';
 import 'package:bubble/frontend/screens/take_picture_screen.dart';
@@ -27,8 +27,8 @@ abstract class Routes {
   static const signUpScreen = '/sign-up-screen';
   static const settingsScreen = '/settings-screen';
   static const homeScreen = '/home-screen';
-  static const otherUserInfoScreen = '/other-user-info-screen';
   static const chatScreen = '/chat-screen';
+  static const conversationDetailsScreen = '/conversation-details-screen';
   static const findUserScreen = '/find-user-screen';
   static const fullPhoto = '/full-photo';
   static const displayPictureScreen = '/display-picture-screen';
@@ -39,8 +39,8 @@ abstract class Routes {
     signUpScreen,
     settingsScreen,
     homeScreen,
-    otherUserInfoScreen,
     chatScreen,
+    conversationDetailsScreen,
     findUserScreen,
     fullPhoto,
     displayPictureScreen,
@@ -111,17 +111,6 @@ class Router extends RouterBase {
               HomeScreen(key: typedArgs.key, user: typedArgs.user),
           settings: settings,
         );
-      case Routes.otherUserInfoScreen:
-        if (hasInvalidArgs<OtherUserInfoScreenArguments>(args)) {
-          return misTypedArgsRoute<OtherUserInfoScreenArguments>(args);
-        }
-        final typedArgs = args as OtherUserInfoScreenArguments ??
-            OtherUserInfoScreenArguments();
-        return MaterialPageRoute<dynamic>(
-          builder: (context) =>
-              OtherUserInfoScreen(key: typedArgs.key, user: typedArgs.user),
-          settings: settings,
-        );
       case Routes.chatScreen:
         if (hasInvalidArgs<ChatScreenArguments>(args)) {
           return misTypedArgsRoute<ChatScreenArguments>(args);
@@ -135,6 +124,21 @@ class Router extends RouterBase {
               conversationSpecifics: typedArgs.conversationSpecifics,
               conversationSpecificsStream:
                   typedArgs.conversationSpecificsStream),
+          settings: settings,
+        );
+      case Routes.conversationDetailsScreen:
+        if (hasInvalidArgs<ConversationDetailsScreenArguments>(args)) {
+          return misTypedArgsRoute<ConversationDetailsScreenArguments>(args);
+        }
+        final typedArgs = args as ConversationDetailsScreenArguments ??
+            ConversationDetailsScreenArguments();
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => ConversationDetailsScreen(
+              key: typedArgs.key,
+              otherUser: typedArgs.otherUser,
+              specificsStream: typedArgs.specificsStream,
+              initialSpecifics: typedArgs.initialSpecifics,
+              onConversationDataUpdate: typedArgs.onConversationDataUpdate),
           settings: settings,
         );
       case Routes.findUserScreen:
@@ -224,13 +228,6 @@ class HomeScreenArguments {
   HomeScreenArguments({this.key, this.user});
 }
 
-//OtherUserInfoScreen arguments holder class
-class OtherUserInfoScreenArguments {
-  final Key key;
-  final User user;
-  OtherUserInfoScreenArguments({this.key, this.user});
-}
-
 //ChatScreen arguments holder class
 class ChatScreenArguments {
   final Key key;
@@ -244,6 +241,21 @@ class ChatScreenArguments {
       this.otherUser,
       this.conversationSpecifics,
       this.conversationSpecificsStream});
+}
+
+//ConversationDetailsScreen arguments holder class
+class ConversationDetailsScreenArguments {
+  final Key key;
+  final User otherUser;
+  final Stream<ConversationSpecifics> specificsStream;
+  final ConversationSpecifics initialSpecifics;
+  final void Function(Map<String, dynamic>) onConversationDataUpdate;
+  ConversationDetailsScreenArguments(
+      {this.key,
+      this.otherUser,
+      this.specificsStream,
+      this.initialSpecifics,
+      this.onConversationDataUpdate});
 }
 
 //FindUserScreen arguments holder class
@@ -323,15 +335,6 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
         arguments: HomeScreenArguments(key: key, user: user),
       );
 
-  Future pushOtherUserInfoScreen({
-    Key key,
-    User user,
-  }) =>
-      pushNamed(
-        Routes.otherUserInfoScreen,
-        arguments: OtherUserInfoScreenArguments(key: key, user: user),
-      );
-
   Future pushChatScreen({
     Key key,
     User user,
@@ -347,6 +350,23 @@ extension RouterNavigationHelperMethods on ExtendedNavigatorState {
             otherUser: otherUser,
             conversationSpecifics: conversationSpecifics,
             conversationSpecificsStream: conversationSpecificsStream),
+      );
+
+  Future pushConversationDetailsScreen({
+    Key key,
+    User otherUser,
+    Stream<ConversationSpecifics> specificsStream,
+    ConversationSpecifics initialSpecifics,
+    void Function(Map<String, dynamic>) onConversationDataUpdate,
+  }) =>
+      pushNamed(
+        Routes.conversationDetailsScreen,
+        arguments: ConversationDetailsScreenArguments(
+            key: key,
+            otherUser: otherUser,
+            specificsStream: specificsStream,
+            initialSpecifics: initialSpecifics,
+            onConversationDataUpdate: onConversationDataUpdate),
       );
 
   Future pushFindUserScreen({

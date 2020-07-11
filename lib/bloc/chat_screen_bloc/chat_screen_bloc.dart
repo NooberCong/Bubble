@@ -29,7 +29,8 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   ) : cachedConversation =
             _getCachedConversationData(chatRoomId, sharedPreferences);
   int _snapshotLimit = 20;
-  bool _endOfCollectionReached = false;
+  //Keep track of how many messages left to be sent to overflow the current snapshot limit
+  int _messagesLeftTillOverLimit = -1;
 
   @override
   ChatScreenState get initialState => const ChatScreenState.initial();
@@ -54,26 +55,34 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         yield* streamOrFailure.fold((error) async* {
           yield ChatScreenState.notification(error.message);
         }, (stream) async* {
-          if (await allMessagesAreLoaded(stream)) {
-            _endOfCollectionReached = true;
+          final queryLength = await _getQueryLength(stream);
+          if (_endOfCollectionReached(queryLength)) {
+            _messagesLeftTillOverLimit = _snapshotLimit - queryLength;
+            yield const ChatScreenState.streamStateUpdate(false);
           } else {
             _increaseLimit();
           }
-          yield ChatScreenState.loaded(
-              stream.asyncMap((snapshot) => (snapshot as QuerySnapshot)
+          yield ChatScreenState.loaded(stream.asyncMap((snapshot) =>
+              (snapshot as QuerySnapshot)
                   .documents
                   .map((doc) => Message.fromJson(doc.data))
-                  .toList()),
-              _endOfCollectionReached);
+                  .toList()));
         });
       },
       sendMessage: (Message msg) async* {
         final sentOrFailure =
             await cloudDataService.addMessage(Params.message(msg));
-        yield sentOrFailure.fold(
-            (error) =>
-                const ChatScreenState.notification("Message could not be sent"),
-            (_) => const ChatScreenState.messageSent());
+        yield* sentOrFailure.fold((error) async* {
+          yield const ChatScreenState.notification("Message could not be sent");
+        }, (_) async* {
+          if (_messagesLeftTillOverLimit >= 0) {
+            _messagesLeftTillOverLimit -= 1;
+            if (_messagesLeftTillOverLimit < 0) {
+              yield const ChatScreenState.streamStateUpdate(true);
+            }
+          }
+          yield const ChatScreenState.messageSent();
+        });
       },
       popScreen: (uid) async* {
         await cloudDataService.updateUserData(Params.map({
@@ -104,9 +113,8 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
 
   int _increaseLimit() => _snapshotLimit += 20;
 
-  Future<bool> allMessagesAreLoaded(Stream stream) async {
-    return (await stream.first as QuerySnapshot).documents.length <
-        _snapshotLimit;
+  Future<int> _getQueryLength(Stream stream) async {
+    return (await stream.first as QuerySnapshot).documents.length;
   }
 
   static List<Message> _getCachedConversationData(
@@ -122,5 +130,9 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   void _cacheConversationData(List<Message> messages) {
     sharedPreferences.setString(
         chatRoomId, json.encode(messages.sublist(0, min(20, messages.length))));
+  }
+
+  bool _endOfCollectionReached(int queryLength) {
+    return queryLength < _snapshotLimit;
   }
 }

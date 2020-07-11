@@ -56,18 +56,22 @@ class _SignUpStageState extends State<SignUpStage> {
                       helperStyle: const TextStyle(color: Colors.red)),
                 ),
               ),
-              RaisedButton(
-                onPressed: () => nextScreen(context, _controller.text),
-                color: _isLoading ? Colors.grey : Colors.pink,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    _isLoading ? "Processing..." : "Next",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+              const SizedBox(height: 20),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: RaisedButton(
+                  onPressed: () => nextScreen(context, _controller.text),
+                  color: _isLoading ? Colors.grey : Colors.pink,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    child: Text(
+                      _isLoading ? "Processing..." : "Next",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -90,7 +94,8 @@ class _SignUpStageState extends State<SignUpStage> {
           .add(const SignUpScreenEvent.requestLastState());
       return Future.value(false);
     } else {
-      return Future.value(showCancelDialogue(context));
+      showWarningDialog(context);
+      return Future.value(false);
     }
   }
 

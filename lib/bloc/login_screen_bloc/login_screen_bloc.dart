@@ -26,9 +26,9 @@ class LoginScreenBloc extends Bloc<LoginScreenEvent, LoginScreenState> {
   Stream<LoginScreenState> mapEventToState(
     LoginScreenEvent event,
   ) async* {
+    yield const LoginScreenState.loading();
     yield* event.when(
       loginWithEmailAndPassword: (email, password) async* {
-        yield const LoginScreenState.loading();
         final authResult = await _authService.signInWithEmailAndPassword(
             Params.userCredentials(email, password, const {}));
         yield parseResult(authResult);

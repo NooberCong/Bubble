@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   },
                                 )
-                              : Center(
+                              : const Center(
                                   child: Text(
                                       "Click on the add button to start a conversation",
                                       style: TextStyle(color: Colors.grey)),

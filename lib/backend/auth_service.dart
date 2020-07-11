@@ -98,7 +98,14 @@ class AuthService implements IAuth {
 
   Future<void> _uploadUserDetails(
       Map<String, dynamic> userDetails, FirebaseUser createdUser) {
-    userDetails["uid"] = createdUser.uid;
+    userDetails.addAll({
+      "uid": createdUser.uid,
+      "imageUrl":
+          "https://firebasestorage.googleapis.com/v0/b/bubble-dd7c6.appspot.com/o/default_user.png?alt=media&token=b85948cb-9f71-46d9-a057-d37eaa6692e4",
+      "state": "online",
+      "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+      "token": ""
+    });
     return _store
         .collection("users")
         .document(createdUser.uid)

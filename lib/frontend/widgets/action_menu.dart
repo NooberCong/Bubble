@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:bubble/bloc/bloc/theme_bloc.dart';
 import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/bloc/theme_bloc/theme_bloc.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';

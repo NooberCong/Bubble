@@ -28,16 +28,21 @@ class SignUpFinish extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          RaisedButton(
-            color: Colors.pink,
-            onPressed: () => _navigateToHomePage(context, user),
-            child: Container(
-              width: MediaQuery.of(context).size.width - 100,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text("Start Bubbling",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w500)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: RaisedButton(
+              color: Colors.pink,
+              onPressed: () => _navigateToHomePage(context, user),
+              child: Container(
+                width: MediaQuery.of(context).size.width - 100,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: const Text("Start Bubbling",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700)),
+              ),
             ),
           ),
         ],

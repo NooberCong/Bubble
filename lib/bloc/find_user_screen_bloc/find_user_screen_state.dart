@@ -9,4 +9,10 @@ abstract class FindUserScreenState with _$FindUserScreenState {
       _FindUserScreenStateLoaded;
   const factory FindUserScreenState.error(String message) =
       _FindUserScreenStateError;
+  const factory FindUserScreenState.conversationCreated(
+      Map<String, dynamic> data) = _FindUserScreenState;
+  const factory FindUserScreenState.notification(String msg) =
+      _FindUserScreenStateNotification;
+  const factory FindUserScreenState.processing() =
+      _FindUserScreenStateProcessing;
 }

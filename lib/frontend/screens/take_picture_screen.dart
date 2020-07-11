@@ -147,7 +147,7 @@ class DisplayPictureScreen extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         child: Image.file(
           File(imagePath),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
         ),
       ),
       floatingActionButton: FloatingActionButton(

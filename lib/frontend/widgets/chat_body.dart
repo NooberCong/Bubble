@@ -23,8 +23,8 @@ class _ChatBodyState extends State<ChatBody> {
   //Initial context
   int _showMessageDetailsIndex = -1;
   Stream<dynamic> messageStream = const Stream.empty();
-  bool canLoadMore = false;
-  bool isLoading = false;
+  bool _canLoadMore = true;
+  bool _isLoading = false;
   ScrollController _controller;
   StreamSubscription _specificsSubscription;
   ConversationSpecifics specifics;
@@ -34,7 +34,7 @@ class _ChatBodyState extends State<ChatBody> {
     super.initState();
     _controller = ScrollController(keepScrollOffset: true);
     _controller.addListener(() {
-      if (_reachedTop() && canLoadMore) {
+      if (_reachedTop() && _canLoadMore) {
         _loadMoreMessages();
       }
     });
@@ -64,25 +64,30 @@ class _ChatBodyState extends State<ChatBody> {
     return BlocListener<ChatScreenBloc, ChatScreenState>(
       condition: (_, state) => state.maybeWhen(
           loading: () => true,
-          loaded: (_, __) => true,
+          loaded: (_) => true,
           notification: (_) => true,
+          streamStateUpdate: (_) => true,
           orElse: () => false),
       listener: (context, state) {
         state.maybeWhen(
             loading: () {
               setState(() {
-                isLoading = true;
+                _isLoading = true;
               });
             },
-            loaded: (stream, endReached) {
+            loaded: (stream) {
               setState(() {
-                isLoading = false;
+                _isLoading = false;
                 messageStream = stream;
-                canLoadMore = !endReached;
               });
             },
             notification: (msg) {
               Fluttertoast.showToast(msg: msg);
+            },
+            streamStateUpdate: (canLoadMore) {
+              setState(() {
+                _canLoadMore = canLoadMore;
+              });
             },
             orElse: () {});
       },
@@ -161,38 +166,40 @@ class _ChatBodyState extends State<ChatBody> {
     return Container(
       height: 50,
       width: double.infinity,
-      child: isLoading && messageStream != const Stream.empty()
+      child: _isLoading && messageStream != const Stream.empty()
           ? const Center(child: CircularProgressIndicator())
           : const SizedBox(),
     );
   }
 
   Widget _buildBody(List<Message> messages) {
-    final widgets = <Widget>[];
-    for (int i = 0; i < messages.length; i++) {
-      final message = messages[i];
-      widgets.add(MessageContainer(
-        key: ValueKey(message.timestamp),
-        specifics: specifics,
-        message: message,
-        isFromUser: _isFromUser(message),
-        isFirstMessage: _isFirst(i, messages),
-        displaySeen: i == _lastSeenMessage(messages),
-        otherUserAvatar: widget.otherUser.imageUrl,
-        displayDetails: i == _showMessageDetailsIndex,
-        showDetails: () {
-          setState(() {
-            _showMessageDetailsIndex = _showMessageDetailsIndex == i ? -1 : i;
-          });
-        },
-      ));
-    }
-    return ListView(
-        padding: const EdgeInsets.all(10.0),
-        reverse: true,
-        controller: _controller,
-        addAutomaticKeepAlives: false,
-        children: widgets..add(_buildLoading()));
+    return ListView.builder(
+      itemCount: messages.length + 1,
+      padding: const EdgeInsets.all(10.0),
+      reverse: true,
+      controller: _controller,
+      addAutomaticKeepAlives: false,
+      itemBuilder: (context, index) {
+        return index != messages.length
+            ? MessageContainer(
+                key: ValueKey(messages[index].timestamp),
+                specifics: specifics,
+                message: messages[index],
+                isFromUser: _isFromUser(messages[index]),
+                isFirstMessage: _isFirst(index, messages),
+                displaySeen: index == _lastSeenMessage(messages),
+                otherUserAvatar: widget.otherUser.imageUrl,
+                displayDetails: index == _showMessageDetailsIndex,
+                showDetails: () {
+                  setState(() {
+                    _showMessageDetailsIndex =
+                        _showMessageDetailsIndex == index ? -1 : index;
+                  });
+                },
+              )
+            : _buildLoading();
+      },
+    );
   }
 
   bool _shouldUpdate(ConversationSpecifics value) {

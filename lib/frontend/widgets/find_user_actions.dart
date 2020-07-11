@@ -28,7 +28,6 @@ class _FindUserActionsState extends State<FindUserActions> {
                   controller: _controller,
                   decoration: InputDecoration(
                       labelText: "Find user by id",
-                      labelStyle: TextStyle(color: Colors.grey.shade400),
                       border: InputBorder.none,
                       hintText: "UID",
                       hintMaxLines: 2,
@@ -77,19 +76,26 @@ class _FindUserActionsState extends State<FindUserActions> {
         const SizedBox(
           height: 10,
         ),
-        RaisedButton(
-          color: Colors.pink,
-          onPressed: () => context.bloc<FindUserScreenBloc>().add(
-              FindUserScreenEvent.random((context.bloc<SplashScreenBloc>().state
-                      as SplashScreenStateAuthenticated)
-                  .user
-                  .uid)),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            width: MediaQuery.of(context).size.width,
-            child: const Text("Chat with a stranger",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white)),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: RaisedButton(
+            color: Colors.pink,
+            onPressed: () => context.bloc<FindUserScreenBloc>().add(
+                FindUserScreenEvent.random((context
+                        .bloc<SplashScreenBloc>()
+                        .state as SplashScreenStateAuthenticated)
+                    .user
+                    .uid)),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              width: MediaQuery.of(context).size.width,
+              child: const Text("Chat with a stranger",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700)),
+            ),
           ),
         )
       ],

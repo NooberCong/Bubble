@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bubble/core/constants/fonts.dart';
 import 'package:bubble/core/constants/svgs.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/router.gr.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -136,11 +138,11 @@ class _MessageContainerState extends State<MessageContainer> {
       decoration: BoxDecoration(borderRadius: borderRadius),
       clipBehavior: Clip.hardEdge,
       constraints: boxConstraints,
-      child: FadeInImage.memoryNetwork(
-          placeholder: kTransparentImage,
-          placeholderErrorBuilder: (_, __, ___) =>
+      child: CachedNetworkImage(
+          placeholder: (_, __) => Image.memory(kTransparentImage),
+          errorWidget: (_, __, ___) =>
               Image.asset("assets/images/img_not_available.jpeg"),
-          image: widget.message.content),
+          imageUrl: widget.message.content),
     );
   }
 
@@ -244,6 +246,8 @@ class _MessageContainerState extends State<MessageContainer> {
   }
 
   double fontSize(String message) {
-    return _isAllEmojis(message) ? 32 : 16;
+    return _isAllEmojis(message)
+        ? 32
+        : sizeForFont(widget.specifics.fontFamily);
   }
 }

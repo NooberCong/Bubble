@@ -15,27 +15,33 @@ class SignUpWelcome extends StatelessWidget {
         children: <Widget>[
           SvgPicture.asset(
             "assets/images/welcome.svg",
-            width: MediaQuery.of(context).size.width / 1.5,
-            height: MediaQuery.of(context).size.width / 1.5,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width,
           ),
           const Text(
             "Join Bubble\n",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
           ),
           const Text(
-            "We will help you create your account in just a few easy steps\n",
-            textAlign: TextAlign.center,
-          ),
-          RaisedButton(
-            color: Colors.pink,
-            onPressed: () => nextScreen(context, ""),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              width: double.infinity,
-              child: const Text(
-                "Get started",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 16),
+              "We will help you create your account in just a few easy steps\n",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: RaisedButton(
+              color: Colors.pink,
+              onPressed: () => nextScreen(context, ""),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                width: double.infinity,
+                child: const Text(
+                  "Get started",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16),
+                ),
               ),
             ),
           ),

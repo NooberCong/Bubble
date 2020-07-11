@@ -981,10 +981,9 @@ class _$ChatScreenStateTearOff {
     return const _ChatScreenStateInitial();
   }
 
-  _ChatScreenStateLoaded loaded(Stream<dynamic> messageStream, bool hasMore) {
+  _ChatScreenStateLoaded loaded(Stream<dynamic> messageStream) {
     return _ChatScreenStateLoaded(
       messageStream,
-      hasMore,
     );
   }
 
@@ -1005,6 +1004,12 @@ class _$ChatScreenStateTearOff {
   _ChatScreenStateProcessing processing() {
     return const _ChatScreenStateProcessing();
   }
+
+  _ChatScreenStateStreamStateUpdate streamStateUpdate(bool canLoadmore) {
+    return _ChatScreenStateStreamStateUpdate(
+      canLoadmore,
+    );
+  }
 }
 
 // ignore: unused_element
@@ -1014,20 +1019,22 @@ mixin _$ChatScreenState {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -1038,6 +1045,7 @@ mixin _$ChatScreenState {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
@@ -1047,6 +1055,7 @@ mixin _$ChatScreenState {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   });
 }
@@ -1103,11 +1112,12 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1115,6 +1125,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return initial();
   }
 
@@ -1122,11 +1133,12 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1145,6 +1157,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1152,6 +1165,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return initial(this);
   }
 
@@ -1164,6 +1178,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1182,7 +1197,7 @@ abstract class _$ChatScreenStateLoadedCopyWith<$Res> {
   factory _$ChatScreenStateLoadedCopyWith(_ChatScreenStateLoaded value,
           $Res Function(_ChatScreenStateLoaded) then) =
       __$ChatScreenStateLoadedCopyWithImpl<$Res>;
-  $Res call({Stream<dynamic> messageStream, bool hasMore});
+  $Res call({Stream<dynamic> messageStream});
 }
 
 class __$ChatScreenStateLoadedCopyWithImpl<$Res>
@@ -1198,30 +1213,25 @@ class __$ChatScreenStateLoadedCopyWithImpl<$Res>
   @override
   $Res call({
     Object messageStream = freezed,
-    Object hasMore = freezed,
   }) {
     return _then(_ChatScreenStateLoaded(
       messageStream == freezed
           ? _value.messageStream
           : messageStream as Stream<dynamic>,
-      hasMore == freezed ? _value.hasMore : hasMore as bool,
     ));
   }
 }
 
 class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
-  const _$_ChatScreenStateLoaded(this.messageStream, this.hasMore)
-      : assert(messageStream != null),
-        assert(hasMore != null);
+  const _$_ChatScreenStateLoaded(this.messageStream)
+      : assert(messageStream != null);
 
   @override
   final Stream<dynamic> messageStream;
-  @override
-  final bool hasMore;
 
   @override
   String toString() {
-    return 'ChatScreenState.loaded(messageStream: $messageStream, hasMore: $hasMore)';
+    return 'ChatScreenState.loaded(messageStream: $messageStream)';
   }
 
   @override
@@ -1230,16 +1240,12 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
         (other is _ChatScreenStateLoaded &&
             (identical(other.messageStream, messageStream) ||
                 const DeepCollectionEquality()
-                    .equals(other.messageStream, messageStream)) &&
-            (identical(other.hasMore, hasMore) ||
-                const DeepCollectionEquality().equals(other.hasMore, hasMore)));
+                    .equals(other.messageStream, messageStream)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(messageStream) ^
-      const DeepCollectionEquality().hash(hasMore);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(messageStream);
 
   @override
   _$ChatScreenStateLoadedCopyWith<_ChatScreenStateLoaded> get copyWith =>
@@ -1250,11 +1256,12 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1262,23 +1269,25 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
-    return loaded(messageStream, hasMore);
+    assert(streamStateUpdate != null);
+    return loaded(messageStream);
   }
 
   @override
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
     if (loaded != null) {
-      return loaded(messageStream, hasMore);
+      return loaded(messageStream);
     }
     return orElse();
   }
@@ -1292,6 +1301,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1299,6 +1309,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return loaded(this);
   }
 
@@ -1311,6 +1322,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1322,11 +1334,10 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
 }
 
 abstract class _ChatScreenStateLoaded implements ChatScreenState {
-  const factory _ChatScreenStateLoaded(
-      Stream<dynamic> messageStream, bool hasMore) = _$_ChatScreenStateLoaded;
+  const factory _ChatScreenStateLoaded(Stream<dynamic> messageStream) =
+      _$_ChatScreenStateLoaded;
 
   Stream<dynamic> get messageStream;
-  bool get hasMore;
   _$ChatScreenStateLoadedCopyWith<_ChatScreenStateLoaded> get copyWith;
 }
 
@@ -1391,11 +1402,12 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1403,6 +1415,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return notification(message);
   }
 
@@ -1410,11 +1423,12 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1433,6 +1447,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1440,6 +1455,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return notification(this);
   }
 
@@ -1452,6 +1468,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1510,11 +1527,12 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1522,6 +1540,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return messageSent();
   }
 
@@ -1529,11 +1548,12 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1552,6 +1572,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1559,6 +1580,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return messageSent(this);
   }
 
@@ -1571,6 +1593,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1622,11 +1645,12 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1634,6 +1658,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return loading();
   }
 
@@ -1641,11 +1666,12 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1664,6 +1690,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1671,6 +1698,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return loading(this);
   }
 
@@ -1683,6 +1711,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1735,11 +1764,12 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
   @optionalTypeArgs
   Result when<Result extends Object>({
     @required Result initial(),
-    @required Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    @required Result loaded(Stream<dynamic> messageStream),
     @required Result notification(String message),
     @required Result messageSent(),
     @required Result loading(),
     @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1747,6 +1777,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return processing();
   }
 
@@ -1754,11 +1785,12 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result initial(),
-    Result loaded(Stream<dynamic> messageStream, bool hasMore),
+    Result loaded(Stream<dynamic> messageStream),
     Result notification(String message),
     Result messageSent(),
     Result loading(),
     Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1777,6 +1809,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     @required Result messageSent(_ChatScreenStateMessageSent value),
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1784,6 +1817,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     assert(messageSent != null);
     assert(loading != null);
     assert(processing != null);
+    assert(streamStateUpdate != null);
     return processing(this);
   }
 
@@ -1796,6 +1830,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     Result messageSent(_ChatScreenStateMessageSent value),
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1808,4 +1843,155 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
 
 abstract class _ChatScreenStateProcessing implements ChatScreenState {
   const factory _ChatScreenStateProcessing() = _$_ChatScreenStateProcessing;
+}
+
+abstract class _$ChatScreenStateStreamStateUpdateCopyWith<$Res> {
+  factory _$ChatScreenStateStreamStateUpdateCopyWith(
+          _ChatScreenStateStreamStateUpdate value,
+          $Res Function(_ChatScreenStateStreamStateUpdate) then) =
+      __$ChatScreenStateStreamStateUpdateCopyWithImpl<$Res>;
+  $Res call({bool canLoadmore});
+}
+
+class __$ChatScreenStateStreamStateUpdateCopyWithImpl<$Res>
+    extends _$ChatScreenStateCopyWithImpl<$Res>
+    implements _$ChatScreenStateStreamStateUpdateCopyWith<$Res> {
+  __$ChatScreenStateStreamStateUpdateCopyWithImpl(
+      _ChatScreenStateStreamStateUpdate _value,
+      $Res Function(_ChatScreenStateStreamStateUpdate) _then)
+      : super(_value, (v) => _then(v as _ChatScreenStateStreamStateUpdate));
+
+  @override
+  _ChatScreenStateStreamStateUpdate get _value =>
+      super._value as _ChatScreenStateStreamStateUpdate;
+
+  @override
+  $Res call({
+    Object canLoadmore = freezed,
+  }) {
+    return _then(_ChatScreenStateStreamStateUpdate(
+      canLoadmore == freezed ? _value.canLoadmore : canLoadmore as bool,
+    ));
+  }
+}
+
+class _$_ChatScreenStateStreamStateUpdate
+    implements _ChatScreenStateStreamStateUpdate {
+  const _$_ChatScreenStateStreamStateUpdate(this.canLoadmore)
+      : assert(canLoadmore != null);
+
+  @override
+  final bool canLoadmore;
+
+  @override
+  String toString() {
+    return 'ChatScreenState.streamStateUpdate(canLoadmore: $canLoadmore)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenStateStreamStateUpdate &&
+            (identical(other.canLoadmore, canLoadmore) ||
+                const DeepCollectionEquality()
+                    .equals(other.canLoadmore, canLoadmore)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(canLoadmore);
+
+  @override
+  _$ChatScreenStateStreamStateUpdateCopyWith<_ChatScreenStateStreamStateUpdate>
+      get copyWith => __$ChatScreenStateStreamStateUpdateCopyWithImpl<
+          _ChatScreenStateStreamStateUpdate>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loaded(Stream<dynamic> messageStream),
+    @required Result notification(String message),
+    @required Result messageSent(),
+    @required Result loading(),
+    @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
+  }) {
+    assert(initial != null);
+    assert(loaded != null);
+    assert(notification != null);
+    assert(messageSent != null);
+    assert(loading != null);
+    assert(processing != null);
+    assert(streamStateUpdate != null);
+    return streamStateUpdate(canLoadmore);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loaded(Stream<dynamic> messageStream),
+    Result notification(String message),
+    Result messageSent(),
+    Result loading(),
+    Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (streamStateUpdate != null) {
+      return streamStateUpdate(canLoadmore);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_ChatScreenStateInitial value),
+    @required Result loaded(_ChatScreenStateLoaded value),
+    @required Result notification(ChatScreenStateNotification value),
+    @required Result messageSent(_ChatScreenStateMessageSent value),
+    @required Result loading(_ChatScreenStateLoading value),
+    @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+  }) {
+    assert(initial != null);
+    assert(loaded != null);
+    assert(notification != null);
+    assert(messageSent != null);
+    assert(loading != null);
+    assert(processing != null);
+    assert(streamStateUpdate != null);
+    return streamStateUpdate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_ChatScreenStateInitial value),
+    Result loaded(_ChatScreenStateLoaded value),
+    Result notification(ChatScreenStateNotification value),
+    Result messageSent(_ChatScreenStateMessageSent value),
+    Result loading(_ChatScreenStateLoading value),
+    Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (streamStateUpdate != null) {
+      return streamStateUpdate(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenStateStreamStateUpdate implements ChatScreenState {
+  const factory _ChatScreenStateStreamStateUpdate(bool canLoadmore) =
+      _$_ChatScreenStateStreamStateUpdate;
+
+  bool get canLoadmore;
+  _$ChatScreenStateStreamStateUpdateCopyWith<_ChatScreenStateStreamStateUpdate>
+      get copyWith;
 }

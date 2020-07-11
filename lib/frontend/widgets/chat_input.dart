@@ -67,6 +67,7 @@ class _ChatInputState extends State<ChatInput> {
           specifics = value;
         });
       }
+      _bottomSheetController?.setState(() {});
     });
   }
 
@@ -289,10 +290,11 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   void dispose() {
-    _controller.dispose();
-    _node.dispose();
-    _keyboardVisibilitySubscription.cancel();
-    _specificsSubscription.cancel();
+    _controller?.dispose();
+    _node?.dispose();
+    _keyboardVisibilitySubscription?.cancel();
+    _specificsSubscription?.cancel();
+    _bottomSheetController?.close();
     super.dispose();
   }
 
@@ -351,7 +353,7 @@ class _ChatInputState extends State<ChatInput> {
                     Icons.image,
                     size: 26,
                   ),
-                  onPressed: () => getImage,
+                  onPressed: getImage,
                   color: Color(specifics.themeColorCode),
                 ),
               ),
@@ -526,6 +528,8 @@ class _ChatInputState extends State<ChatInput> {
     return svgs
         .map(
           (svg) => FlatButton(
+            color:
+                svg == specifics.mainEmoji ? Colors.grey.withOpacity(.5) : null,
             padding: const EdgeInsets.all(10),
             onPressed: () => _updateConversationData({"mainEmoji": svg}, true),
             child: SvgPicture.asset(svg,
@@ -541,12 +545,21 @@ class _ChatInputState extends State<ChatInput> {
     return fonts
         .map(
           (font) => FlatButton(
+            color: font == specifics.fontFamily
+                ? Colors.grey.withOpacity(.5)
+                : null,
             padding: const EdgeInsets.all(10),
             onPressed: () =>
                 _updateConversationData({"fontFamily": font}, false),
-            child: Text(
-              "$font font family demo",
-              style: TextStyle(fontSize: 16, fontFamily: font),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "$font font family demo",
+                  style:
+                      TextStyle(fontSize: sizeForFont(font), fontFamily: font),
+                ),
+              ],
             ),
           ),
         )

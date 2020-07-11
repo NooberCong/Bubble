@@ -67,29 +67,16 @@ class CloudDataService implements ICloudDataService {
   @override
   Future<Either<CloudFailure, User>> fetchRandomUser(Params params) async {
     try {
-      final myUid = (params as ParamsID).id;
       final allUsers =
           (await store.collection("users").getDocuments()).documents;
-      final knownUids = (await store
-              .collection("users")
-              .document(myUid)
-              .collection("conversations")
-              .getDocuments())
-          .documents
-          .map((data) => User.fromJson(json.decode(data["otherUser"] as String)
-                  as Map<String, dynamic>)
-              .uid)
-          .toList();
-      final validUsers = allUsers
-          .map((e) => e.data)
-          .where((element) =>
-              element["uid"] != myUid && !knownUids.contains(element["uid"]))
-          .toList();
-      if (allUsers.isEmpty || validUsers.isEmpty) {
-        return Left(CloudFailure("No valid user found"));
+      if (allUsers.isEmpty) {
+        return Left(CloudFailure("No user found"));
       }
 
-      return Right(User.fromJson(_randomUser(validUsers)));
+      return Right(
+          User.fromJson(_randomUser(allUsers.map((e) => e.data).toList()
+              // validUsers
+              )));
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
@@ -186,7 +173,8 @@ class CloudDataService implements ICloudDataService {
   }
 
   @override
-  Future<Either<CloudFailure, void>> addConversation(Params params) async {
+  Future<Either<CloudFailure, Map<String, dynamic>>> addConversation(
+      Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
       final user = inputData["user"] as User;
@@ -209,9 +197,10 @@ class CloudDataService implements ICloudDataService {
           "otherUserNickname":
               user.uid != otherUser.uid ? otherUser.username : "Just you",
           "userNickname": user.uid != otherUser.uid ? user.username : "You",
-          "mainEmoji": "asssets/images/like.svg",
+          "mainEmoji": "assets/images/like.svg",
           "themeColorCode": 4280391411,
-          "fontFamily": "Roboto"
+          "fontFamily": "Roboto",
+          "seen": false
         });
       }
 
@@ -221,6 +210,7 @@ class CloudDataService implements ICloudDataService {
           .collection("conversations")
           .document(roomId)
           .get();
+
       //If conversation is not present in other user conversations, add it
       if (!otherUserConversationDoc.exists) {
         await otherUserConversationDoc.reference.setData({
@@ -229,12 +219,16 @@ class CloudDataService implements ICloudDataService {
           "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
           "userNickname": otherUser.username,
           "otherUserNickname": user.username,
-          "mainEmoji": "asssets/images/like.svg",
+          "mainEmoji": "assets/images/like.svg",
           "themeColorCode": 4280391411,
-          "fontFamily": "Roboto"
+          "fontFamily": "Roboto",
+          "seen": false
         });
       }
-      return const Right(null);
+      return Right({
+        "initialData": (await userConversationDoc.reference.get()).data,
+        "stream": userConversationDoc.reference.snapshots()
+      });
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
@@ -343,15 +337,31 @@ class CloudDataService implements ICloudDataService {
   }
 
   String parseMessage(Message message) {
-    if (message.type.toString() == "MessageType.text") {
+    if (message.type == MessageType.text) {
       return ": ${message.content}";
-    } else if (message.type.toString() == "MessageType.image") {
+    } else if (message.type == MessageType.image) {
       return " sent a photo";
-    } else {
-      //Check if sticker is like button
-      if (message.content == "assets/images/like.svg") {
-        return ": 👍";
+    } else if (message.type == MessageType.svg) {
+      final svgFileName = message.content.split("/").last;
+      switch (svgFileName) {
+        case "like.svg":
+          return ": 👍";
+        case "poo.svg":
+          return ": 💩";
+        case "flower.svg":
+          return ": 🌺";
+        case "money.svg":
+          return ": 💰";
+        case "rose.svg":
+          return ": 🌹";
+        case "fire.svg":
+          return ": 🔥";
+        case "waving-hand.svg":
+          return ": 👋";
+        default:
+          return "";
       }
+    } else {
       return " sent a sticker";
     }
   }
@@ -365,6 +375,8 @@ class CloudDataService implements ICloudDataService {
       Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
+      Map<String, dynamic> updateData =
+          inputData["updateData"] as Map<String, dynamic>;
       final batch = store.batch();
       batch.updateData(
           store
@@ -372,16 +384,21 @@ class CloudDataService implements ICloudDataService {
               .document(inputData["userId"] as String)
               .collection("conversations")
               .document(inputData["roomId"] as String),
-          inputData["updateData"] as Map<String, dynamic>);
+          updateData);
       //Check if user is chatting with him/herself
       if (inputData["merge"] as bool) {
+        //handle special case: update user nickname
+        if (updateData.containsKey("userNickname") ||
+            updateData.containsKey("otherUserNickname")) {
+          updateData = _switchNicknameSides(updateData);
+        }
         batch.updateData(
             store
                 .collection("users")
                 .document(inputData["otherUserId"] as String)
                 .collection("conversations")
                 .document(inputData["roomId"] as String),
-            inputData["updateData"] as Map<String, dynamic>);
+            updateData);
       }
       await batch.commit();
       return const Right(null);
@@ -405,5 +422,39 @@ class CloudDataService implements ICloudDataService {
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<Either<CloudFailure, List<String>>> fetchConversationPhotos(
+      Params params) async {
+    try {
+      final inputData = (params as ParamsMap).data;
+      final photosQuery = await store
+          .collection("rooms")
+          .document(inputData["roomId"] as String)
+          .collection("messages")
+          .where("type", isEqualTo: "MessageType.image")
+          .orderBy("timestamp", descending: true)
+          .limit(inputData["limit"] as int)
+          .getDocuments();
+      return Right(photosQuery.documents
+          .map((doc) => doc.data["content"] as String)
+          .toList());
+    } on Exception catch (e) {
+      return Left(CloudFailure(e.toString()));
+    }
+  }
+
+  Map<String, dynamic> _switchNicknameSides(Map<String, dynamic> updateData) {
+    final modifiedData = <String, dynamic>{};
+    final originalUserNickname = updateData["userNickname"];
+    final originalOtherUserNickname = updateData["otherUserNickname"];
+    if (originalUserNickname != null) {
+      modifiedData["otherUserNickname"] = originalUserNickname;
+    }
+    if (originalOtherUserNickname != null) {
+      modifiedData["userNickname"] = originalOtherUserNickname;
+    }
+    return updateData..addAll(modifiedData);
   }
 }

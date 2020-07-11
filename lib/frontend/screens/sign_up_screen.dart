@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_screen_bloc.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
@@ -14,7 +15,6 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F9FA),
       body: BlocProvider(
         create: (_) => getIt<SignUpScreenBloc>(),
         child: Column(
@@ -28,23 +28,38 @@ class SignUpScreen extends StatelessWidget {
         ),
       ),
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: const Color(0xffF5F9FA),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => _onArrowBack(context),
         ),
-        title: const Text("Create an account",
-            style: TextStyle(color: Colors.black)),
+        title: const Text(
+          "Create an account",
+        ),
       ),
     );
   }
 
-  Future<void> _onArrowBack(BuildContext context) async {
-    final shouldPop = await showCancelDialogue(context);
-    if (shouldPop) ExtendedNavigator.of(context).pop();
+  void _onArrowBack(BuildContext context) {
+    showWarningDialog(context);
   }
+}
+
+void showWarningDialog(BuildContext context) {
+  AwesomeDialog(
+      context: context,
+      animType: AnimType.SCALE,
+      dialogType: DialogType.INFO,
+      title: "Cancel registration",
+      desc: "If you cancel now, all progress will be lost",
+      btnOkOnPress: () {},
+      btnCancelText: "Cancel",
+      btnOkText: "Continue",
+      headerAnimationLoop: false,
+      useRootNavigator: true,
+      btnCancelOnPress: () {
+        ExtendedNavigator.of(context).pop();
+      }).show();
 }
 
 class SignUpForm extends StatelessWidget {
@@ -68,32 +83,6 @@ class SignUpForm extends StatelessWidget {
       },
     );
   }
-}
-
-Future<bool> showCancelDialogue(BuildContext context) {
-  return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            title: const Text("Do you want to cancel account registration?"),
-            content: const Text("If you cancel now, all progress will be lost"),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text(
-                  "Continue",
-                ),
-              ),
-              FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text("Cancel now",
-                    style: TextStyle(color: Colors.pink)),
-              )
-            ],
-          ));
 }
 
 //Logic for navigating between screens during signing up

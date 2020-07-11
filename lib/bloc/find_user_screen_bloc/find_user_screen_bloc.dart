@@ -27,21 +27,29 @@ class FindUserScreenBloc
   Stream<FindUserScreenState> mapEventToState(
     FindUserScreenEvent event,
   ) async* {
-    yield const FindUserScreenState.loading();
     yield* event.when(
       findUserByUID: (uid) async* {
+        yield const FindUserScreenState.loading();
         final userOrFailure =
             await cloudDataService.fetchUserByUID(Params.id(uid));
         yield _parseResult(userOrFailure);
       },
       random: (uid) async* {
+        yield const FindUserScreenState.loading();
         final userOrFailure =
             await cloudDataService.fetchRandomUser(Params.id(uid));
         yield _parseResult(userOrFailure);
       },
       startConveration: (user, otherUser) async* {
-        await cloudDataService.addConversation(
-            Params.map({"user": user, "otherUser": otherUser}));
+        yield const FindUserScreenState.processing();
+        final conversationDataOrFailure =
+            await cloudDataService.addConversation(
+                Params.map({"user": user, "otherUser": otherUser}));
+        yield conversationDataOrFailure.fold(
+            (error) => const FindUserScreenState.notification(
+                "Could not create conversation, please try again!"),
+            (data) => FindUserScreenState.conversationCreated(
+                data..putIfAbsent("otherUser", () => otherUser)));
       },
     );
   }

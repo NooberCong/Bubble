@@ -486,6 +486,22 @@ class _$FindUserScreenStateTearOff {
       message,
     );
   }
+
+  _FindUserScreenState conversationCreated(Map<String, dynamic> data) {
+    return _FindUserScreenState(
+      data,
+    );
+  }
+
+  _FindUserScreenStateNotification notification(String msg) {
+    return _FindUserScreenStateNotification(
+      msg,
+    );
+  }
+
+  _FindUserScreenStateProcessing processing() {
+    return const _FindUserScreenStateProcessing();
+  }
 }
 
 // ignore: unused_element
@@ -498,6 +514,9 @@ mixin _$FindUserScreenState {
     @required Result loading(),
     @required Result loaded(User user),
     @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
@@ -505,6 +524,9 @@ mixin _$FindUserScreenState {
     Result loading(),
     Result loaded(User user),
     Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -513,6 +535,9 @@ mixin _$FindUserScreenState {
     @required Result loading(FindUserScreenStateLoading value),
     @required Result loaded(_FindUserScreenStateLoaded value),
     @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
@@ -520,6 +545,9 @@ mixin _$FindUserScreenState {
     Result loading(FindUserScreenStateLoading value),
     Result loaded(_FindUserScreenStateLoaded value),
     Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
     @required Result orElse(),
   });
 }
@@ -581,11 +609,17 @@ class _$_FindUserScreenStateInitial implements _FindUserScreenStateInitial {
     @required Result loading(),
     @required Result loaded(User user),
     @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return initial();
   }
 
@@ -596,6 +630,9 @@ class _$_FindUserScreenStateInitial implements _FindUserScreenStateInitial {
     Result loading(),
     Result loaded(User user),
     Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -612,11 +649,17 @@ class _$_FindUserScreenStateInitial implements _FindUserScreenStateInitial {
     @required Result loading(FindUserScreenStateLoading value),
     @required Result loaded(_FindUserScreenStateLoaded value),
     @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return initial(this);
   }
 
@@ -627,6 +670,9 @@ class _$_FindUserScreenStateInitial implements _FindUserScreenStateInitial {
     Result loading(FindUserScreenStateLoading value),
     Result loaded(_FindUserScreenStateLoaded value),
     Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -682,11 +728,17 @@ class _$FindUserScreenStateLoading implements FindUserScreenStateLoading {
     @required Result loading(),
     @required Result loaded(User user),
     @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return loading();
   }
 
@@ -697,6 +749,9 @@ class _$FindUserScreenStateLoading implements FindUserScreenStateLoading {
     Result loading(),
     Result loaded(User user),
     Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -713,11 +768,17 @@ class _$FindUserScreenStateLoading implements FindUserScreenStateLoading {
     @required Result loading(FindUserScreenStateLoading value),
     @required Result loaded(_FindUserScreenStateLoaded value),
     @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return loading(this);
   }
 
@@ -728,6 +789,9 @@ class _$FindUserScreenStateLoading implements FindUserScreenStateLoading {
     Result loading(FindUserScreenStateLoading value),
     Result loaded(_FindUserScreenStateLoaded value),
     Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -806,11 +870,17 @@ class _$_FindUserScreenStateLoaded implements _FindUserScreenStateLoaded {
     @required Result loading(),
     @required Result loaded(User user),
     @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return loaded(user);
   }
 
@@ -821,6 +891,9 @@ class _$_FindUserScreenStateLoaded implements _FindUserScreenStateLoaded {
     Result loading(),
     Result loaded(User user),
     Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -837,11 +910,17 @@ class _$_FindUserScreenStateLoaded implements _FindUserScreenStateLoaded {
     @required Result loading(FindUserScreenStateLoading value),
     @required Result loaded(_FindUserScreenStateLoaded value),
     @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return loaded(this);
   }
 
@@ -852,6 +931,9 @@ class _$_FindUserScreenStateLoaded implements _FindUserScreenStateLoaded {
     Result loading(FindUserScreenStateLoading value),
     Result loaded(_FindUserScreenStateLoaded value),
     Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -933,11 +1015,17 @@ class _$_FindUserScreenStateError implements _FindUserScreenStateError {
     @required Result loading(),
     @required Result loaded(User user),
     @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return error(message);
   }
 
@@ -948,6 +1036,9 @@ class _$_FindUserScreenStateError implements _FindUserScreenStateError {
     Result loading(),
     Result loaded(User user),
     Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -964,11 +1055,17 @@ class _$_FindUserScreenStateError implements _FindUserScreenStateError {
     @required Result loading(FindUserScreenStateLoading value),
     @required Result loaded(_FindUserScreenStateLoaded value),
     @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
   }) {
     assert(initial != null);
     assert(loading != null);
     assert(loaded != null);
     assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
     return error(this);
   }
 
@@ -979,6 +1076,9 @@ class _$_FindUserScreenStateError implements _FindUserScreenStateError {
     Result loading(FindUserScreenStateLoading value),
     Result loaded(_FindUserScreenStateLoaded value),
     Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -995,4 +1095,420 @@ abstract class _FindUserScreenStateError implements FindUserScreenState {
 
   String get message;
   _$FindUserScreenStateErrorCopyWith<_FindUserScreenStateError> get copyWith;
+}
+
+abstract class _$FindUserScreenStateCopyWith<$Res> {
+  factory _$FindUserScreenStateCopyWith(_FindUserScreenState value,
+          $Res Function(_FindUserScreenState) then) =
+      __$FindUserScreenStateCopyWithImpl<$Res>;
+  $Res call({Map<String, dynamic> data});
+}
+
+class __$FindUserScreenStateCopyWithImpl<$Res>
+    extends _$FindUserScreenStateCopyWithImpl<$Res>
+    implements _$FindUserScreenStateCopyWith<$Res> {
+  __$FindUserScreenStateCopyWithImpl(
+      _FindUserScreenState _value, $Res Function(_FindUserScreenState) _then)
+      : super(_value, (v) => _then(v as _FindUserScreenState));
+
+  @override
+  _FindUserScreenState get _value => super._value as _FindUserScreenState;
+
+  @override
+  $Res call({
+    Object data = freezed,
+  }) {
+    return _then(_FindUserScreenState(
+      data == freezed ? _value.data : data as Map<String, dynamic>,
+    ));
+  }
+}
+
+class _$_FindUserScreenState implements _FindUserScreenState {
+  const _$_FindUserScreenState(this.data) : assert(data != null);
+
+  @override
+  final Map<String, dynamic> data;
+
+  @override
+  String toString() {
+    return 'FindUserScreenState.conversationCreated(data: $data)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _FindUserScreenState &&
+            (identical(other.data, data) ||
+                const DeepCollectionEquality().equals(other.data, data)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+
+  @override
+  _$FindUserScreenStateCopyWith<_FindUserScreenState> get copyWith =>
+      __$FindUserScreenStateCopyWithImpl<_FindUserScreenState>(
+          this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loading(),
+    @required Result loaded(User user),
+    @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return conversationCreated(data);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loading(),
+    Result loaded(User user),
+    Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (conversationCreated != null) {
+      return conversationCreated(data);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_FindUserScreenStateInitial value),
+    @required Result loading(FindUserScreenStateLoading value),
+    @required Result loaded(_FindUserScreenStateLoaded value),
+    @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return conversationCreated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_FindUserScreenStateInitial value),
+    Result loading(FindUserScreenStateLoading value),
+    Result loaded(_FindUserScreenStateLoaded value),
+    Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (conversationCreated != null) {
+      return conversationCreated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _FindUserScreenState implements FindUserScreenState {
+  const factory _FindUserScreenState(Map<String, dynamic> data) =
+      _$_FindUserScreenState;
+
+  Map<String, dynamic> get data;
+  _$FindUserScreenStateCopyWith<_FindUserScreenState> get copyWith;
+}
+
+abstract class _$FindUserScreenStateNotificationCopyWith<$Res> {
+  factory _$FindUserScreenStateNotificationCopyWith(
+          _FindUserScreenStateNotification value,
+          $Res Function(_FindUserScreenStateNotification) then) =
+      __$FindUserScreenStateNotificationCopyWithImpl<$Res>;
+  $Res call({String msg});
+}
+
+class __$FindUserScreenStateNotificationCopyWithImpl<$Res>
+    extends _$FindUserScreenStateCopyWithImpl<$Res>
+    implements _$FindUserScreenStateNotificationCopyWith<$Res> {
+  __$FindUserScreenStateNotificationCopyWithImpl(
+      _FindUserScreenStateNotification _value,
+      $Res Function(_FindUserScreenStateNotification) _then)
+      : super(_value, (v) => _then(v as _FindUserScreenStateNotification));
+
+  @override
+  _FindUserScreenStateNotification get _value =>
+      super._value as _FindUserScreenStateNotification;
+
+  @override
+  $Res call({
+    Object msg = freezed,
+  }) {
+    return _then(_FindUserScreenStateNotification(
+      msg == freezed ? _value.msg : msg as String,
+    ));
+  }
+}
+
+class _$_FindUserScreenStateNotification
+    implements _FindUserScreenStateNotification {
+  const _$_FindUserScreenStateNotification(this.msg) : assert(msg != null);
+
+  @override
+  final String msg;
+
+  @override
+  String toString() {
+    return 'FindUserScreenState.notification(msg: $msg)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _FindUserScreenStateNotification &&
+            (identical(other.msg, msg) ||
+                const DeepCollectionEquality().equals(other.msg, msg)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(msg);
+
+  @override
+  _$FindUserScreenStateNotificationCopyWith<_FindUserScreenStateNotification>
+      get copyWith => __$FindUserScreenStateNotificationCopyWithImpl<
+          _FindUserScreenStateNotification>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loading(),
+    @required Result loaded(User user),
+    @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return notification(msg);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loading(),
+    Result loaded(User user),
+    Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (notification != null) {
+      return notification(msg);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_FindUserScreenStateInitial value),
+    @required Result loading(FindUserScreenStateLoading value),
+    @required Result loaded(_FindUserScreenStateLoaded value),
+    @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return notification(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_FindUserScreenStateInitial value),
+    Result loading(FindUserScreenStateLoading value),
+    Result loaded(_FindUserScreenStateLoaded value),
+    Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (notification != null) {
+      return notification(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _FindUserScreenStateNotification implements FindUserScreenState {
+  const factory _FindUserScreenStateNotification(String msg) =
+      _$_FindUserScreenStateNotification;
+
+  String get msg;
+  _$FindUserScreenStateNotificationCopyWith<_FindUserScreenStateNotification>
+      get copyWith;
+}
+
+abstract class _$FindUserScreenStateProcessingCopyWith<$Res> {
+  factory _$FindUserScreenStateProcessingCopyWith(
+          _FindUserScreenStateProcessing value,
+          $Res Function(_FindUserScreenStateProcessing) then) =
+      __$FindUserScreenStateProcessingCopyWithImpl<$Res>;
+}
+
+class __$FindUserScreenStateProcessingCopyWithImpl<$Res>
+    extends _$FindUserScreenStateCopyWithImpl<$Res>
+    implements _$FindUserScreenStateProcessingCopyWith<$Res> {
+  __$FindUserScreenStateProcessingCopyWithImpl(
+      _FindUserScreenStateProcessing _value,
+      $Res Function(_FindUserScreenStateProcessing) _then)
+      : super(_value, (v) => _then(v as _FindUserScreenStateProcessing));
+
+  @override
+  _FindUserScreenStateProcessing get _value =>
+      super._value as _FindUserScreenStateProcessing;
+}
+
+class _$_FindUserScreenStateProcessing
+    implements _FindUserScreenStateProcessing {
+  const _$_FindUserScreenStateProcessing();
+
+  @override
+  String toString() {
+    return 'FindUserScreenState.processing()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _FindUserScreenStateProcessing);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loading(),
+    @required Result loaded(User user),
+    @required Result error(String message),
+    @required Result conversationCreated(Map<String, dynamic> data),
+    @required Result notification(String msg),
+    @required Result processing(),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return processing();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loading(),
+    Result loaded(User user),
+    Result error(String message),
+    Result conversationCreated(Map<String, dynamic> data),
+    Result notification(String msg),
+    Result processing(),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (processing != null) {
+      return processing();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_FindUserScreenStateInitial value),
+    @required Result loading(FindUserScreenStateLoading value),
+    @required Result loaded(_FindUserScreenStateLoaded value),
+    @required Result error(_FindUserScreenStateError value),
+    @required Result conversationCreated(_FindUserScreenState value),
+    @required Result notification(_FindUserScreenStateNotification value),
+    @required Result processing(_FindUserScreenStateProcessing value),
+  }) {
+    assert(initial != null);
+    assert(loading != null);
+    assert(loaded != null);
+    assert(error != null);
+    assert(conversationCreated != null);
+    assert(notification != null);
+    assert(processing != null);
+    return processing(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_FindUserScreenStateInitial value),
+    Result loading(FindUserScreenStateLoading value),
+    Result loaded(_FindUserScreenStateLoaded value),
+    Result error(_FindUserScreenStateError value),
+    Result conversationCreated(_FindUserScreenState value),
+    Result notification(_FindUserScreenStateNotification value),
+    Result processing(_FindUserScreenStateProcessing value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (processing != null) {
+      return processing(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _FindUserScreenStateProcessing implements FindUserScreenState {
+  const factory _FindUserScreenStateProcessing() =
+      _$_FindUserScreenStateProcessing;
 }

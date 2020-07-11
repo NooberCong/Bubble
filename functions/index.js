@@ -161,10 +161,26 @@ function parseMessage(doc) {
   } else if (doc.type === "MessageType.image") {
     return " sent a photo";
   } else {
-    //Check if sticker is like button
-    if (doc.content === "assets/images/like.svg") {
-      return ": 👍";
+    //Check if sticker is main emoji
+    const parts = doc.content.split("/");
+    const stickerName = parts[parts.length - 1];
+    switch (stickerName) {
+      case "like.svg":
+        return ": 👍";
+      case "poo.svg":
+        return ": 💩";
+      case "flower.svg":
+        return ": 🌺";
+      case "money.svg":
+        return ": 💰";
+      case "rose.svg":
+        return ": 🌹";
+      case "fire.svg":
+        return ": 🔥";
+      case "waving-hand.svg":
+        return ": 👋";
+      default:
+        return " sent a sticker";
     }
-    return " sent a sticker";
   }
 }

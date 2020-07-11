@@ -52,10 +52,10 @@ class _ChatBarState extends State<ChatBar> {
   Widget build(BuildContext context) {
     return BlocListener<ChatScreenBloc, ChatScreenState>(
       condition: (_, state) =>
-          state.maybeWhen(loaded: (_, __) => true, orElse: () => false),
+          state.maybeWhen(loaded: (_) => true, orElse: () => false),
       listener: (_, state) {
         state.maybeWhen(
-            loaded: (_, __) {
+            loaded: (_) {
               if (!connectionEstablished) {
                 setState(() {
                   connectionEstablished = true;
@@ -78,7 +78,7 @@ class _ChatBarState extends State<ChatBar> {
                 Icons.info,
                 color: Color(specifics.themeColorCode),
               ),
-              onPressed: () => _navigateToOtherUserInfoScreen(context),
+              onPressed: _navigateToConversationDetailsScreen,
             ),
           )
         ],
@@ -90,7 +90,7 @@ class _ChatBarState extends State<ChatBar> {
             ),
             const SizedBox(width: 20),
             GestureDetector(
-              onTap: () => _navigateToOtherUserInfoScreen(context),
+              onTap: _navigateToConversationDetailsScreen,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -112,9 +112,17 @@ class _ChatBarState extends State<ChatBar> {
     );
   }
 
-  void _navigateToOtherUserInfoScreen(BuildContext context) {
-    ExtendedNavigator.of(context).pushNamed(Routes.otherUserInfoScreen,
-        arguments: OtherUserInfoScreenArguments(user: widget.otherUser));
+  void _navigateToConversationDetailsScreen() {
+    ExtendedNavigator.of(context).pushNamed(Routes.conversationDetailsScreen,
+        arguments: ConversationDetailsScreenArguments(
+            otherUser: widget.otherUser,
+            onConversationDataUpdate: (data) {
+              context
+                  .bloc<ChatScreenBloc>()
+                  .add(ChatScreenEvent.updateConversationData(data));
+            },
+            initialSpecifics: specifics,
+            specificsStream: ConversationSpecificsProvider.of(context).stream));
   }
 
   Widget _buildConnectionStatus() {

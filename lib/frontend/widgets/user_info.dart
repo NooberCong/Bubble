@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bubble/bloc/settings_screen_bloc/settings_screen_bloc.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/dependencies_injection.dart';
@@ -78,11 +79,17 @@ class _UserInfoState extends State<UserInfo> {
             User.fromJson((snapshot.data as DocumentSnapshot).data);
         return Column(
           children: <Widget>[
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             _buildAvatar(realtimeUser, context),
             const SizedBox(height: 10),
             _buildName(realtimeUser.username),
+            const SizedBox(
+              height: 10,
+            ),
             _buildBio(realtimeUser, context),
+            const SizedBox(
+              height: 10,
+            ),
             _buildUID(realtimeUser)
           ],
         );
@@ -152,19 +159,27 @@ class _UserInfoState extends State<UserInfo> {
   }
 
   Widget _buildUID(User user) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        const Text(
-          "UID: ",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Text(user.uid),
-        IconButton(
-          icon: Icon(Icons.content_copy),
-          onPressed: () => _onCopyUid(user.uid),
-        ),
-      ],
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(.3),
+          borderRadius: BorderRadius.circular(50)),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            "UID: ",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(user.uid),
+          IconButton(
+            icon: Icon(Icons.content_copy),
+            onPressed: () => _onCopyUid(user.uid),
+          ),
+        ],
+      ),
     );
   }
 
@@ -177,38 +192,39 @@ class _UserInfoState extends State<UserInfo> {
     }
   }
 
-  Future<void> _onBioEdit(BuildContext parentContext, User user) async {
+  void _onBioEdit(BuildContext parentContext, User user) {
     _controller = TextEditingController(text: user.bio);
-    await showDialog(
-        context: parentContext,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Edit your bio"),
-            content: TextFormField(
-              keyboardType: TextInputType.text,
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.NO_HEADER,
+      animType: AnimType.SCALE,
+      body: Column(
+        children: <Widget>[
+          const Text("Change Bio",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextField(
               controller: _controller,
-              decoration: const InputDecoration(helperText: "Your bio here"),
+              decoration: const InputDecoration(hintText: "Your bio here"),
             ),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Cancel"),
-              ),
-              FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _updateBio(parentContext, _controller.text);
-                },
-                child: const Text("Update"),
-              )
-            ],
-          );
-        });
+          ),
+        ],
+      ),
+      btnCancelText: "Cancel",
+      btnOkText: "Update",
+      btnCancelOnPress: () {},
+      useRootNavigator: true,
+      btnOkOnPress: () {
+        _updateBio(_controller.text);
+      },
+    ).show();
   }
 
-  void _updateBio(BuildContext context, String text) {
+  void _updateBio(String text) {
     context
         .bloc<SettingsScreenBloc>()
         .add(SettingsScreenEvent.editBio(widget.user.uid, text));
@@ -216,7 +232,7 @@ class _UserInfoState extends State<UserInfo> {
 
   @override
   void dispose() {
-    if (_controller != null) _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 

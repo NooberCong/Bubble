@@ -45,7 +45,9 @@ dependencies:
   image_picker:
   flutter_svg:
   flutter_native_image:
+  flutter_launcher_icons:
   transparent_image:
+  awesome_dialog:
   flutter_clipboard_manager:
   fluttertoast:
   get_it:
@@ -65,6 +67,11 @@ dev_dependencies:
   lint: ^1.0.0
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/app_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -91,6 +98,9 @@ flutter:
     - assets/images/flower.svg
     - assets/images/rose.svg
     - assets/images/fire.svg
+    - assets/images/google.svg
+    - assets/images/bottom_deco.png
+    - assets/images/top_deco.png
     - assets/images/waving-hand.svg
     - assets/images/color-wheel.svg
     - assets/images/logout.svg
@@ -183,6 +193,18 @@ flutter:
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto-Regular.ttf
+    - family: Lobster
+      fonts:
+        - asset: assets/fonts/LobsterTwo-Regular.ttf
+    - family: Lemonada
+      fonts:
+        - asset: assets/fonts/Lemonada-VariableFont_wght.ttf
+    - family: FiraMono
+      fonts:
+        - asset: assets/fonts/FiraMono-Regular.ttf
+    - family: PatrickHandSC
+      fonts:
+        - asset: assets/fonts/PatrickHandSC-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

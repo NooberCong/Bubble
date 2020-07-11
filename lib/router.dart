@@ -4,7 +4,7 @@ import 'package:bubble/frontend/screens/find_user_screen.dart';
 import 'package:bubble/frontend/screens/full_photo.dart';
 import 'package:bubble/frontend/screens/home_screen.dart';
 import 'package:bubble/frontend/screens/login_screen.dart';
-import 'package:bubble/frontend/screens/other_user_info_screen.dart';
+import 'package:bubble/frontend/screens/conversation_details_screen.dart';
 import 'package:bubble/frontend/screens/settings_screen.dart';
 import 'package:bubble/frontend/screens/sign_up_screen.dart';
 import 'package:bubble/frontend/screens/splash_screen.dart';
@@ -18,8 +18,8 @@ class $Router {
   SignUpScreen signUpScreen;
   SettingsScreen settingsScreen;
   HomeScreen homeScreen;
-  OtherUserInfoScreen otherUserInfoScreen;
   ChatScreen chatScreen;
+  ConversationDetailsScreen conversationDetailsScreen;
   FindUserScreen findUserScreen;
   FullPhoto fullPhoto;
   DisplayPictureScreen displayPictureScreen;
