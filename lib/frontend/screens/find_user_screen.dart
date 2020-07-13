@@ -110,7 +110,7 @@ class _FindUserScreenState extends State<FindUserScreen> {
                                           _addConversation(context, otherUser);
                                         }
                                       : () {},
-                                  child: Text("Start a conversation",
+                                  child: const Text("Start a conversation",
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold)),

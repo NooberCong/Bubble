@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -12,14 +13,16 @@ class FullPhoto extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           title,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
       ),
       body: PhotoView(
-        imageProvider: NetworkImage(url),
+        maxScale: PhotoViewComputedScale.covered * 3,
+        minScale: PhotoViewComputedScale.contained,
+        imageProvider: CachedNetworkImageProvider(url, scale: 1),
         loadFailedChild: Image.asset("assets/images/img_not_available.jpeg"),
       ),
     );

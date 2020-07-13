@@ -11,6 +11,7 @@ import 'package:bubble/frontend/widgets/photo_showcase.dart';
 import 'package:bubble/frontend/widgets/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ConversationDetailsScreen extends StatefulWidget {
   final User otherUser;
@@ -73,11 +74,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
               height: 20,
             ),
             FlatButton(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
               onPressed: _onEditNickname,
               child: Row(
-                children: const <Widget>[
-                  Text("\nChange nickname\n",
+                children: <Widget>[
+                  SvgPicture.asset("assets/images/name.svg",
+                      width: 50, height: 50),
+                  const Text("\t\tChange nicknames",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
@@ -87,7 +89,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
             Align(
               alignment: Alignment.topLeft,
               child: const Text(
-                "Shared photos",
+                "\t\t\t\tShared photos",
                 style: TextStyle(color: Colors.grey),
               ),
             ),
@@ -115,13 +117,14 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
       animType: AnimType.SCALE,
       body: Column(
         children: <Widget>[
-          const Text("Change nicknames",
+          const Text("Nicknames",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
               controller: _userNicknameController,
-              decoration: const InputDecoration(hintText: "Your nickname here"),
+              decoration: const InputDecoration(
+                  labelText: "User nickname", hintText: "Your nickname here"),
             ),
           ),
           Padding(
@@ -129,6 +132,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
             child: TextField(
               controller: _otherUserNicknameController,
               decoration: InputDecoration(
+                  labelText: "${widget.otherUser.username}'s nickname",
                   hintText: "${widget.otherUser.username} nickname here"),
             ),
           ),

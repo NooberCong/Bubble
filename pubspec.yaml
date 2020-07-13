@@ -92,6 +92,7 @@ flutter:
     - assets/images/img_not_available.jpeg
     - assets/images/like.svg
     - assets/images/font.svg
+    - assets/images/name.svg
     - assets/images/more.svg
     - assets/images/money.svg
     - assets/images/poo.svg

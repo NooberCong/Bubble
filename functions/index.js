@@ -115,7 +115,8 @@ function sendNotification(doc) {
       if (
         userTo.data().token &&
         userTo.data().chattingWith !== doc.idFrom &&
-        doc.idFrom !== doc.idTo
+        doc.idFrom !== doc.idTo &&
+        !doc.seen
       ) {
         // Get info user from (sent)
         admin

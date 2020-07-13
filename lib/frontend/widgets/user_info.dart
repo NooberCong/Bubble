@@ -208,8 +208,9 @@ class _UserInfoState extends State<UserInfo> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
+              textCapitalization: TextCapitalization.sentences,
               controller: _controller,
-              decoration: const InputDecoration(hintText: "Your bio here"),
+              decoration: const InputDecoration(hintText: "Your bio here", ),
             ),
           ),
         ],
@@ -219,13 +220,13 @@ class _UserInfoState extends State<UserInfo> {
       btnCancelOnPress: () {},
       useRootNavigator: true,
       btnOkOnPress: () {
-        _updateBio(_controller.text);
+        _updateBio(_controller.text, parentContext);
       },
     ).show();
   }
 
-  void _updateBio(String text) {
-    context
+  void _updateBio(String text, BuildContext blocContext) {
+    blocContext
         .bloc<SettingsScreenBloc>()
         .add(SettingsScreenEvent.editBio(widget.user.uid, text));
   }

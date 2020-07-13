@@ -18,7 +18,7 @@ import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'dart:async';
 import 'package:bubble/frontend/screens/conversation_details_screen.dart';
 import 'package:bubble/frontend/screens/find_user_screen.dart';
-import 'package:bubble/frontend/screens/full_photo.dart';
+import 'package:bubble/frontend/screens/photo_viewer.dart';
 import 'package:bubble/frontend/screens/take_picture_screen.dart';
 
 abstract class Routes {
