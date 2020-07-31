@@ -30,13 +30,17 @@ dependencies:
   camera:
   flutter_keyboard_visibility:
   cached_network_image:
-  path_provider:
   path:
+  dio:
+  assets_audio_player:
   firebase_database:
   photo_view:
   auto_route:
+  image_gallery_saver:
+  permission_handler:
   firebase_storage:
   google_sign_in:
+  giphy_picker:
   flutter_local_notifications:
   injectable:
   flutter_bloc:
@@ -48,6 +52,8 @@ dependencies:
   flutter_launcher_icons:
   transparent_image:
   awesome_dialog:
+  flutter_link_preview:
+  url_launcher:
   flutter_clipboard_manager:
   fluttertoast:
   get_it:
@@ -95,6 +101,7 @@ flutter:
     - assets/images/name.svg
     - assets/images/more.svg
     - assets/images/money.svg
+    - assets/images/gif.svg
     - assets/images/poo.svg
     - assets/images/flower.svg
     - assets/images/rose.svg
@@ -154,6 +161,7 @@ flutter:
     - assets/stickers/giphy (38)-min.gif
     - assets/stickers/giphy (39)-min.gif
     - assets/stickers/giphy (40)-min.gif
+    - assets/sounds/send_message.mp3
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

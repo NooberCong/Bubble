@@ -5,7 +5,7 @@ import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
-import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
+import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
 import 'package:bubble/frontend/widgets/user_status_ball.dart';
 import 'package:bubble/router.gr.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +44,7 @@ class _ChatBarState extends State<ChatBar> {
 
   @override
   void dispose() {
-    _specificsSubscription.cancel();
+    _specificsSubscription?.cancel();
     super.dispose();
   }
 
@@ -94,7 +94,7 @@ class _ChatBarState extends State<ChatBar> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(specifics.otherUserNickname,
+                  Text(specifics.nicknames[widget.otherUser.uid] as String,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14)),
@@ -135,7 +135,7 @@ class _ChatBarState extends State<ChatBar> {
   }
 
   bool _shouldUpdate(ConversationSpecifics value) {
-    return specifics.otherUserNickname != value.otherUserNickname ||
+    return specifics.nicknames.values != value.nicknames.values ||
         specifics.themeColorCode != value.themeColorCode;
   }
 }

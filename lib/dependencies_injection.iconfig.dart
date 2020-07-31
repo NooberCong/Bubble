@@ -5,6 +5,7 @@
 // **************************************************************************
 
 import 'package:bubble/backend/modules.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,8 +17,11 @@ import 'package:bubble/backend/auth_service.dart';
 import 'package:bubble/domain/i_auth.dart';
 import 'package:bubble/backend/cloud_data_service.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
+import 'package:bubble/backend/keyboard_activity_controller.dart';
+import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/bloc/login_screen_bloc/login_screen_bloc.dart';
 import 'package:bubble/notifications.dart';
+import 'package:bubble/backend/room_activity_controller.dart';
 import 'package:bubble/bloc/settings_screen_bloc/settings_screen_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bubble/bloc/sign_up_bloc/sign_up_state_manager.dart';
@@ -35,6 +39,7 @@ import 'package:get_it/get_it.dart';
 
 Future<void> $initGetIt(GetIt g, {String environment}) async {
   final registerModule = _$RegisterModule();
+  g.registerLazySingleton<AssetsAudioPlayer>(() => registerModule.audioPlayer);
   g.registerLazySingleton<FirebaseAuth>(() => registerModule.firebaseAuth);
   g.registerLazySingleton<FirebaseDatabase>(() => registerModule.database);
   g.registerLazySingleton<FirebaseMessaging>(
@@ -52,6 +57,8 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
       ));
   g.registerLazySingleton<ICloudDataService>(
       () => CloudDataService(g<Firestore>(), g<FirebaseStorage>()));
+  g.registerFactoryParam<KeyboardActivityController, User, dynamic>(
+      (user, _) => KeyboardActivityController(g<Firestore>(), user));
   g.registerFactory<LoginScreenBloc>(
       () => LoginScreenBloc(authService: g<IAuth>()));
   g.registerLazySingleton<NotificationManager>(() => NotificationManager(
@@ -59,6 +66,8 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
         g<FlutterLocalNotificationsPlugin>(),
         g<ICloudDataService>(),
       ));
+  g.registerFactoryParam<RoomActivityController, User, dynamic>(
+      (user, _) => RoomActivityController(g<Firestore>(), user));
   g.registerFactory<SettingsScreenBloc>(
       () => SettingsScreenBloc(g<IAuth>(), g<ICloudDataService>()));
   final sharedPreferences = await registerModule.preferences;
@@ -76,6 +85,7 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
       (chatRoomId, _) => ChatScreenBloc(
             g<ICloudDataService>(),
             g<SharedPreferences>(),
+            g<AssetsAudioPlayer>(),
             chatRoomId,
           ));
   g.registerFactory<ConversationPhotosShowcaseBloc>(

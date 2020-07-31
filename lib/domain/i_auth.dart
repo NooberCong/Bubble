@@ -12,5 +12,5 @@ abstract class IAuth {
 
   Future<Either<AuthFailure, User>> signInWithGoogle(Params params);
 
-  void signOut(Params params);
+  Future<void> signOut(Params params);
 }

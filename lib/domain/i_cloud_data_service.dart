@@ -18,6 +18,7 @@ abstract class ICloudDataService {
   Future<Either<CloudFailure, Stream>> fetchUserDetailsStream(Params params);
   Future<Either<CloudFailure, void>> addMessage(Params params);
   Future<Either<CloudFailure, void>> deleteMessage(Params params);
+  Future<Either<CloudFailure, void>> reactToMessage(Params params);
   Future<Either<CloudFailure, void>> markMessageAsSeen(Params params);
   Future<Either<CloudFailure, void>> updateConversationData(Params params);
   Future<Either<CloudFailure, List<String>>> fetchConversationPhotos(

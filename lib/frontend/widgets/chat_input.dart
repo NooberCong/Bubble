@@ -2,20 +2,22 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/core/constants/fonts.dart';
 import 'package:bubble/core/constants/stickers.dart';
 import 'package:bubble/core/constants/svgs.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
-import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
+import 'package:bubble/frontend/providers/activity_controller_provider.dart';
+import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
 import 'package:bubble/router.gr.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:giphy_picker/giphy_picker.dart';
 
 class ChatInput extends StatefulWidget {
   final String otherUserId;
@@ -38,6 +40,7 @@ class _ChatInputState extends State<ChatInput> {
   bool _showMainEmoji = true;
   bool _expandToolBar = true;
   String _inputHintText = "Aa";
+  Map<String, dynamic> _replyMessageData;
 
   @override
   void initState() {
@@ -67,35 +70,52 @@ class _ChatInputState extends State<ChatInput> {
           specifics = value;
         });
       }
-      _bottomSheetController?.setState(() {});
     });
+    ActivityControllerProvider.of(context).keyboardController.addListener(
+        _controller,
+        getRoomIdFromUIDHashCode(currentUser(context).uid, widget.otherUserId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _onWillPop(context),
-      child: Column(
-        children: <Widget>[
-          _buildBottomTab(0, _buildMiscellaneousItems),
-          _buildBottomTab(1, _buildStickers),
-          _buildInputBar()
-        ],
+    return BlocListener<ChatScreenBloc, ChatScreenState>(
+      condition: (_, state) =>
+          state.maybeWhen(replying: (_) => true, orElse: () => false),
+      listener: _onMessageReply,
+      child: WillPopScope(
+        onWillPop: () => _onWillPop(context),
+        child: Column(
+          children: <Widget>[
+            Divider(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade200,
+              thickness: 1,
+            ),
+            _buildBottomTab(0, _buildMiscellaneousItems),
+            _buildBottomTab(1, _buildStickers),
+            _buildReplyTab(),
+            _buildInputBar()
+          ],
+        ),
       ),
     );
+  }
+
+  void _onMessageReply(context, state) {
+    state.maybeWhen(
+        replying: (Map<String, dynamic> data) {
+          setState(() {
+            _replyMessageData = data;
+          });
+        },
+        orElse: () {});
   }
 
   Container _buildInputBar() {
     return Container(
       width: double.infinity,
       height: 50.0,
-      decoration: BoxDecoration(
-        border: Border(
-            top: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey.shade800
-                    : Colors.grey.shade200)),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -159,40 +179,38 @@ class _ChatInputState extends State<ChatInput> {
               Icons.send,
               size: 26,
             ),
-            onPressed: () => onSendMessage(_controller.text, MessageType.text),
-            color: Colors.blue,
+            onPressed: () => onSendMessage(_controller.text,
+                isUrl(_controller.text) ? MessageType.url : MessageType.text),
+            color: Color(specifics.themeColorCode),
           );
   }
 
-  Widget _buildBottomTab(int tabIndex, List<Widget> Function() itemBuilder) {
+  Widget _buildBottomTab(
+      int tabIndex, List<Widget> Function(BoxConstraints) itemBuilder) {
     if (_toolbarTabIndex != tabIndex) {
       return const SizedBox();
     }
     return Container(
-      decoration: BoxDecoration(
-        border: Border(
-            top: BorderSide(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.grey.shade200
-                    : Colors.grey.shade800,
-                width: 0.5)),
-      ),
       padding: const EdgeInsets.all(5),
       height: 180,
       width: double.infinity,
       child: SingleChildScrollView(
         child: ButtonTheme(
           padding: EdgeInsets.zero,
-          child: Wrap(
-            children: itemBuilder(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Wrap(
+                children: itemBuilder(constraints),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  List<FlatButton> _buildStickers() {
-    final size = (MediaQuery.of(context).size.width - 10) / 4;
+  List<FlatButton> _buildStickers(BoxConstraints constraints) {
+    final size = constraints.maxWidth / 4;
     return _stickerFilePaths()
         .map((path) => FlatButton(
               onPressed: () => onSendMessage(path, MessageType.sticker),
@@ -221,20 +239,26 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void onSendMessage(String text, MessageType type) {
-    if (type == MessageType.text) {
+    if (type == MessageType.text || type == MessageType.url) {
       _controller.clear();
     }
     context.bloc<ChatScreenBloc>().add(ChatScreenEvent.sendMessage(Message(
-        idFrom: (context.bloc<SplashScreenBloc>().state
-                as SplashScreenStateAuthenticated)
-            .user
-            .uid,
+        idFrom: currentUser(context).uid,
         idTo: widget.otherUserId,
+        referenceTo: _replyMessageData,
         seen: false,
         timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
         content: text,
-        messageId: generateRandomNumString(),
         type: type)));
+    if (_replyMessageData != null) {
+      _clearReply();
+    }
+  }
+
+  void _clearReply() {
+    setState(() {
+      _replyMessageData = null;
+    });
   }
 
   List<String> _stickerFilePaths() {
@@ -273,11 +297,6 @@ class _ChatInputState extends State<ChatInput> {
       }
       return false;
     }
-    context.bloc<ChatScreenBloc>().add(ChatScreenEvent.popScreen((context
-            .bloc<SplashScreenBloc>()
-            .state as SplashScreenStateAuthenticated)
-        .user
-        .uid));
     return true;
   }
 
@@ -405,11 +424,7 @@ class _ChatInputState extends State<ChatInput> {
         shrinkWrap: true,
         onMainColorChange: (value) => _updateConversationData(
             {"themeColorCode": value.value},
-            (context.bloc<SplashScreenBloc>().state
-                        as SplashScreenStateAuthenticated)
-                    .user
-                    .uid !=
-                widget.otherUserId),
+            currentUser(context).uid != widget.otherUserId),
         selectedColor: Color(specifics.themeColorCode),
       )
     ];
@@ -417,14 +432,13 @@ class _ChatInputState extends State<ChatInput> {
 
   bool _shouldUpdate(ConversationSpecifics newValue) {
     return specifics.mainEmoji != newValue.mainEmoji ||
-        specifics.themeColorCode != newValue.themeColorCode;
+        specifics.themeColorCode != newValue.themeColorCode ||
+        specifics.fontFamily != newValue.fontFamily;
   }
 
   void _updateConversationData(
       Map<String, dynamic> updateData, bool shouldMerge) {
-    final user = (context.bloc<SplashScreenBloc>().state
-            as SplashScreenStateAuthenticated)
-        .user;
+    final user = currentUser(context);
     context.bloc<ChatScreenBloc>().add(ChatScreenEvent.updateConversationData({
           "otherUserId": widget.otherUserId,
           "userId": user.uid,
@@ -434,8 +448,8 @@ class _ChatInputState extends State<ChatInput> {
         }));
   }
 
-  List<Widget> _buildMiscellaneousItems() {
-    final size = MediaQuery.of(context).size.width / 6;
+  List<Widget> _buildMiscellaneousItems(BoxConstraints constraints) {
+    final size = (constraints.maxWidth - 30 * 4) / 4;
     return [
       FlatButton(
         padding: const EdgeInsets.all(10),
@@ -481,6 +495,21 @@ class _ChatInputState extends State<ChatInput> {
             ),
             const SizedBox(height: 5),
             const Text("Custom font")
+          ],
+        ),
+      ),
+      FlatButton(
+        padding: const EdgeInsets.all(10),
+        onPressed: _pickGif,
+        child: Column(
+          children: <Widget>[
+            SvgPicture.asset(
+              "assets/images/gif.svg",
+              width: size,
+              height: size,
+            ),
+            const SizedBox(height: 5),
+            const Text("Send gifs")
           ],
         ),
       ),
@@ -549,8 +578,9 @@ class _ChatInputState extends State<ChatInput> {
                 ? Colors.grey.withOpacity(.5)
                 : null,
             padding: const EdgeInsets.all(10),
-            onPressed: () =>
-                _updateConversationData({"fontFamily": font}, false),
+            onPressed: () {
+              _updateConversationData({"fontFamily": font}, false);
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -564,5 +594,112 @@ class _ChatInputState extends State<ChatInput> {
           ),
         )
         .toList();
+  }
+
+  Widget _buildReplyTab() {
+    return _replyMessageData != null
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text("Replying to ${_receiver()}",
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    _buildMessagePreview(),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                //Set as not replying
+                onTap: _clearReply,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300),
+                  child: Icon(
+                    Icons.clear,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    size: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          )
+        : const SizedBox();
+  }
+
+  String _receiver() {
+    return _replyMessageData["messageOwner"] == widget.otherUserId
+        ? specifics.nicknames[widget.otherUserId] as String
+        : "myself";
+  }
+
+  Widget _buildMessagePreview() {
+    final messageType =
+        Message.parseType(_replyMessageData["messageType"] as String);
+    switch (messageType) {
+      case MessageType.url:
+      case MessageType.text:
+        return Text(
+          _replyMessageData["content"] as String,
+          maxLines: 1,
+          overflow: TextOverflow.fade,
+          style: TextStyle(color: Colors.grey.shade500),
+        );
+        break;
+      case MessageType.image:
+      case MessageType.gif:
+        return CachedNetworkImage(
+          height: 50,
+          width: 50,
+          fit: BoxFit.cover,
+          imageUrl: _replyMessageData["content"] as String,
+        );
+        break;
+      case MessageType.sticker:
+        return Image.asset(_replyMessageData["content"] as String,
+            width: 50, height: 50, fit: BoxFit.cover);
+        break;
+      case MessageType.svg:
+        return SvgPicture.asset(
+          _replyMessageData["content"] as String,
+          width: 50,
+          height: 50,
+        );
+        break;
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Future<void> _pickGif() async {
+    final gif = await GiphyPicker.pickGif(
+        context: context,
+        apiKey: "8bMEIISwiZDn3mDCootYKQqNfWJ3TScO",
+        showPreviewPage: false);
+    if (gif != null) {
+      onSendMessage(gif.images.original.url, MessageType.gif);
+    }
   }
 }

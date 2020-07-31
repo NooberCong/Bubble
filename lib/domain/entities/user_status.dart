@@ -9,6 +9,6 @@ class UserStatus {
   factory UserStatus.fromJson(Map<String, dynamic> json) {
     return UserStatus(
         isOnline: json["state"] == "online",
-        lastActive: parseLastActive(json["lastActive"] as String));
+        lastActive: parseLastActive(json["onlineStatusLastChanged"] as String));
   }
 }

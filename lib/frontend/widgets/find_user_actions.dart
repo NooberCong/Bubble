@@ -1,5 +1,5 @@
 import 'package:bubble/bloc/find_user_screen_bloc/find_user_screen_bloc.dart';
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/core/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -80,12 +80,9 @@ class _FindUserActionsState extends State<FindUserActions> {
           borderRadius: BorderRadius.circular(50),
           child: RaisedButton(
             color: Colors.pink,
-            onPressed: () => context.bloc<FindUserScreenBloc>().add(
-                FindUserScreenEvent.random((context
-                        .bloc<SplashScreenBloc>()
-                        .state as SplashScreenStateAuthenticated)
-                    .user
-                    .uid)),
+            onPressed: () => context
+                .bloc<FindUserScreenBloc>()
+                .add(FindUserScreenEvent.random(currentUser(context).uid)),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15),
               width: MediaQuery.of(context).size.width,

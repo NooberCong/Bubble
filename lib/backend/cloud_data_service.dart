@@ -31,7 +31,11 @@ class CloudDataService implements ICloudDataService {
       }
       _updateConversationLastMessage(
           message, getRoomIdFromUIDHashCode(message.idFrom, message.idTo));
-      return Right(await _saveMessageToCloud(messageJsonData));
+      final sentMessage = await _saveMessageToCloud(messageJsonData);
+      if (message.referenceTo != null) {
+        await _addReference(sentMessage.documentID, message);
+      }
+      return const Right(null);
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
@@ -52,13 +56,16 @@ class CloudDataService implements ICloudDataService {
   @override
   Future<Either<CloudFailure, void>> deleteMessage(Params params) async {
     try {
-      final idMap = (params as ParamsMap).data;
-      return Right(await store
-          .collection("rooms")
-          .document(idMap["roomId"] as String)
-          .collection("messages")
-          .document(idMap["messageId"] as String)
-          .delete());
+      final inputData = (params as ParamsMap).data;
+      final messageDoc = await _messageRef(
+              inputData["roomId"] as String, inputData["messageId"] as String)
+          .get();
+      if (messageDoc.exists) {
+        final batch = await _handleReferences(messageDoc);
+        batch.updateData(messageDoc.reference, {"content": ""});
+        await batch.commit();
+      }
+      return const Right(null);
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
     }
@@ -129,14 +136,13 @@ class CloudDataService implements ICloudDataService {
     return imageUrl as String;
   }
 
-  Future<void> _saveMessageToCloud(Map<String, dynamic> data) {
+  Future<DocumentReference> _saveMessageToCloud(Map<String, dynamic> data) {
     return store
         .collection('rooms')
         .document(getRoomIdFromUIDHashCode(
             data["idFrom"] as String, data["idTo"] as String))
         .collection("messages")
-        .document(data["messageId"] as String)
-        .setData(data);
+        .add(data..remove("messageId"));
   }
 
   @override
@@ -187,20 +193,29 @@ class CloudDataService implements ICloudDataService {
           .document(roomId)
           .get();
 
+      final commonData = {
+        "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
+        "mainEmoji": "assets/images/like.svg",
+        "themeColorCode": 4280391411,
+        "fontFamily": "Roboto",
+        "seen": false
+      };
+
       //If conversation is not present in user conversations, add it
       if (!userConversationDoc.exists) {
         await userConversationDoc.reference.setData({
           "otherUser": json.encode(otherUser.toJson()),
           "lastMessage": "You have just connected with ${otherUser.username}",
-          "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
           //Check if user is chatting with him/herself and choose special nickname for that case
           "otherUserNickname":
               user.uid != otherUser.uid ? otherUser.username : "Just you",
           "userNickname": user.uid != otherUser.uid ? user.username : "You",
-          "mainEmoji": "assets/images/like.svg",
-          "themeColorCode": 4280391411,
-          "fontFamily": "Roboto",
-          "seen": false
+          "nicknames": {
+            user.uid: user.uid != otherUser.uid ? user.username : "You",
+            otherUser.uid:
+                user.uid != otherUser.uid ? otherUser.username : "Just you",
+          },
+          ...commonData
         });
       }
 
@@ -216,15 +231,20 @@ class CloudDataService implements ICloudDataService {
         await otherUserConversationDoc.reference.setData({
           "otherUser": json.encode(user.toJson()),
           "lastMessage": "You have just connected with ${user.username}",
-          "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-          "userNickname": otherUser.username,
-          "otherUserNickname": user.username,
-          "mainEmoji": "assets/images/like.svg",
-          "themeColorCode": 4280391411,
-          "fontFamily": "Roboto",
-          "seen": false
+          "nicknames": {
+            user.uid: user.username,
+            otherUser.uid: otherUser.username
+          },
+          ...commonData
         });
       }
+      final roomDoc = await store.collection("rooms").document(roomId).get();
+      if (!roomDoc.exists) {
+        await roomDoc.reference.setData({
+          "typing": {user.uid: false, otherUser.uid: false}
+        });
+      }
+
       return Right({
         "initialData": (await userConversationDoc.reference.get()).data,
         "stream": userConversationDoc.reference.snapshots()
@@ -265,11 +285,8 @@ class CloudDataService implements ICloudDataService {
   Future<Either<CloudFailure, void>> markMessageAsSeen(Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
-      await store
-          .collection("rooms")
-          .document(inputData["roomId"] as String)
-          .collection("messages")
-          .document(inputData["messageId"] as String)
+      await _messageRef(
+              inputData["roomId"] as String, inputData["messageId"] as String)
           .updateData({"seen": true});
       return const Right(null);
     } on Exception {
@@ -325,7 +342,7 @@ class CloudDataService implements ICloudDataService {
         "lastActive": message.timestamp,
         "userSentLastMessage": false,
         "seen": userTo.data["state"] == "online" &&
-            userTo.data["chattingWith"] == message.idFrom,
+            (userTo.data["joinedRooms"] as List<dynamic>).contains(roomId),
       });
     }
 
@@ -337,10 +354,12 @@ class CloudDataService implements ICloudDataService {
   }
 
   String parseMessage(Message message) {
-    if (message.type == MessageType.text) {
+    if (message.type == MessageType.text || message.type == MessageType.url) {
       return ": ${message.content}";
     } else if (message.type == MessageType.image) {
       return " sent a photo";
+    } else if (message.type == MessageType.gif) {
+      return " sent a gif";
     } else if (message.type == MessageType.svg) {
       final svgFileName = message.content.split("/").last;
       switch (svgFileName) {
@@ -350,6 +369,8 @@ class CloudDataService implements ICloudDataService {
           return ": 💩";
         case "flower.svg":
           return ": 🌺";
+        case "heart.svg":
+          return ": ❤️";
         case "money.svg":
           return ": 💰";
         case "rose.svg":
@@ -375,32 +396,28 @@ class CloudDataService implements ICloudDataService {
       Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
-      Map<String, dynamic> updateData =
+      final Map<String, dynamic> updateData =
           inputData["updateData"] as Map<String, dynamic>;
-      final batch = store.batch();
-      batch.updateData(
-          store
-              .collection("users")
-              .document(inputData["userId"] as String)
-              .collection("conversations")
-              .document(inputData["roomId"] as String),
-          updateData);
+      await store.runTransaction((transaction) async {
+        final userConversation = store
+            .collection("users")
+            .document(inputData["userId"] as String)
+            .collection("conversations")
+            .document(inputData["roomId"] as String);
+        transaction.update(userConversation, updateData);
+      });
       //Check if user is chatting with him/herself
       if (inputData["merge"] as bool) {
         //handle special case: update user nickname
-        if (updateData.containsKey("userNickname") ||
-            updateData.containsKey("otherUserNickname")) {
-          updateData = _switchNicknameSides(updateData);
-        }
-        batch.updateData(
-            store
-                .collection("users")
-                .document(inputData["otherUserId"] as String)
-                .collection("conversations")
-                .document(inputData["roomId"] as String),
-            updateData);
+        await store.runTransaction((transaction) async {
+          final userConversation = store
+              .collection("users")
+              .document(inputData["otherUserId"] as String)
+              .collection("conversations")
+              .document(inputData["roomId"] as String);
+          transaction.update(userConversation, updateData);
+        });
       }
-      await batch.commit();
       return const Right(null);
     } on Exception catch (e) {
       return Left(CloudFailure(e.toString()));
@@ -445,16 +462,107 @@ class CloudDataService implements ICloudDataService {
     }
   }
 
-  Map<String, dynamic> _switchNicknameSides(Map<String, dynamic> updateData) {
-    final modifiedData = <String, dynamic>{};
-    final originalUserNickname = updateData["userNickname"];
-    final originalOtherUserNickname = updateData["otherUserNickname"];
-    if (originalUserNickname != null) {
-      modifiedData["otherUserNickname"] = originalUserNickname;
+  @override
+  Future<Either<CloudFailure, void>> reactToMessage(Params params) async {
+    try {
+      final inputData = (params as ParamsMap).data;
+      final messageRef = _messageRef(
+          inputData["roomId"] as String, inputData["messageId"] as String);
+      await store.runTransaction((transaction) async {
+        final messageDoc = await transaction.get(messageRef);
+        final reactions = messageDoc.data["reactions"] as Map<String, dynamic>;
+        if (messageDoc.exists) {
+          await transaction.update(messageRef, {
+            "reactions": _userAlreadyReacted(reactions, inputData)
+                ? _removeUserReaction(messageDoc, inputData)
+                : _addUserReaction(messageDoc, inputData)
+          });
+        }
+      });
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(CloudFailure(e.toString()));
     }
-    if (originalOtherUserNickname != null) {
-      modifiedData["userNickname"] = originalOtherUserNickname;
+  }
+
+  Map<String, dynamic> _removeUserReaction(
+      DocumentSnapshot messageDoc, Map<String, dynamic> inputData) {
+    return (messageDoc.data["reactions"] as Map<String, dynamic>)
+      ..addAll({
+        inputData["reaction"] as String: (messageDoc.data["reactions"]
+                [inputData["reaction"]] as List<dynamic>)
+            .where((element) => element["uid"] != inputData["uid"])
+            .toList()
+      });
+  }
+
+  bool _userAlreadyReacted(
+          Map<String, dynamic> reactions, Map<String, dynamic> inputData) =>
+      (reactions[inputData["reaction"] as String] as List<dynamic>)
+          .any((element) => element["uid"] == inputData["uid"]);
+
+  Map<String, dynamic> _addUserReaction(
+      DocumentSnapshot messageDoc, Map<String, dynamic> inputData) {
+    final recordedReactions =
+        messageDoc.data["reactions"] as Map<String, dynamic>;
+    //Check if user had already used another reaction, if so, remove it
+    for (final entry in recordedReactions.entries) {
+      if (entry.key == inputData["reaction"]) {
+        (recordedReactions[entry.key] as List<dynamic>).add({
+          "username": inputData["username"],
+          "uid": inputData["uid"],
+          "imageUrl": inputData["imageUrl"],
+        });
+      } else {
+        recordedReactions[entry.key] =
+            (recordedReactions[entry.key] as List<dynamic>)
+                .where((element) => element["uid"] != inputData["uid"])
+                .toList();
+      }
     }
-    return updateData..addAll(modifiedData);
+    return recordedReactions;
+  }
+
+  Future<void> _addReference(String sentMessageId, Message referencingMessage) {
+    return store.runTransaction((transaction) async {
+      final referencedMessage = await _messageRef(
+              referencingMessage.referenceTo["roomId"] as String,
+              referencingMessage.referenceTo["messageId"] as String)
+          .get();
+      return transaction.update(referencedMessage.reference, {
+        "referencedBy":
+            (referencedMessage.data["referencedBy"] as List<dynamic>)
+              ..add({
+                "roomId": getRoomIdFromUIDHashCode(
+                    referencingMessage.idFrom, referencingMessage.idTo),
+                "messageId": sentMessageId
+              })
+      });
+    });
+  }
+
+  Future<WriteBatch> _handleReferences(DocumentSnapshot doc) async {
+    final batch = store.batch();
+    final references = doc.data["referencedBy"] as List<dynamic>;
+    for (final ref in references) {
+      final message =
+          await _messageRef(ref["roomId"] as String, ref["messageId"] as String)
+              .get();
+      batch.updateData(message.reference, {
+        "referenceTo": {
+          ...message.data["referenceTo"] as Map<String, dynamic>,
+          "content": ""
+        }
+      });
+    }
+    return batch;
+  }
+
+  DocumentReference _messageRef(String roomId, String messageId) {
+    return store
+        .collection("rooms")
+        .document(roomId)
+        .collection("messages")
+        .document(messageId);
   }
 }

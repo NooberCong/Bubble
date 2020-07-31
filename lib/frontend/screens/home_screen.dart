@@ -20,11 +20,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  NotificationManager notificationManager;
   @override
   void initState() {
     super.initState();
-    getIt<NotificationManager>()
-        .initializeNotification(widget.user.uid, context);
+    notificationManager = getIt<NotificationManager>()
+      ..initializeNotification(widget.user.uid, context);
     getIt<UserPresence>().initializePresence(widget.user.uid);
   }
 
@@ -83,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     return Conversation(
+                                      notificationManager: notificationManager,
                                       conversationSnapshot:
                                           conversations[index],
                                     );

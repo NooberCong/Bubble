@@ -13,4 +13,6 @@ abstract class ChatScreenState with _$ChatScreenState {
   const factory ChatScreenState.processing() = _ChatScreenStateProcessing;
   const factory ChatScreenState.streamStateUpdate(bool canLoadmore) =
       _ChatScreenStateStreamStateUpdate;
+  const factory ChatScreenState.replying(Map<String, dynamic> data) =
+      _ChatScreenStateReplying;
 }

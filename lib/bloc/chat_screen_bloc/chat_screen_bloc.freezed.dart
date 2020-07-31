@@ -26,12 +26,6 @@ class _$ChatScreenEventTearOff {
     );
   }
 
-  _ChatScreenEventPop popScreen(String uid) {
-    return _ChatScreenEventPop(
-      uid,
-    );
-  }
-
   _ChatScreenEventMarkAsSeen markAsSeen(String messageId) {
     return _ChatScreenEventMarkAsSeen(
       messageId,
@@ -50,6 +44,24 @@ class _$ChatScreenEventTearOff {
       data,
     );
   }
+
+  _ChatScreenEventReactMessage reactToMessage(Map<String, dynamic> data) {
+    return _ChatScreenEventReactMessage(
+      data,
+    );
+  }
+
+  _ChatScreenEventReplyMessage setReplyToMessage(Map<String, dynamic> data) {
+    return _ChatScreenEventReplyMessage(
+      data,
+    );
+  }
+
+  _ChatScreenEventDeleteMessage deleteMessage(Map<String, dynamic> data) {
+    return _ChatScreenEventDeleteMessage(
+      data,
+    );
+  }
 }
 
 // ignore: unused_element
@@ -60,39 +72,47 @@ mixin _$ChatScreenEvent {
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   });
   @optionalTypeArgs
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   });
 }
@@ -186,17 +206,21 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return requestMessageStream(userId, otherUserId);
   }
 
@@ -205,10 +229,12 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -223,18 +249,22 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return requestMessageStream(this);
   }
 
@@ -243,10 +273,12 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -329,17 +361,21 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return sendMessage(msg);
   }
 
@@ -348,10 +384,12 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -366,18 +404,22 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return sendMessage(this);
   }
 
@@ -386,10 +428,12 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -407,143 +451,6 @@ abstract class _ChatScreenEventSendMessage implements ChatScreenEvent {
   Message get msg;
   _$ChatScreenEventSendMessageCopyWith<_ChatScreenEventSendMessage>
       get copyWith;
-}
-
-abstract class _$ChatScreenEventPopCopyWith<$Res> {
-  factory _$ChatScreenEventPopCopyWith(
-          _ChatScreenEventPop value, $Res Function(_ChatScreenEventPop) then) =
-      __$ChatScreenEventPopCopyWithImpl<$Res>;
-  $Res call({String uid});
-}
-
-class __$ChatScreenEventPopCopyWithImpl<$Res>
-    extends _$ChatScreenEventCopyWithImpl<$Res>
-    implements _$ChatScreenEventPopCopyWith<$Res> {
-  __$ChatScreenEventPopCopyWithImpl(
-      _ChatScreenEventPop _value, $Res Function(_ChatScreenEventPop) _then)
-      : super(_value, (v) => _then(v as _ChatScreenEventPop));
-
-  @override
-  _ChatScreenEventPop get _value => super._value as _ChatScreenEventPop;
-
-  @override
-  $Res call({
-    Object uid = freezed,
-  }) {
-    return _then(_ChatScreenEventPop(
-      uid == freezed ? _value.uid : uid as String,
-    ));
-  }
-}
-
-class _$_ChatScreenEventPop implements _ChatScreenEventPop {
-  const _$_ChatScreenEventPop(this.uid) : assert(uid != null);
-
-  @override
-  final String uid;
-
-  @override
-  String toString() {
-    return 'ChatScreenEvent.popScreen(uid: $uid)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is _ChatScreenEventPop &&
-            (identical(other.uid, uid) ||
-                const DeepCollectionEquality().equals(other.uid, uid)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(uid);
-
-  @override
-  _$ChatScreenEventPopCopyWith<_ChatScreenEventPop> get copyWith =>
-      __$ChatScreenEventPopCopyWithImpl<_ChatScreenEventPop>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  Result when<Result extends Object>({
-    @required Result requestMessageStream(String userId, String otherUserId),
-    @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
-    @required Result markAsSeen(String messageId),
-    @required Result cacheConversation(List<Message> messages),
-    @required Result updateConversationData(Map<String, dynamic> data),
-  }) {
-    assert(requestMessageStream != null);
-    assert(sendMessage != null);
-    assert(popScreen != null);
-    assert(markAsSeen != null);
-    assert(cacheConversation != null);
-    assert(updateConversationData != null);
-    return popScreen(uid);
-  }
-
-  @override
-  @optionalTypeArgs
-  Result maybeWhen<Result extends Object>({
-    Result requestMessageStream(String userId, String otherUserId),
-    Result sendMessage(Message msg),
-    Result popScreen(String uid),
-    Result markAsSeen(String messageId),
-    Result cacheConversation(List<Message> messages),
-    Result updateConversationData(Map<String, dynamic> data),
-    @required Result orElse(),
-  }) {
-    assert(orElse != null);
-    if (popScreen != null) {
-      return popScreen(uid);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  Result map<Result extends Object>({
-    @required Result requestMessageStream(_ChatScreenEventRequestStream value),
-    @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
-    @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
-    @required Result cacheConversation(_ChatScreenEventCache value),
-    @required
-        Result updateConversationData(_ChatScreenEventUpdateConversation value),
-  }) {
-    assert(requestMessageStream != null);
-    assert(sendMessage != null);
-    assert(popScreen != null);
-    assert(markAsSeen != null);
-    assert(cacheConversation != null);
-    assert(updateConversationData != null);
-    return popScreen(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  Result maybeMap<Result extends Object>({
-    Result requestMessageStream(_ChatScreenEventRequestStream value),
-    Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
-    Result markAsSeen(_ChatScreenEventMarkAsSeen value),
-    Result cacheConversation(_ChatScreenEventCache value),
-    Result updateConversationData(_ChatScreenEventUpdateConversation value),
-    @required Result orElse(),
-  }) {
-    assert(orElse != null);
-    if (popScreen != null) {
-      return popScreen(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ChatScreenEventPop implements ChatScreenEvent {
-  const factory _ChatScreenEventPop(String uid) = _$_ChatScreenEventPop;
-
-  String get uid;
-  _$ChatScreenEventPopCopyWith<_ChatScreenEventPop> get copyWith;
 }
 
 abstract class _$ChatScreenEventMarkAsSeenCopyWith<$Res> {
@@ -610,17 +517,21 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return markAsSeen(messageId);
   }
 
@@ -629,10 +540,12 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -647,18 +560,22 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return markAsSeen(this);
   }
 
@@ -667,10 +584,12 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -750,17 +669,21 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return cacheConversation(messages);
   }
 
@@ -769,10 +692,12 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -787,18 +712,22 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return cacheConversation(this);
   }
 
@@ -807,10 +736,12 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -894,17 +825,21 @@ class _$_ChatScreenEventUpdateConversation
   Result when<Result extends Object>({
     @required Result requestMessageStream(String userId, String otherUserId),
     @required Result sendMessage(Message msg),
-    @required Result popScreen(String uid),
     @required Result markAsSeen(String messageId),
     @required Result cacheConversation(List<Message> messages),
     @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return updateConversationData(data);
   }
 
@@ -913,10 +848,12 @@ class _$_ChatScreenEventUpdateConversation
   Result maybeWhen<Result extends Object>({
     Result requestMessageStream(String userId, String otherUserId),
     Result sendMessage(Message msg),
-    Result popScreen(String uid),
     Result markAsSeen(String messageId),
     Result cacheConversation(List<Message> messages),
     Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -931,18 +868,22 @@ class _$_ChatScreenEventUpdateConversation
   Result map<Result extends Object>({
     @required Result requestMessageStream(_ChatScreenEventRequestStream value),
     @required Result sendMessage(_ChatScreenEventSendMessage value),
-    @required Result popScreen(_ChatScreenEventPop value),
     @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     @required Result cacheConversation(_ChatScreenEventCache value),
     @required
         Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
-    assert(popScreen != null);
     assert(markAsSeen != null);
     assert(cacheConversation != null);
     assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
     return updateConversationData(this);
   }
 
@@ -951,10 +892,12 @@ class _$_ChatScreenEventUpdateConversation
   Result maybeMap<Result extends Object>({
     Result requestMessageStream(_ChatScreenEventRequestStream value),
     Result sendMessage(_ChatScreenEventSendMessage value),
-    Result popScreen(_ChatScreenEventPop value),
     Result markAsSeen(_ChatScreenEventMarkAsSeen value),
     Result cacheConversation(_ChatScreenEventCache value),
     Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -972,6 +915,471 @@ abstract class _ChatScreenEventUpdateConversation implements ChatScreenEvent {
   Map<String, dynamic> get data;
   _$ChatScreenEventUpdateConversationCopyWith<
       _ChatScreenEventUpdateConversation> get copyWith;
+}
+
+abstract class _$ChatScreenEventReactMessageCopyWith<$Res> {
+  factory _$ChatScreenEventReactMessageCopyWith(
+          _ChatScreenEventReactMessage value,
+          $Res Function(_ChatScreenEventReactMessage) then) =
+      __$ChatScreenEventReactMessageCopyWithImpl<$Res>;
+  $Res call({Map<String, dynamic> data});
+}
+
+class __$ChatScreenEventReactMessageCopyWithImpl<$Res>
+    extends _$ChatScreenEventCopyWithImpl<$Res>
+    implements _$ChatScreenEventReactMessageCopyWith<$Res> {
+  __$ChatScreenEventReactMessageCopyWithImpl(
+      _ChatScreenEventReactMessage _value,
+      $Res Function(_ChatScreenEventReactMessage) _then)
+      : super(_value, (v) => _then(v as _ChatScreenEventReactMessage));
+
+  @override
+  _ChatScreenEventReactMessage get _value =>
+      super._value as _ChatScreenEventReactMessage;
+
+  @override
+  $Res call({
+    Object data = freezed,
+  }) {
+    return _then(_ChatScreenEventReactMessage(
+      data == freezed ? _value.data : data as Map<String, dynamic>,
+    ));
+  }
+}
+
+class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
+  const _$_ChatScreenEventReactMessage(this.data) : assert(data != null);
+
+  @override
+  final Map<String, dynamic> data;
+
+  @override
+  String toString() {
+    return 'ChatScreenEvent.reactToMessage(data: $data)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenEventReactMessage &&
+            (identical(other.data, data) ||
+                const DeepCollectionEquality().equals(other.data, data)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+
+  @override
+  _$ChatScreenEventReactMessageCopyWith<_ChatScreenEventReactMessage>
+      get copyWith => __$ChatScreenEventReactMessageCopyWithImpl<
+          _ChatScreenEventReactMessage>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result requestMessageStream(String userId, String otherUserId),
+    @required Result sendMessage(Message msg),
+    @required Result markAsSeen(String messageId),
+    @required Result cacheConversation(List<Message> messages),
+    @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return reactToMessage(data);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result requestMessageStream(String userId, String otherUserId),
+    Result sendMessage(Message msg),
+    Result markAsSeen(String messageId),
+    Result cacheConversation(List<Message> messages),
+    Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (reactToMessage != null) {
+      return reactToMessage(data);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result requestMessageStream(_ChatScreenEventRequestStream value),
+    @required Result sendMessage(_ChatScreenEventSendMessage value),
+    @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    @required Result cacheConversation(_ChatScreenEventCache value),
+    @required
+        Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return reactToMessage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result requestMessageStream(_ChatScreenEventRequestStream value),
+    Result sendMessage(_ChatScreenEventSendMessage value),
+    Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    Result cacheConversation(_ChatScreenEventCache value),
+    Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (reactToMessage != null) {
+      return reactToMessage(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenEventReactMessage implements ChatScreenEvent {
+  const factory _ChatScreenEventReactMessage(Map<String, dynamic> data) =
+      _$_ChatScreenEventReactMessage;
+
+  Map<String, dynamic> get data;
+  _$ChatScreenEventReactMessageCopyWith<_ChatScreenEventReactMessage>
+      get copyWith;
+}
+
+abstract class _$ChatScreenEventReplyMessageCopyWith<$Res> {
+  factory _$ChatScreenEventReplyMessageCopyWith(
+          _ChatScreenEventReplyMessage value,
+          $Res Function(_ChatScreenEventReplyMessage) then) =
+      __$ChatScreenEventReplyMessageCopyWithImpl<$Res>;
+  $Res call({Map<String, dynamic> data});
+}
+
+class __$ChatScreenEventReplyMessageCopyWithImpl<$Res>
+    extends _$ChatScreenEventCopyWithImpl<$Res>
+    implements _$ChatScreenEventReplyMessageCopyWith<$Res> {
+  __$ChatScreenEventReplyMessageCopyWithImpl(
+      _ChatScreenEventReplyMessage _value,
+      $Res Function(_ChatScreenEventReplyMessage) _then)
+      : super(_value, (v) => _then(v as _ChatScreenEventReplyMessage));
+
+  @override
+  _ChatScreenEventReplyMessage get _value =>
+      super._value as _ChatScreenEventReplyMessage;
+
+  @override
+  $Res call({
+    Object data = freezed,
+  }) {
+    return _then(_ChatScreenEventReplyMessage(
+      data == freezed ? _value.data : data as Map<String, dynamic>,
+    ));
+  }
+}
+
+class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
+  const _$_ChatScreenEventReplyMessage(this.data) : assert(data != null);
+
+  @override
+  final Map<String, dynamic> data;
+
+  @override
+  String toString() {
+    return 'ChatScreenEvent.setReplyToMessage(data: $data)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenEventReplyMessage &&
+            (identical(other.data, data) ||
+                const DeepCollectionEquality().equals(other.data, data)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+
+  @override
+  _$ChatScreenEventReplyMessageCopyWith<_ChatScreenEventReplyMessage>
+      get copyWith => __$ChatScreenEventReplyMessageCopyWithImpl<
+          _ChatScreenEventReplyMessage>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result requestMessageStream(String userId, String otherUserId),
+    @required Result sendMessage(Message msg),
+    @required Result markAsSeen(String messageId),
+    @required Result cacheConversation(List<Message> messages),
+    @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return setReplyToMessage(data);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result requestMessageStream(String userId, String otherUserId),
+    Result sendMessage(Message msg),
+    Result markAsSeen(String messageId),
+    Result cacheConversation(List<Message> messages),
+    Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (setReplyToMessage != null) {
+      return setReplyToMessage(data);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result requestMessageStream(_ChatScreenEventRequestStream value),
+    @required Result sendMessage(_ChatScreenEventSendMessage value),
+    @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    @required Result cacheConversation(_ChatScreenEventCache value),
+    @required
+        Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return setReplyToMessage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result requestMessageStream(_ChatScreenEventRequestStream value),
+    Result sendMessage(_ChatScreenEventSendMessage value),
+    Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    Result cacheConversation(_ChatScreenEventCache value),
+    Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (setReplyToMessage != null) {
+      return setReplyToMessage(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenEventReplyMessage implements ChatScreenEvent {
+  const factory _ChatScreenEventReplyMessage(Map<String, dynamic> data) =
+      _$_ChatScreenEventReplyMessage;
+
+  Map<String, dynamic> get data;
+  _$ChatScreenEventReplyMessageCopyWith<_ChatScreenEventReplyMessage>
+      get copyWith;
+}
+
+abstract class _$ChatScreenEventDeleteMessageCopyWith<$Res> {
+  factory _$ChatScreenEventDeleteMessageCopyWith(
+          _ChatScreenEventDeleteMessage value,
+          $Res Function(_ChatScreenEventDeleteMessage) then) =
+      __$ChatScreenEventDeleteMessageCopyWithImpl<$Res>;
+  $Res call({Map<String, dynamic> data});
+}
+
+class __$ChatScreenEventDeleteMessageCopyWithImpl<$Res>
+    extends _$ChatScreenEventCopyWithImpl<$Res>
+    implements _$ChatScreenEventDeleteMessageCopyWith<$Res> {
+  __$ChatScreenEventDeleteMessageCopyWithImpl(
+      _ChatScreenEventDeleteMessage _value,
+      $Res Function(_ChatScreenEventDeleteMessage) _then)
+      : super(_value, (v) => _then(v as _ChatScreenEventDeleteMessage));
+
+  @override
+  _ChatScreenEventDeleteMessage get _value =>
+      super._value as _ChatScreenEventDeleteMessage;
+
+  @override
+  $Res call({
+    Object data = freezed,
+  }) {
+    return _then(_ChatScreenEventDeleteMessage(
+      data == freezed ? _value.data : data as Map<String, dynamic>,
+    ));
+  }
+}
+
+class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
+  const _$_ChatScreenEventDeleteMessage(this.data) : assert(data != null);
+
+  @override
+  final Map<String, dynamic> data;
+
+  @override
+  String toString() {
+    return 'ChatScreenEvent.deleteMessage(data: $data)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenEventDeleteMessage &&
+            (identical(other.data, data) ||
+                const DeepCollectionEquality().equals(other.data, data)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+
+  @override
+  _$ChatScreenEventDeleteMessageCopyWith<_ChatScreenEventDeleteMessage>
+      get copyWith => __$ChatScreenEventDeleteMessageCopyWithImpl<
+          _ChatScreenEventDeleteMessage>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result requestMessageStream(String userId, String otherUserId),
+    @required Result sendMessage(Message msg),
+    @required Result markAsSeen(String messageId),
+    @required Result cacheConversation(List<Message> messages),
+    @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return deleteMessage(data);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result requestMessageStream(String userId, String otherUserId),
+    Result sendMessage(Message msg),
+    Result markAsSeen(String messageId),
+    Result cacheConversation(List<Message> messages),
+    Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (deleteMessage != null) {
+      return deleteMessage(data);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result requestMessageStream(_ChatScreenEventRequestStream value),
+    @required Result sendMessage(_ChatScreenEventSendMessage value),
+    @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    @required Result cacheConversation(_ChatScreenEventCache value),
+    @required
+        Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    return deleteMessage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result requestMessageStream(_ChatScreenEventRequestStream value),
+    Result sendMessage(_ChatScreenEventSendMessage value),
+    Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    Result cacheConversation(_ChatScreenEventCache value),
+    Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (deleteMessage != null) {
+      return deleteMessage(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenEventDeleteMessage implements ChatScreenEvent {
+  const factory _ChatScreenEventDeleteMessage(Map<String, dynamic> data) =
+      _$_ChatScreenEventDeleteMessage;
+
+  Map<String, dynamic> get data;
+  _$ChatScreenEventDeleteMessageCopyWith<_ChatScreenEventDeleteMessage>
+      get copyWith;
 }
 
 class _$ChatScreenStateTearOff {
@@ -1010,6 +1418,12 @@ class _$ChatScreenStateTearOff {
       canLoadmore,
     );
   }
+
+  _ChatScreenStateReplying replying(Map<String, dynamic> data) {
+    return _ChatScreenStateReplying(
+      data,
+    );
+  }
 }
 
 // ignore: unused_element
@@ -1025,6 +1439,7 @@ mixin _$ChatScreenState {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
@@ -1035,6 +1450,7 @@ mixin _$ChatScreenState {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -1046,6 +1462,7 @@ mixin _$ChatScreenState {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
@@ -1056,6 +1473,7 @@ mixin _$ChatScreenState {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   });
 }
@@ -1118,6 +1536,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1126,6 +1545,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return initial();
   }
 
@@ -1139,6 +1559,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1158,6 +1579,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1166,6 +1588,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return initial(this);
   }
 
@@ -1179,6 +1602,7 @@ class _$_ChatScreenStateInitial implements _ChatScreenStateInitial {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1262,6 +1686,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1270,6 +1695,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return loaded(messageStream);
   }
 
@@ -1283,6 +1709,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1302,6 +1729,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1310,6 +1738,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return loaded(this);
   }
 
@@ -1323,6 +1752,7 @@ class _$_ChatScreenStateLoaded implements _ChatScreenStateLoaded {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1408,6 +1838,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1416,6 +1847,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return notification(message);
   }
 
@@ -1429,6 +1861,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1448,6 +1881,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1456,6 +1890,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return notification(this);
   }
 
@@ -1469,6 +1904,7 @@ class _$ChatScreenStateNotification implements ChatScreenStateNotification {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1533,6 +1969,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1541,6 +1978,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return messageSent();
   }
 
@@ -1554,6 +1992,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1573,6 +2012,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1581,6 +2021,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return messageSent(this);
   }
 
@@ -1594,6 +2035,7 @@ class _$_ChatScreenStateMessageSent implements _ChatScreenStateMessageSent {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1651,6 +2093,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1659,6 +2102,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return loading();
   }
 
@@ -1672,6 +2116,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1691,6 +2136,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1699,6 +2145,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return loading(this);
   }
 
@@ -1712,6 +2159,7 @@ class _$_ChatScreenStateLoading implements _ChatScreenStateLoading {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1770,6 +2218,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1778,6 +2227,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return processing();
   }
 
@@ -1791,6 +2241,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1810,6 +2261,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1818,6 +2270,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return processing(this);
   }
 
@@ -1831,6 +2284,7 @@ class _$_ChatScreenStateProcessing implements _ChatScreenStateProcessing {
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1916,6 +2370,7 @@ class _$_ChatScreenStateStreamStateUpdate
     @required Result loading(),
     @required Result processing(),
     @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1924,6 +2379,7 @@ class _$_ChatScreenStateStreamStateUpdate
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return streamStateUpdate(canLoadmore);
   }
 
@@ -1937,6 +2393,7 @@ class _$_ChatScreenStateStreamStateUpdate
     Result loading(),
     Result processing(),
     Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1956,6 +2413,7 @@ class _$_ChatScreenStateStreamStateUpdate
     @required Result loading(_ChatScreenStateLoading value),
     @required Result processing(_ChatScreenStateProcessing value),
     @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
   }) {
     assert(initial != null);
     assert(loaded != null);
@@ -1964,6 +2422,7 @@ class _$_ChatScreenStateStreamStateUpdate
     assert(loading != null);
     assert(processing != null);
     assert(streamStateUpdate != null);
+    assert(replying != null);
     return streamStateUpdate(this);
   }
 
@@ -1977,6 +2436,7 @@ class _$_ChatScreenStateStreamStateUpdate
     Result loading(_ChatScreenStateLoading value),
     Result processing(_ChatScreenStateProcessing value),
     Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1994,4 +2454,155 @@ abstract class _ChatScreenStateStreamStateUpdate implements ChatScreenState {
   bool get canLoadmore;
   _$ChatScreenStateStreamStateUpdateCopyWith<_ChatScreenStateStreamStateUpdate>
       get copyWith;
+}
+
+abstract class _$ChatScreenStateReplyingCopyWith<$Res> {
+  factory _$ChatScreenStateReplyingCopyWith(_ChatScreenStateReplying value,
+          $Res Function(_ChatScreenStateReplying) then) =
+      __$ChatScreenStateReplyingCopyWithImpl<$Res>;
+  $Res call({Map<String, dynamic> data});
+}
+
+class __$ChatScreenStateReplyingCopyWithImpl<$Res>
+    extends _$ChatScreenStateCopyWithImpl<$Res>
+    implements _$ChatScreenStateReplyingCopyWith<$Res> {
+  __$ChatScreenStateReplyingCopyWithImpl(_ChatScreenStateReplying _value,
+      $Res Function(_ChatScreenStateReplying) _then)
+      : super(_value, (v) => _then(v as _ChatScreenStateReplying));
+
+  @override
+  _ChatScreenStateReplying get _value =>
+      super._value as _ChatScreenStateReplying;
+
+  @override
+  $Res call({
+    Object data = freezed,
+  }) {
+    return _then(_ChatScreenStateReplying(
+      data == freezed ? _value.data : data as Map<String, dynamic>,
+    ));
+  }
+}
+
+class _$_ChatScreenStateReplying implements _ChatScreenStateReplying {
+  const _$_ChatScreenStateReplying(this.data) : assert(data != null);
+
+  @override
+  final Map<String, dynamic> data;
+
+  @override
+  String toString() {
+    return 'ChatScreenState.replying(data: $data)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenStateReplying &&
+            (identical(other.data, data) ||
+                const DeepCollectionEquality().equals(other.data, data)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+
+  @override
+  _$ChatScreenStateReplyingCopyWith<_ChatScreenStateReplying> get copyWith =>
+      __$ChatScreenStateReplyingCopyWithImpl<_ChatScreenStateReplying>(
+          this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loaded(Stream<dynamic> messageStream),
+    @required Result notification(String message),
+    @required Result messageSent(),
+    @required Result loading(),
+    @required Result processing(),
+    @required Result streamStateUpdate(bool canLoadmore),
+    @required Result replying(Map<String, dynamic> data),
+  }) {
+    assert(initial != null);
+    assert(loaded != null);
+    assert(notification != null);
+    assert(messageSent != null);
+    assert(loading != null);
+    assert(processing != null);
+    assert(streamStateUpdate != null);
+    assert(replying != null);
+    return replying(data);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loaded(Stream<dynamic> messageStream),
+    Result notification(String message),
+    Result messageSent(),
+    Result loading(),
+    Result processing(),
+    Result streamStateUpdate(bool canLoadmore),
+    Result replying(Map<String, dynamic> data),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (replying != null) {
+      return replying(data);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_ChatScreenStateInitial value),
+    @required Result loaded(_ChatScreenStateLoaded value),
+    @required Result notification(ChatScreenStateNotification value),
+    @required Result messageSent(_ChatScreenStateMessageSent value),
+    @required Result loading(_ChatScreenStateLoading value),
+    @required Result processing(_ChatScreenStateProcessing value),
+    @required Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    @required Result replying(_ChatScreenStateReplying value),
+  }) {
+    assert(initial != null);
+    assert(loaded != null);
+    assert(notification != null);
+    assert(messageSent != null);
+    assert(loading != null);
+    assert(processing != null);
+    assert(streamStateUpdate != null);
+    assert(replying != null);
+    return replying(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_ChatScreenStateInitial value),
+    Result loaded(_ChatScreenStateLoaded value),
+    Result notification(ChatScreenStateNotification value),
+    Result messageSent(_ChatScreenStateMessageSent value),
+    Result loading(_ChatScreenStateLoading value),
+    Result processing(_ChatScreenStateProcessing value),
+    Result streamStateUpdate(_ChatScreenStateStreamStateUpdate value),
+    Result replying(_ChatScreenStateReplying value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (replying != null) {
+      return replying(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenStateReplying implements ChatScreenState {
+  const factory _ChatScreenStateReplying(Map<String, dynamic> data) =
+      _$_ChatScreenStateReplying;
+
+  Map<String, dynamic> get data;
+  _$ChatScreenStateReplyingCopyWith<_ChatScreenStateReplying> get copyWith;
 }

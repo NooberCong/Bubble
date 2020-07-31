@@ -7,11 +7,16 @@ abstract class ChatScreenEvent with _$ChatScreenEvent {
       String userId, String otherUserId) = _ChatScreenEventRequestStream;
   const factory ChatScreenEvent.sendMessage(Message msg) =
       _ChatScreenEventSendMessage;
-  const factory ChatScreenEvent.popScreen(String uid) = _ChatScreenEventPop;
   const factory ChatScreenEvent.markAsSeen(String messageId) =
       _ChatScreenEventMarkAsSeen;
   const factory ChatScreenEvent.cacheConversation(List<Message> messages) =
       _ChatScreenEventCache;
   const factory ChatScreenEvent.updateConversationData(
       Map<String, dynamic> data) = _ChatScreenEventUpdateConversation;
+  const factory ChatScreenEvent.reactToMessage(Map<String, dynamic> data) =
+      _ChatScreenEventReactMessage;
+  const factory ChatScreenEvent.setReplyToMessage(Map<String, dynamic> data) =
+      _ChatScreenEventReplyMessage;
+  const factory ChatScreenEvent.deleteMessage(Map<String, dynamic> data) =
+      _ChatScreenEventDeleteMessage;
 }

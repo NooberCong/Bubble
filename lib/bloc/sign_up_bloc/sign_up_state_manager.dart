@@ -40,8 +40,6 @@ class SignUpStateManager {
         orElse: () {},
       );
     }
-    details["chattingWith"] = "";
-    details["isOnline"] = true;
     return details;
   }
 }

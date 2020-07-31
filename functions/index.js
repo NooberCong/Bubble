@@ -9,7 +9,7 @@ exports.onMessageAdded = functions.firestore
 
     const doc = snap.data();
 
-    sendNotification(doc);
+    sendNotification(doc, context.params.roomId);
     return null;
   });
 
@@ -21,7 +21,7 @@ exports.onUserStatusChanged = functions.database
 
     // Then use other event data to create a reference to the
     // corresponding Firestore document.
-    const userStatusFirestoreRef = admin
+    const userFirestoreRef = admin
       .firestore()
       .collection("users")
       .doc(context.params.uid);
@@ -34,12 +34,21 @@ exports.onUserStatusChanged = functions.database
     console.log(status, eventStatus);
     // If the current timestamp for this data is newer than
     // the data that triggered this event, we exit this function.
-    if (status.last_changed > eventStatus.last_changed) {
+    if (status.onlineStatusLastChanged > eventStatus.onlineStatusLastChanged) {
       return null;
     }
 
+    if (eventStatus.state === "offline") {
+      //If user if offline, go through all the joinedRooms and check if user is stilled marked as typing
+      //if so, set it as false
+      updateRoomTypingActivity(userFirestoreRef);
+    }
+
     // ... and write it to Firestore.
-    return userStatusFirestoreRef.update(eventStatus);
+    return userFirestoreRef.update({
+      ...eventStatus,
+      onlineStatusLastChanged: Date.now().toString(),
+    });
   });
 
 exports.onUserDataChange = functions.firestore
@@ -56,6 +65,20 @@ exports.onUserDataChange = functions.firestore
     }
     return null;
   });
+
+async function updateRoomTypingActivity(userRef) {
+  const uid = userRef.id;
+  const userDoc = await userRef.get();
+  userDoc.data().joinedRooms.forEach(async (roomId) => {
+    let roomDoc = await admin.firestore().collection("rooms").doc(roomId).get();
+    let roomData = roomDoc.data();
+    if (roomData.typing[uid] === true) {
+      roomData.typing[uid] = false;
+      roomDoc.ref.update({ typing: roomData.typing });
+    }
+  });
+  return userDoc.ref.update({ joinedRooms: [] });
+}
 
 async function updateUserConversationsAvatar(uid, imageUrl) {
   const userConversations = await admin
@@ -105,62 +128,63 @@ async function updateUserConversationsBio(uid, bio) {
   });
 }
 
-function sendNotification(doc) {
-  admin
+async function sendNotification(messageDoc, roomId) {
+  const receiver = await admin
     .firestore()
     .collection("users")
-    .doc(doc.idTo)
-    .get()
-    .then((userTo) => {
-      if (
-        userTo.data().token &&
-        userTo.data().chattingWith !== doc.idFrom &&
-        doc.idFrom !== doc.idTo &&
-        !doc.seen
-      ) {
-        // Get info user from (sent)
-        admin
-          .firestore()
-          .collection("users")
-          .doc(doc.idFrom)
-          .get()
-          .then((userFrom) => {
-            const payload = {
-              notification: {
-                title: userFrom.data().name,
-                body: userFrom.data().name + parseMessage(doc),
-                badge: "1",
-                sound: "default",
-              },
-              data: {
-                click_action: "FLUTTER_NOTIFICATION_CLICK",
-                sound: "default",
-                status: "done",
-                otherUser: JSON.stringify(userFrom.data()),
-              },
-            };
-            // Let push to the target device
-            admin
-              .messaging()
-              .sendToDevice(userTo.data().token, payload)
-              .then((response) => {
-                console.log("Successfully sent message:", response);
-              })
-              .catch((error) => {
-                console.log("Error sending message:", error);
-              });
-          });
-      } else {
-        console.log("Can not find pushToken target user");
-      }
-    });
+    .doc(messageDoc.idTo)
+    .get();
+  if (shouldSend(receiver, messageDoc, roomId)) {
+    // Get info user from (sent)
+    const sender = await admin
+      .firestore()
+      .collection("users")
+      .doc(messageDoc.idFrom)
+      .get();
+
+    const senderConversation = await sender.ref
+      .collection("conversations")
+      .doc(roomId)
+      .get();
+
+    const payload = {
+      notification: {
+        title: senderConversation.data().nicknames[sender.id],
+        body:
+          senderConversation.data().nicknames[sender.id] +
+          parseMessage(messageDoc),
+        badge: "1",
+        sound: "notification.mp3",
+      },
+      data: {
+        click_action: "FLUTTER_NOTIFICATION_CLICK",
+        otherUser: JSON.stringify(sender.data()),
+        roomId: roomId,
+      },
+    };
+    // Let push to the target device
+    admin.messaging().sendToDevice(receiver.data().token, payload);
+  } else {
+    console.log("Can not find pushToken target user");
+  }
+}
+
+function shouldSend(receiver, message, roomId) {
+  return (
+    receiver.data().token &&
+    !receiver.data().joinedRooms.includes(roomId) &&
+    message.idFrom !== message.idTo &&
+    !message.seen
+  );
 }
 
 function parseMessage(doc) {
-  if (doc.type === "MessageType.text") {
+  if (doc.type === "MessageType.text" || doc.type === "MessageType.url") {
     return `: ${doc.content}`;
   } else if (doc.type === "MessageType.image") {
     return " sent a photo";
+  } else if (doc.type === "MessageType.gif") {
+    return " sent a gif";
   } else {
     //Check if sticker is main emoji
     const parts = doc.content.split("/");
@@ -176,6 +200,8 @@ function parseMessage(doc) {
         return ": 💰";
       case "rose.svg":
         return ": 🌹";
+      case "heart.svg":
+        return ": ❤️";
       case "fire.svg":
         return ": 🔥";
       case "waving-hand.svg":

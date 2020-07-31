@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 
@@ -9,16 +10,22 @@ class UserPresence {
   Future<void> initializePresence(String uid) async {
     final userStatusDatabaseRef = database.reference().child("/status/$uid");
 
+    final offlineData = {
+      "state": "offline",
+      "onlineStatusLastChanged": Timestamp.now().millisecondsSinceEpoch,
+    };
+
+    final onlineData = {
+      "state": "online",
+      "onlineStatusLastChanged": Timestamp.now().millisecondsSinceEpoch,
+    };
+
     database.reference().child(".info/connected").onValue.listen((event) async {
       if (event.snapshot.value == true) {
-        userStatusDatabaseRef.onDisconnect().set({
-          "state": "offline",
-          "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-          "chattingWith": ""
-        }).then((_) => userStatusDatabaseRef.set({
-              "state": "online",
-              "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-            }));
+        userStatusDatabaseRef
+            .onDisconnect()
+            .set(offlineData)
+            .then((_) => userStatusDatabaseRef.set(onlineData));
       }
     });
   }

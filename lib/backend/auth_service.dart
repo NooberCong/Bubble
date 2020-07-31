@@ -72,9 +72,9 @@ class AuthService implements IAuth {
   }
 
   @override
-  void signOut(Params _) {
-    _googleSignIn.signOut();
-    _firebaseAuth.signOut();
+  Future<void> signOut(Params _) async {
+    await _googleSignIn.signOut();
+    await _firebaseAuth.signOut();
   }
 
   @override
@@ -104,7 +104,8 @@ class AuthService implements IAuth {
           "https://firebasestorage.googleapis.com/v0/b/bubble-dd7c6.appspot.com/o/default_user.png?alt=media&token=b85948cb-9f71-46d9-a057-d37eaa6692e4",
       "state": "online",
       "lastActive": DateTime.now().millisecondsSinceEpoch.toString(),
-      "token": ""
+      "token": "",
+      "joinedRooms": []
     });
     return _store
         .collection("users")

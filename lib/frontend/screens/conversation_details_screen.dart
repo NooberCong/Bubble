@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bubble/bloc/photo_showcase_bloc/conversation_photos_showcase_bloc.dart';
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
@@ -12,6 +11,7 @@ import 'package:bubble/frontend/widgets/user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ConversationDetailsScreen extends StatefulWidget {
   final User otherUser;
@@ -36,6 +36,10 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   TextEditingController _userNicknameController;
   TextEditingController _otherUserNicknameController;
   StreamSubscription _specificsSubscription;
+  bool _canLoadMore = true;
+  bool _isLoading = false;
+  ScrollController _controller;
+  String roomId;
 
   @override
   void initState() {
@@ -43,74 +47,125 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     _specificsSubscription = widget.specificsStream.listen((value) {
       specifics = value;
     });
+    roomId = getRoomIdFromUIDHashCode(
+        currentUser(context).uid, widget.otherUser.uid);
+    _controller = ScrollController(keepScrollOffset: true);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final roomId = getRoomIdFromUIDHashCode(
-        (context.bloc<SplashScreenBloc>().state
-                as SplashScreenStateAuthenticated)
-            .user
-            .uid,
-        widget.otherUser.uid);
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
         title: Text(
-          specifics.otherUserNickname,
+          specifics.nicknames[widget.otherUser.uid] as String,
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            UserInfo(
-              user: widget.otherUser,
-              modifiable: false,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            FlatButton(
-              onPressed: _onEditNickname,
-              child: Row(
-                children: <Widget>[
-                  SvgPicture.asset("assets/images/name.svg",
-                      width: 50, height: 50),
-                  const Text("\t\tChange nicknames",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.topLeft,
-              child: const Text(
-                "\t\t\t\tShared photos",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            BlocProvider(
-              create: (_) => getIt<ConversationPhotosShowcaseBloc>()
-                ..add(ConversationPhotosShowcaseEvent.loadImages(roomId)),
-              child: PhotoShowcase(
-                roomId: roomId,
-              ),
-            ),
-          ],
+      body: BlocProvider<ConversationPhotosShowcaseBloc>(
+        create: (_) => getIt<ConversationPhotosShowcaseBloc>()
+          ..add(ConversationPhotosShowcaseEvent.loadImages(roomId)),
+        child: BlocListener<ConversationPhotosShowcaseBloc,
+            ConversationPhotosShowcaseState>(
+          listener: (context, state) {
+            state.maybeWhen(
+                error: (msg) => Fluttertoast.showToast(msg: msg),
+                endReached: () {
+                  setState(() {
+                    _canLoadMore = false;
+                  });
+                },
+                loading: () {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                },
+                loaded: (_) {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                orElse: () {});
+          },
+          child: Builder(
+            builder: (context) {
+              // ignore: invalid_use_of_protected_member
+              if (!_controller.hasListeners) {
+                _initializeController(context);
+              }
+              return SingleChildScrollView(
+                controller: _controller,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    UserInfo(
+                      user: widget.otherUser,
+                      modifiable: false,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    FlatButton(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
+                      onPressed: _onEditNickname,
+                      child: Row(
+                        children: <Widget>[
+                          SvgPicture.asset(
+                            "assets/images/name.svg",
+                            width: 30,
+                            height: 30,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black,
+                          ),
+                          const Text("\t\tChange nicknames",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: const Text(
+                        "\t\t\t\tShared photos",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    PhotoShowcase(
+                      roomId: roomId,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    if (_isLoading)
+                      const CircularProgressIndicator()
+                    else
+                      const SizedBox()
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
+  void _initializeController(BuildContext context) {
+    _controller.addListener(() {
+      _onScroll(context);
+    });
+  }
+
   void _onEditNickname() {
-    _userNicknameController =
-        TextEditingController(text: specifics.userNickname);
-    _otherUserNicknameController =
-        TextEditingController(text: specifics.otherUserNickname);
+    _userNicknameController = TextEditingController(
+        text: specifics.nicknames[currentUser(context).uid] as String);
+    _otherUserNicknameController = TextEditingController(
+        text: specifics.nicknames[widget.otherUser.uid] as String);
     AwesomeDialog(
       context: context,
       dialogType: DialogType.NO_HEADER,
@@ -147,19 +202,18 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   }
 
   void _onUpdateNickname() {
-    final updateData = <String, dynamic>{};
+    final user = currentUser(context);
+    final updateData = <String, dynamic>{"nicknames": <String, dynamic>{}};
     if (_shouldUpdateUserNickname()) {
-      updateData["userNickname"] = _userNicknameController.text;
+      updateData["nicknames"][user.uid] = _userNicknameController.text;
     }
     if (_shouldUpdateOtherUserNickname()) {
-      updateData["otherUserNickname"] = _otherUserNicknameController.text;
+      updateData["nicknames"][widget.otherUser.uid] =
+          _otherUserNicknameController.text;
     }
     if (updateData.isNotEmpty) {
-      final currentUser = (context.bloc<SplashScreenBloc>().state
-              as SplashScreenStateAuthenticated)
-          .user;
       widget.onConversationDataUpdate({
-        "userId": currentUser.uid,
+        "userId": user.uid,
         "otherUserId": widget.otherUser.uid,
         "updateData": updateData,
         "merge": true
@@ -169,19 +223,35 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
 
   bool _shouldUpdateOtherUserNickname() {
     return _otherUserNicknameController.text.isNotEmpty &&
-        _otherUserNicknameController.text != specifics.otherUserNickname;
+        _otherUserNicknameController.text !=
+            specifics.nicknames[widget.otherUser.uid];
   }
 
   bool _shouldUpdateUserNickname() {
     return _userNicknameController.text.isNotEmpty &&
-        _userNicknameController.text != specifics.userNickname;
+        _userNicknameController.text !=
+            specifics.nicknames[currentUser(context).uid];
+  }
+
+  void _onScroll(BuildContext context) {
+    if (_reachedBottom() && _canLoadMore) {
+      context
+          .bloc<ConversationPhotosShowcaseBloc>()
+          .add(ConversationPhotosShowcaseEvent.loadImages(roomId));
+    }
+  }
+
+  bool _reachedBottom() {
+    return _controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange;
   }
 
   @override
   void dispose() {
+    _controller?.dispose();
     _userNicknameController?.dispose();
     _otherUserNicknameController?.dispose();
-    _specificsSubscription.cancel();
+    _specificsSubscription?.cancel();
     super.dispose();
   }
 }

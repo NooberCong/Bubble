@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
 import 'package:bubble/frontend/widgets/user_status_ball.dart';
+import 'package:bubble/notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/router.gr.dart';
@@ -13,10 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Conversation extends StatelessWidget {
+  final NotificationManager notificationManager;
   final DocumentSnapshot conversationSnapshot;
   final Map<String, dynamic> data;
   final User otherUser;
-  Conversation({Key key, this.conversationSnapshot})
+  Conversation({Key key, this.conversationSnapshot, this.notificationManager})
       : data = conversationSnapshot.data,
         otherUser = User.fromJson(
             json.decode(conversationSnapshot.data["otherUser"] as String)
@@ -56,7 +57,7 @@ class Conversation extends StatelessWidget {
                   children: <Widget>[
                     Flexible(
                       child: Text(
-                        data["otherUserNickname"] as String,
+                        data["nicknames"][otherUser.uid] as String,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -67,6 +68,8 @@ class Conversation extends StatelessWidget {
                   ],
                 ),
                 Text(_lastMessage(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: _colorFromSeenStatus(context), fontSize: 14))
               ],
@@ -101,12 +104,11 @@ class Conversation extends StatelessWidget {
   }
 
   void _navigateToChatScreen(BuildContext context, User otherUser) {
+    _clearNotifications();
     ExtendedNavigator.of(context).pushNamed(
       Routes.chatScreen,
       arguments: ChatScreenArguments(
-          user: (context.bloc<SplashScreenBloc>().state
-                  as SplashScreenStateAuthenticated)
-              .user,
+          user: currentUser(context),
           otherUser: otherUser,
           conversationSpecifics: ConversationSpecifics.fromJson(data),
           conversationSpecificsStream: conversationSnapshot.reference
@@ -120,6 +122,12 @@ class Conversation extends StatelessWidget {
     if (userSentLastMessage == null) {
       return "";
     }
-    return (userSentLastMessage as bool) ? "You" : otherUser.username;
+    return (userSentLastMessage as bool)
+        ? "You"
+        : data["nicknames"][otherUser.uid] as String;
+  }
+
+  void _clearNotifications() {
+    notificationManager.clearNotifications(conversationSnapshot.documentID);
   }
 }

@@ -10,8 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
-  runApp(MyApp());
   _configureSystemSettings();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

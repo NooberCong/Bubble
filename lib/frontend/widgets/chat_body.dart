@@ -1,10 +1,14 @@
 import 'dart:async';
 
+import 'package:bubble/backend/room_activity_controller.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/domain/entities/user.dart';
-import 'package:bubble/frontend/widgets/conversation_specifics_provider.dart';
+import 'package:bubble/frontend/providers/activity_controller_provider.dart';
+import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
+import 'package:bubble/frontend/widgets/jumping_dots.dart';
 import 'package:bubble/frontend/widgets/message_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,25 +17,51 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ChatBody extends StatefulWidget {
   final User user;
   final User otherUser;
-  const ChatBody({Key key, this.otherUser, this.user}) : super(key: key);
+  final String roomId;
+  ChatBody({Key key, this.otherUser, this.user})
+      : roomId = getRoomIdFromUIDHashCode(user.uid, otherUser.uid),
+        super(key: key);
 
   @override
   _ChatBodyState createState() => _ChatBodyState();
 }
 
-class _ChatBodyState extends State<ChatBody> {
+class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   //Initial context
   int _showMessageDetailsIndex = -1;
   Stream<dynamic> messageStream = const Stream.empty();
   bool _canLoadMore = true;
   bool _isLoading = false;
   ScrollController _controller;
+  Stream<Map<String, dynamic>> _keyboardActivityStream;
   StreamSubscription _specificsSubscription;
   ConversationSpecifics specifics;
+  RoomActivityController _roomActivityController;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _onAppStateChange(state);
+    super.didChangeAppLifecycleState(state);
+  }
+
+  void _onAppStateChange(AppLifecycleState state) {
+    //If chat screen is resumed, mark user as chatting with other user so that notification won't be sent
+    if (state == AppLifecycleState.resumed) {
+      ActivityControllerProvider.of(context)
+          .roomController
+          .joinRoom(widget.roomId);
+      //Otherwise, mark user as not chatting with the other user and let notifications be sent even if app is in chatscreen
+    } else {
+      ActivityControllerProvider.of(context)
+          .roomController
+          .leaveRoom(widget.roomId);
+    }
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _controller = ScrollController(keepScrollOffset: true);
     _controller.addListener(() {
       if (_reachedTop() && _canLoadMore) {
@@ -43,6 +73,9 @@ class _ChatBodyState extends State<ChatBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _roomActivityController =
+        ActivityControllerProvider.of(context).roomController;
+    _roomActivityController.joinRoom(widget.roomId);
     specifics = ConversationSpecificsProvider.of(context).initialData;
     _specificsSubscription =
         ConversationSpecificsProvider.of(context).stream.listen((value) {
@@ -52,6 +85,9 @@ class _ChatBodyState extends State<ChatBody> {
         });
       }
     });
+    _keyboardActivityStream = ActivityControllerProvider.of(context)
+        .keyboardController
+        .getRoomTypingActivity(widget.roomId);
   }
 
   bool _reachedTop() {
@@ -120,6 +156,8 @@ class _ChatBodyState extends State<ChatBody> {
 
   @override
   void dispose() {
+    _roomActivityController.leaveRoom(widget.roomId);
+    WidgetsBinding.instance.removeObserver(this);
     _specificsSubscription.cancel();
     _controller.dispose();
     super.dispose();
@@ -172,34 +210,63 @@ class _ChatBodyState extends State<ChatBody> {
     );
   }
 
-  Widget _buildBody(List<Message> messages) {
-    return ListView.builder(
-      itemCount: messages.length + 1,
-      padding: const EdgeInsets.all(10.0),
-      reverse: true,
-      controller: _controller,
-      addAutomaticKeepAlives: false,
-      itemBuilder: (context, index) {
-        return index != messages.length
-            ? MessageContainer(
-                key: ValueKey(messages[index].timestamp),
-                specifics: specifics,
-                message: messages[index],
-                isFromUser: _isFromUser(messages[index]),
-                isFirstMessage: _isFirst(index, messages),
-                displaySeen: index == _lastSeenMessage(messages),
-                otherUserAvatar: widget.otherUser.imageUrl,
-                displayDetails: index == _showMessageDetailsIndex,
-                showDetails: () {
-                  setState(() {
-                    _showMessageDetailsIndex =
-                        _showMessageDetailsIndex == index ? -1 : index;
-                  });
-                },
-              )
-            : _buildLoading();
+  Widget _buildTyping() {
+    return StreamBuilder(
+      initialData: {widget.user.uid: false, widget.otherUser.uid: false},
+      stream: _keyboardActivityStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return snapshot.data[widget.otherUser.uid] as bool
+              ? JumpingDots(
+                  imageUrl: widget.otherUser.imageUrl,
+                  numberOfDots: 3,
+                )
+              : const SizedBox();
+        } else {
+          return const SizedBox();
+        }
       },
     );
+  }
+
+  Widget _buildBody(List<Message> messages) {
+    return Stack(
+      children: <Widget>[
+        ListView.builder(
+          //Plus 2 here are for jumping dots and loading widgets
+          itemCount: messages.length + 2,
+          padding: const EdgeInsets.all(10.0),
+          reverse: true,
+          controller: _controller,
+          addAutomaticKeepAlives: false,
+          itemBuilder: (context, index) {
+            return index == 0
+                ? _buildTyping()
+                : index == messages.length + 1
+                    ? _buildLoading()
+                    : MessageContainer(
+                        key: ValueKey(messages[index - 1].timestamp),
+                        specifics: specifics,
+                        message: messages[index - 1],
+                        isFromUser: _isFromUser(messages[index - 1]),
+                        isFirstMessage: _isFirst(index - 1, messages),
+                        displaySeen: index - 1 == _lastSeenMessage(messages) ||
+                            index == 1,
+                        otherUserAvatar: widget.otherUser.imageUrl,
+                        displayDetails: index - 1 == _showMessageDetailsIndex,
+                        showDetails: () => _showDetails(index),
+                      );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showDetails(int index) {
+    return setState(() {
+      _showMessageDetailsIndex =
+          _showMessageDetailsIndex == index - 1 ? -1 : index - 1;
+    });
   }
 
   bool _shouldUpdate(ConversationSpecifics value) {

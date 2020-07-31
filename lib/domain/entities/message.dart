@@ -1,4 +1,4 @@
-enum MessageType { text, image, sticker, svg }
+enum MessageType { text, image, sticker, svg, url, gif }
 
 class Message {
   final String content;
@@ -7,7 +7,24 @@ class Message {
   final String timestamp;
   final String idTo;
   final bool seen;
-  final String messageId;
+  final Map<String, dynamic> reactions;
+  final Map<String, dynamic> referenceTo;
+  final List<dynamic> referencedBy;
+  String messageId;
+
+  static const Map<String, dynamic> defaultReactionsValue = {
+    "❤️": [],
+    "😆": [],
+    "😮": [],
+    "😢": [],
+    "😠": [],
+    "👍": [],
+    "👎": [],
+  };
+
+  static const referceToDefaultValue = <String, dynamic>{};
+
+  static const refercedByDefaultValue = <dynamic>[];
 
   Map<String, dynamic> toJson() {
     return {
@@ -17,12 +34,18 @@ class Message {
       "timestamp": timestamp,
       "idTo": idTo,
       "seen": seen,
-      "messageId": messageId
+      "messageId": messageId,
+      "reactions": reactions,
+      "referenceTo": referenceTo,
+      "referencedBy": referencedBy
     };
   }
 
   Message(
-      {this.content,
+      {this.referenceTo = referceToDefaultValue,
+      this.referencedBy = refercedByDefaultValue,
+      this.reactions = defaultReactionsValue,
+      this.content,
       this.type,
       this.idFrom,
       this.idTo,
@@ -32,22 +55,30 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
+        reactions: json["reactions"] != null
+            ? json["reactions"] as Map<String, dynamic>
+            : defaultReactionsValue,
         content: json["content"] as String,
         idFrom: json["idFrom"] as String,
         idTo: json["idTo"] as String,
         seen: json["seen"] as bool,
+        referenceTo: json["referenceTo"] as Map<String, dynamic>,
+        referencedBy: json["referencedBy"] as List<dynamic>,
         timestamp: json["timestamp"] as String,
-        messageId: json["messageId"] as String,
-        type: _parseMessageType(json["type"] as String));
+        type: parseType(json["type"] as String));
   }
 
-  static MessageType _parseMessageType(String stringedType) {
+  static MessageType parseType(String stringedType) {
     return stringedType == "MessageType.text"
         ? MessageType.text
         : stringedType == "MessageType.image"
             ? MessageType.image
             : stringedType == "MessageType.sticker"
                 ? MessageType.sticker
-                : MessageType.svg;
+                : stringedType == "MessageType.url"
+                    ? MessageType.url
+                    : stringedType == "MessageType.gif"
+                        ? MessageType.gif
+                        : MessageType.svg;
   }
 }

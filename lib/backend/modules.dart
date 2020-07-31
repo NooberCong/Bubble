@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -31,6 +32,9 @@ abstract class RegisterModule {
 
   @lazySingleton
   FirebaseDatabase get database => FirebaseDatabase.instance;
+
+  @lazySingleton
+  AssetsAudioPlayer get audioPlayer => AssetsAudioPlayer();
 
   @lazySingleton
   @preResolve

@@ -4,55 +4,16 @@ import 'package:bubble/router.gr.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
-class PhotoShowcase extends StatefulWidget {
+class PhotoShowcase extends StatelessWidget {
   final String roomId;
   const PhotoShowcase({Key key, this.roomId}) : super(key: key);
 
   @override
-  _PhotoShowcaseState createState() => _PhotoShowcaseState();
-}
-
-class _PhotoShowcaseState extends State<PhotoShowcase> {
-  bool _canLoadMore;
-  bool _isLoading;
-  ScrollController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _isLoading = false;
-    _canLoadMore = true;
-    _controller = ScrollController(keepScrollOffset: true)
-      ..addListener(_onScroll);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ConversationPhotosShowcaseBloc,
+    return BlocBuilder<ConversationPhotosShowcaseBloc,
         ConversationPhotosShowcaseState>(
-      listener: (context, state) {
-        state.maybeWhen(
-            error: (msg) => Fluttertoast.showToast(msg: msg),
-            endReached: () => {
-                  setState(() {
-                    _canLoadMore = false;
-                  })
-                },
-            loading: () {
-              setState(() {
-                _isLoading = true;
-              });
-            },
-            loaded: (_) {
-              setState(() {
-                _isLoading = false;
-              });
-            },
-            orElse: () {});
-      },
-      buildWhen: (_, state) =>
+      condition: (_, state) =>
           state.maybeWhen(loaded: (_) => true, orElse: () => false),
       builder: (context, state) {
         return Padding(
@@ -68,11 +29,12 @@ class _PhotoShowcaseState extends State<PhotoShowcase> {
                         crossAxisSpacing: 5,
                         crossAxisCount: 3,
                       ),
-                      controller: _controller,
                       itemCount: urls.length,
+                      primary: false,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () => _navigateToPhotoView(urls[index]),
+                          onTap: () =>
+                              _navigateToPhotoView(urls[index], context),
                           child: CachedNetworkImage(
                             imageUrl: urls[index],
                             fit: BoxFit.cover,
@@ -87,10 +49,6 @@ class _PhotoShowcaseState extends State<PhotoShowcase> {
                         );
                       }),
                   orElse: () => const SizedBox()),
-              if (_isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                const SizedBox(),
             ],
           ),
         );
@@ -98,26 +56,7 @@ class _PhotoShowcaseState extends State<PhotoShowcase> {
     );
   }
 
-  void _onScroll() {
-    if (_reachedBottom() && _canLoadMore) {
-      context
-          .bloc<ConversationPhotosShowcaseBloc>()
-          .add(ConversationPhotosShowcaseEvent.loadImages(widget.roomId));
-    }
-  }
-
-  bool _reachedBottom() {
-    return _controller.offset >= _controller.position.maxScrollExtent &&
-        !_controller.position.outOfRange;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _navigateToPhotoView(String url) {
+  void _navigateToPhotoView(String url, BuildContext context) {
     ExtendedNavigator.of(context).pushNamed(Routes.fullPhoto,
         arguments: FullPhotoArguments(url: url, title: "Photo view"));
   }
