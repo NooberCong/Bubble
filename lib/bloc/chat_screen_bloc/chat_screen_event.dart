@@ -19,4 +19,6 @@ abstract class ChatScreenEvent with _$ChatScreenEvent {
       _ChatScreenEventReplyMessage;
   const factory ChatScreenEvent.deleteMessage(Map<String, dynamic> data) =
       _ChatScreenEventDeleteMessage;
+  const factory ChatScreenEvent.updateConversationLastMessageSeenStatus(
+      String uid) = _ChatScreenEventLastMessageSeen;
 }

@@ -1,4 +1,5 @@
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/bloc/inflatable_widget_bloc/inflatable_widget_bloc.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
@@ -16,39 +17,41 @@ class ChatScreen extends StatelessWidget with WidgetsBindingObserver {
   final User otherUser;
   final ConversationSpecifics conversationSpecifics;
   final Stream<ConversationSpecifics> conversationSpecificsStream;
+  final String roomId;
 
-  const ChatScreen({
+  ChatScreen({
     Key key,
     this.user,
     this.otherUser,
     this.conversationSpecifics,
     this.conversationSpecificsStream,
-  }) : super(key: key);
+  })  : roomId = getRoomIdFromUIDHashCode(user.uid, otherUser.uid),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ActivityControllerProvider(
       user: user,
       child: ConversationSpecificsProvider(
+        user: user,
+        otherUser: otherUser,
+        roomId: roomId,
         initialData: conversationSpecifics,
         stream: conversationSpecificsStream,
         child: Scaffold(
           body: BlocProvider(
-            create: (_) => getIt<ChatScreenBloc>(
-                param1: getRoomIdFromUIDHashCode(user.uid, otherUser.uid))
+            create: (_) => getIt<ChatScreenBloc>(param1: roomId)
               ..add(ChatScreenEvent.requestMessageStream(
                   user.uid, otherUser.uid)),
-            child: Column(
-              children: <Widget>[
-                ChatBar(otherUser: otherUser),
-                ChatBody(
-                  user: user,
-                  otherUser: otherUser,
-                ),
-                ChatInput(
-                  otherUserId: otherUser.uid,
-                ),
-              ],
+            child: BlocProvider(
+              create: (_) => getIt<InflatableWidgetBloc>(),
+              child: Column(
+                children: const <Widget>[
+                  ChatBar(),
+                  ChatBody(),
+                  ChatInput(),
+                ],
+              ),
             ),
           ),
         ),

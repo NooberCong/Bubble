@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/widgets/cached_image.dart';
@@ -14,10 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ChatBar extends StatefulWidget {
   const ChatBar({
     Key key,
-    @required this.otherUser,
   }) : super(key: key);
-
-  final User otherUser;
 
   @override
   _ChatBarState createState() => _ChatBarState();
@@ -27,6 +25,12 @@ class _ChatBarState extends State<ChatBar> {
   ConversationSpecifics specifics;
   StreamSubscription _specificsSubscription;
   bool connectionEstablished = false;
+  User otherUser;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -34,18 +38,19 @@ class _ChatBarState extends State<ChatBar> {
     specifics = ConversationSpecificsProvider.of(context).initialData;
     _specificsSubscription =
         ConversationSpecificsProvider.of(context).stream.listen((value) {
-      if (_shouldUpdate(value)) {
+      if (_shouldUpdate(value) && mounted) {
         setState(() {
           specifics = value;
         });
       }
     });
+    otherUser = chatRoomOtherUser(context);
   }
 
   @override
   void dispose() {
-    _specificsSubscription?.cancel();
     super.dispose();
+    _specificsSubscription?.cancel();
   }
 
   @override
@@ -85,7 +90,7 @@ class _ChatBarState extends State<ChatBar> {
         title: Row(
           children: <Widget>[
             CachedCircularImage(
-              imageUrl: widget.otherUser.imageUrl,
+              imageUrl: otherUser.imageUrl,
               radius: 25,
             ),
             const SizedBox(width: 20),
@@ -94,12 +99,12 @@ class _ChatBarState extends State<ChatBar> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(specifics.nicknames[widget.otherUser.uid] as String,
+                  Text(specifics.nicknames[otherUser.uid] as String,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14)),
                   UserStatusBall(
-                    uid: widget.otherUser.uid,
+                    uid: otherUser.uid,
                     showText: true,
                   ),
                   _buildConnectionStatus()
@@ -115,7 +120,7 @@ class _ChatBarState extends State<ChatBar> {
   void _navigateToConversationDetailsScreen() {
     ExtendedNavigator.of(context).pushNamed(Routes.conversationDetailsScreen,
         arguments: ConversationDetailsScreenArguments(
-            otherUser: widget.otherUser,
+            otherUser: otherUser,
             onConversationDataUpdate: (data) {
               context
                   .bloc<ChatScreenBloc>()
@@ -135,7 +140,10 @@ class _ChatBarState extends State<ChatBar> {
   }
 
   bool _shouldUpdate(ConversationSpecifics value) {
-    return specifics.nicknames.values != value.nicknames.values ||
+    return specifics.nicknames.values
+            .toSet()
+            .difference(value.nicknames.values.toSet())
+            .isNotEmpty ||
         specifics.themeColorCode != value.themeColorCode;
   }
 }

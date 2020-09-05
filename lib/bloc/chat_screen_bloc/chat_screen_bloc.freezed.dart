@@ -62,6 +62,13 @@ class _$ChatScreenEventTearOff {
       data,
     );
   }
+
+  _ChatScreenEventLastMessageSeen updateConversationLastMessageSeenStatus(
+      String uid) {
+    return _ChatScreenEventLastMessageSeen(
+      uid,
+    );
+  }
 }
 
 // ignore: unused_element
@@ -78,6 +85,7 @@ mixin _$ChatScreenEvent {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
@@ -89,6 +97,7 @@ mixin _$ChatScreenEvent {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -102,6 +111,9 @@ mixin _$ChatScreenEvent {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
@@ -113,6 +125,8 @@ mixin _$ChatScreenEvent {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   });
 }
@@ -212,6 +226,7 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -221,6 +236,7 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return requestMessageStream(userId, otherUserId);
   }
 
@@ -235,6 +251,7 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -256,6 +273,9 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -265,6 +285,7 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return requestMessageStream(this);
   }
 
@@ -279,6 +300,8 @@ class _$_ChatScreenEventRequestStream implements _ChatScreenEventRequestStream {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -367,6 +390,7 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -376,6 +400,7 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return sendMessage(msg);
   }
 
@@ -390,6 +415,7 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -411,6 +437,9 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -420,6 +449,7 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return sendMessage(this);
   }
 
@@ -434,6 +464,8 @@ class _$_ChatScreenEventSendMessage implements _ChatScreenEventSendMessage {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -523,6 +555,7 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -532,6 +565,7 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return markAsSeen(messageId);
   }
 
@@ -546,6 +580,7 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -567,6 +602,9 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -576,6 +614,7 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return markAsSeen(this);
   }
 
@@ -590,6 +629,8 @@ class _$_ChatScreenEventMarkAsSeen implements _ChatScreenEventMarkAsSeen {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -675,6 +716,7 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -684,6 +726,7 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return cacheConversation(messages);
   }
 
@@ -698,6 +741,7 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -719,6 +763,9 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -728,6 +775,7 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return cacheConversation(this);
   }
 
@@ -742,6 +790,8 @@ class _$_ChatScreenEventCache implements _ChatScreenEventCache {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -831,6 +881,7 @@ class _$_ChatScreenEventUpdateConversation
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -840,6 +891,7 @@ class _$_ChatScreenEventUpdateConversation
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return updateConversationData(data);
   }
 
@@ -854,6 +906,7 @@ class _$_ChatScreenEventUpdateConversation
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -875,6 +928,9 @@ class _$_ChatScreenEventUpdateConversation
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -884,6 +940,7 @@ class _$_ChatScreenEventUpdateConversation
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return updateConversationData(this);
   }
 
@@ -898,6 +955,8 @@ class _$_ChatScreenEventUpdateConversation
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -986,6 +1045,7 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -995,6 +1055,7 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return reactToMessage(data);
   }
 
@@ -1009,6 +1070,7 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1030,6 +1092,9 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -1039,6 +1104,7 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return reactToMessage(this);
   }
 
@@ -1053,6 +1119,8 @@ class _$_ChatScreenEventReactMessage implements _ChatScreenEventReactMessage {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1141,6 +1209,7 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -1150,6 +1219,7 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return setReplyToMessage(data);
   }
 
@@ -1164,6 +1234,7 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1185,6 +1256,9 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -1194,6 +1268,7 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return setReplyToMessage(this);
   }
 
@@ -1208,6 +1283,8 @@ class _$_ChatScreenEventReplyMessage implements _ChatScreenEventReplyMessage {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1296,6 +1373,7 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     @required Result reactToMessage(Map<String, dynamic> data),
     @required Result setReplyToMessage(Map<String, dynamic> data),
     @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -1305,6 +1383,7 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return deleteMessage(data);
   }
 
@@ -1319,6 +1398,7 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     Result reactToMessage(Map<String, dynamic> data),
     Result setReplyToMessage(Map<String, dynamic> data),
     Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1340,6 +1420,9 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     @required Result reactToMessage(_ChatScreenEventReactMessage value),
     @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
   }) {
     assert(requestMessageStream != null);
     assert(sendMessage != null);
@@ -1349,6 +1432,7 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     assert(reactToMessage != null);
     assert(setReplyToMessage != null);
     assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
     return deleteMessage(this);
   }
 
@@ -1363,6 +1447,8 @@ class _$_ChatScreenEventDeleteMessage implements _ChatScreenEventDeleteMessage {
     Result reactToMessage(_ChatScreenEventReactMessage value),
     Result setReplyToMessage(_ChatScreenEventReplyMessage value),
     Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1379,6 +1465,171 @@ abstract class _ChatScreenEventDeleteMessage implements ChatScreenEvent {
 
   Map<String, dynamic> get data;
   _$ChatScreenEventDeleteMessageCopyWith<_ChatScreenEventDeleteMessage>
+      get copyWith;
+}
+
+abstract class _$ChatScreenEventLastMessageSeenCopyWith<$Res> {
+  factory _$ChatScreenEventLastMessageSeenCopyWith(
+          _ChatScreenEventLastMessageSeen value,
+          $Res Function(_ChatScreenEventLastMessageSeen) then) =
+      __$ChatScreenEventLastMessageSeenCopyWithImpl<$Res>;
+  $Res call({String uid});
+}
+
+class __$ChatScreenEventLastMessageSeenCopyWithImpl<$Res>
+    extends _$ChatScreenEventCopyWithImpl<$Res>
+    implements _$ChatScreenEventLastMessageSeenCopyWith<$Res> {
+  __$ChatScreenEventLastMessageSeenCopyWithImpl(
+      _ChatScreenEventLastMessageSeen _value,
+      $Res Function(_ChatScreenEventLastMessageSeen) _then)
+      : super(_value, (v) => _then(v as _ChatScreenEventLastMessageSeen));
+
+  @override
+  _ChatScreenEventLastMessageSeen get _value =>
+      super._value as _ChatScreenEventLastMessageSeen;
+
+  @override
+  $Res call({
+    Object uid = freezed,
+  }) {
+    return _then(_ChatScreenEventLastMessageSeen(
+      uid == freezed ? _value.uid : uid as String,
+    ));
+  }
+}
+
+class _$_ChatScreenEventLastMessageSeen
+    implements _ChatScreenEventLastMessageSeen {
+  const _$_ChatScreenEventLastMessageSeen(this.uid) : assert(uid != null);
+
+  @override
+  final String uid;
+
+  @override
+  String toString() {
+    return 'ChatScreenEvent.updateConversationLastMessageSeenStatus(uid: $uid)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _ChatScreenEventLastMessageSeen &&
+            (identical(other.uid, uid) ||
+                const DeepCollectionEquality().equals(other.uid, uid)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(uid);
+
+  @override
+  _$ChatScreenEventLastMessageSeenCopyWith<_ChatScreenEventLastMessageSeen>
+      get copyWith => __$ChatScreenEventLastMessageSeenCopyWithImpl<
+          _ChatScreenEventLastMessageSeen>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result requestMessageStream(String userId, String otherUserId),
+    @required Result sendMessage(Message msg),
+    @required Result markAsSeen(String messageId),
+    @required Result cacheConversation(List<Message> messages),
+    @required Result updateConversationData(Map<String, dynamic> data),
+    @required Result reactToMessage(Map<String, dynamic> data),
+    @required Result setReplyToMessage(Map<String, dynamic> data),
+    @required Result deleteMessage(Map<String, dynamic> data),
+    @required Result updateConversationLastMessageSeenStatus(String uid),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
+    return updateConversationLastMessageSeenStatus(uid);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result requestMessageStream(String userId, String otherUserId),
+    Result sendMessage(Message msg),
+    Result markAsSeen(String messageId),
+    Result cacheConversation(List<Message> messages),
+    Result updateConversationData(Map<String, dynamic> data),
+    Result reactToMessage(Map<String, dynamic> data),
+    Result setReplyToMessage(Map<String, dynamic> data),
+    Result deleteMessage(Map<String, dynamic> data),
+    Result updateConversationLastMessageSeenStatus(String uid),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (updateConversationLastMessageSeenStatus != null) {
+      return updateConversationLastMessageSeenStatus(uid);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result requestMessageStream(_ChatScreenEventRequestStream value),
+    @required Result sendMessage(_ChatScreenEventSendMessage value),
+    @required Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    @required Result cacheConversation(_ChatScreenEventCache value),
+    @required
+        Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    @required Result reactToMessage(_ChatScreenEventReactMessage value),
+    @required Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    @required Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    @required
+        Result updateConversationLastMessageSeenStatus(
+            _ChatScreenEventLastMessageSeen value),
+  }) {
+    assert(requestMessageStream != null);
+    assert(sendMessage != null);
+    assert(markAsSeen != null);
+    assert(cacheConversation != null);
+    assert(updateConversationData != null);
+    assert(reactToMessage != null);
+    assert(setReplyToMessage != null);
+    assert(deleteMessage != null);
+    assert(updateConversationLastMessageSeenStatus != null);
+    return updateConversationLastMessageSeenStatus(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result requestMessageStream(_ChatScreenEventRequestStream value),
+    Result sendMessage(_ChatScreenEventSendMessage value),
+    Result markAsSeen(_ChatScreenEventMarkAsSeen value),
+    Result cacheConversation(_ChatScreenEventCache value),
+    Result updateConversationData(_ChatScreenEventUpdateConversation value),
+    Result reactToMessage(_ChatScreenEventReactMessage value),
+    Result setReplyToMessage(_ChatScreenEventReplyMessage value),
+    Result deleteMessage(_ChatScreenEventDeleteMessage value),
+    Result updateConversationLastMessageSeenStatus(
+        _ChatScreenEventLastMessageSeen value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (updateConversationLastMessageSeenStatus != null) {
+      return updateConversationLastMessageSeenStatus(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ChatScreenEventLastMessageSeen implements ChatScreenEvent {
+  const factory _ChatScreenEventLastMessageSeen(String uid) =
+      _$_ChatScreenEventLastMessageSeen;
+
+  String get uid;
+  _$ChatScreenEventLastMessageSeenCopyWith<_ChatScreenEventLastMessageSeen>
       get copyWith;
 }
 

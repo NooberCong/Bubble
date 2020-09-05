@@ -38,7 +38,7 @@ class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
       },
       signOut: (String uid) async* {
         await authService.signOut(const Params.noParams());
-        cloudDataService.updateUserData(Params.map({
+        await cloudDataService.updateUserData(Params.map({
           "uid": uid,
           "data": {"token": ""}
         }));

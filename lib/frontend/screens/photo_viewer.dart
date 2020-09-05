@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:bubble/backend/download_manager.dart';
 
 class FullPhoto extends StatelessWidget {
   final String title;
@@ -19,6 +20,14 @@ class FullPhoto extends StatelessWidget {
           style:
               const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
+        actions: <Widget>[
+          Material(
+            child: IconButton(
+              icon: Icon(Icons.file_download),
+              onPressed: () => DownloadManager.enqueDownload(url),
+            ),
+          )
+        ],
       ),
       body: PhotoView(
         maxScale: PhotoViewComputedScale.covered * 3,

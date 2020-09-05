@@ -51,7 +51,7 @@ class _MessagePreviewState extends State<MessagePreview> {
         return Padding(
           padding: const EdgeInsets.all(10),
           child: SvgPicture.asset(
-            widget.referredMessageData["content"] as String,
+            parseSvg(widget.referredMessageData["content"] as String),
             width: 40,
             height: 40,
           ),
@@ -85,7 +85,7 @@ class _MessagePreviewState extends State<MessagePreview> {
 
   Color _boxColor(BuildContext context) {
     final isFromUser =
-        currentUser(context).uid == widget.referredMessageData["messageOwner"];
+        chatRoomUser(context).uid == widget.referredMessageData["messageOwner"];
     return isFromUser
         ? Color(widget.specifics.themeColorCode).withOpacity(.5)
         : Colors.grey.shade500.withOpacity(.5);

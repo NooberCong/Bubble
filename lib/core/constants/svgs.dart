@@ -11,6 +11,6 @@ const List<String> svgs = [
   "assets/images/fire.svg"
 ];
 
-Color colorForSvg(String svgAssetName, Color fallBackColor) {
-  return svgAssetName == "assets/images/like.svg" ? fallBackColor : null;
+Color colorForSvg(String svgAssetName, Color defaultColor) {
+  return svgAssetName == "assets/images/like.svg" ? defaultColor : null;
 }

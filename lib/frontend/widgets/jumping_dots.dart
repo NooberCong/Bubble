@@ -90,7 +90,7 @@ class _JumpingDotsState extends State<JumpingDots>
     ///here end value is -20
     ///end value is amount of jump.
     ///and we want our dot to jump in upward direction
-    for (int i = 0; i < widget.numberOfDots; i++) {
+    for (var i = 0; i < widget.numberOfDots; i++) {
       _animationControllers.add(AnimationController(
           vsync: this, duration: const Duration(milliseconds: 250))
         ..addStatusListener((status) {
@@ -126,7 +126,8 @@ class DotWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1),
-      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+      decoration:
+          const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
       height: 5,
       width: 5,
     );

@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:bubble/bloc/chat_screen_bloc/chat_screen_bloc.dart';
+import 'package:bubble/bloc/inflatable_widget_bloc/inflatable_widget_bloc.dart';
 import 'package:bubble/core/constants/fonts.dart';
 import 'package:bubble/core/constants/stickers.dart';
 import 'package:bubble/core/constants/svgs.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
 import 'package:bubble/domain/entities/message.dart';
+import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/providers/activity_controller_provider.dart';
 import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
 import 'package:bubble/router.gr.dart';
@@ -20,8 +22,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 
 class ChatInput extends StatefulWidget {
-  final String otherUserId;
-  const ChatInput({Key key, this.otherUserId}) : super(key: key);
+  const ChatInput({Key key}) : super(key: key);
 
   @override
   _ChatInputState createState() => _ChatInputState();
@@ -34,13 +35,17 @@ class _ChatInputState extends State<ChatInput> {
   StreamSubscription _specificsSubscription;
   StreamSubscription _keyboardVisibilitySubscription;
   PersistentBottomSheetController _bottomSheetController;
-  //variable to controll tool bar
-  //-1 means no toolbar item is open, 0 for miscellaneous, 1 for stickerbox
+
+  //Variable to keep track of which tool bar is active
+  //-1 means no toolbar is open, 0 for miscellaneous, 1 for stickerbox
   int _toolbarTabIndex = -1;
+
   bool _showMainEmoji = true;
   bool _expandToolBar = true;
   String _inputHintText = "Aa";
   Map<String, dynamic> _replyMessageData;
+  User user;
+  User otherUser;
 
   @override
   void initState() {
@@ -71,32 +76,47 @@ class _ChatInputState extends State<ChatInput> {
         });
       }
     });
-    ActivityControllerProvider.of(context).keyboardController.addListener(
-        _controller,
-        getRoomIdFromUIDHashCode(currentUser(context).uid, widget.otherUserId));
+    ActivityControllerProvider.of(context)
+        .keyboardController
+        .addListener(_controller, roomID(context));
+    user = chatRoomUser(context);
+    otherUser = chatRoomOtherUser(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ChatScreenBloc, ChatScreenState>(
+    return BlocListener<InflatableWidgetBloc, InflatableWidgetState>(
       condition: (_, state) =>
-          state.maybeWhen(replying: (_) => true, orElse: () => false),
-      listener: _onMessageReply,
-      child: WillPopScope(
-        onWillPop: () => _onWillPop(context),
-        child: Column(
-          children: <Widget>[
-            Divider(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade200,
-              thickness: 1,
-            ),
-            _buildBottomTab(0, _buildMiscellaneousItems),
-            _buildBottomTab(1, _buildStickers),
-            _buildReplyTab(),
-            _buildInputBar()
-          ],
+          state.maybeWhen(sendEmoji: (_) => true, orElse: () => false),
+      listener: (_, state) {
+        state.maybeWhen(
+            sendEmoji: (size) {
+              onSendMessage(
+                  "${specifics.mainEmoji}\$SIZE\$${size > 60 ? size : 60}",
+                  MessageType.svg);
+            },
+            orElse: () {});
+      },
+      child: BlocListener<ChatScreenBloc, ChatScreenState>(
+        condition: (_, state) =>
+            state.maybeWhen(replying: (_) => true, orElse: () => false),
+        listener: _onMessageReply,
+        child: WillPopScope(
+          onWillPop: () => _onWillPop(context),
+          child: Column(
+            children: <Widget>[
+              Divider(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade200,
+                thickness: 1,
+              ),
+              _buildBottomTab(0, _buildMiscellaneousItems),
+              _buildBottomTab(1, _buildStickers),
+              _buildReplyTab(),
+              _buildInputBar()
+            ],
+          ),
         ),
       ),
     );
@@ -165,22 +185,40 @@ class _ChatInputState extends State<ChatInput> {
 
   Widget _buildActionButton(BuildContext context) {
     return _showMainEmoji
-        ? IconButton(
-            icon: SvgPicture.asset(specifics.mainEmoji,
-                color: colorForSvg(
-                    specifics.mainEmoji, Color(specifics.themeColorCode)),
-                width: 26,
-                height: 26),
-            onPressed: () =>
-                onSendMessage(specifics.mainEmoji, MessageType.svg),
+        ? GestureDetector(
+            onLongPressStart: (_) {
+              _animateInflableEmoji();
+            },
+            onLongPressEnd: (_) {
+              _sendInflatedEmoji();
+            },
+            child: IconButton(
+              icon: SvgPicture.asset(specifics.mainEmoji,
+                  color: colorForSvg(
+                      specifics.mainEmoji, Color(specifics.themeColorCode)),
+                  width: 26,
+                  height: 26),
+              onPressed: () {
+                _controller.clear();
+                onSendMessage(
+                    "${specifics.mainEmoji}\$SIZE\$60", MessageType.svg);
+              },
+            ),
           )
         : IconButton(
             icon: Icon(
               Icons.send,
               size: 26,
             ),
-            onPressed: () => onSendMessage(_controller.text,
-                isUrl(_controller.text) ? MessageType.url : MessageType.text),
+            onPressed: () {
+              if (isNotEmpty(_controller.text)) {
+                onSendMessage(
+                    _controller.text,
+                    isUrl(_controller.text)
+                        ? MessageType.url
+                        : MessageType.text);
+              }
+            },
             color: Color(specifics.themeColorCode),
           );
   }
@@ -243,8 +281,8 @@ class _ChatInputState extends State<ChatInput> {
       _controller.clear();
     }
     context.bloc<ChatScreenBloc>().add(ChatScreenEvent.sendMessage(Message(
-        idFrom: currentUser(context).uid,
-        idTo: widget.otherUserId,
+        idFrom: user.uid,
+        idTo: otherUser.uid,
         referenceTo: _replyMessageData,
         seen: false,
         timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -318,16 +356,17 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void _onInput() {
-    if (_controller.text.isNotEmpty) {
+    final notEmpty = isNotEmpty(_controller.text);
+    if (notEmpty) {
       setState(() {
         _expandToolBar = false;
       });
     }
-    if (_showMainEmoji && _controller.text.isNotEmpty) {
+    if (_showMainEmoji && notEmpty) {
       setState(() {
         _showMainEmoji = false;
       });
-    } else if (!_showMainEmoji && _controller.text.isEmpty) {
+    } else if (!_showMainEmoji && notEmpty == false) {
       setState(() {
         _showMainEmoji = true;
       });
@@ -423,8 +462,7 @@ class _ChatInputState extends State<ChatInput> {
         elevation: 1,
         shrinkWrap: true,
         onMainColorChange: (value) => _updateConversationData(
-            {"themeColorCode": value.value},
-            currentUser(context).uid != widget.otherUserId),
+            {"themeColorCode": value.value}, user.uid != otherUser.uid),
         selectedColor: Color(specifics.themeColorCode),
       )
     ];
@@ -438,9 +476,8 @@ class _ChatInputState extends State<ChatInput> {
 
   void _updateConversationData(
       Map<String, dynamic> updateData, bool shouldMerge) {
-    final user = currentUser(context);
     context.bloc<ChatScreenBloc>().add(ChatScreenEvent.updateConversationData({
-          "otherUserId": widget.otherUserId,
+          "otherUserId": otherUser.uid,
           "userId": user.uid,
           //Only merge data on both user conversation when user is not chatting with his own account!
           "merge": shouldMerge,
@@ -625,7 +662,6 @@ class _ChatInputState extends State<ChatInput> {
                 ),
               ),
               GestureDetector(
-                //Set as not replying
                 onTap: _clearReply,
                 child: Container(
                   padding: const EdgeInsets.all(3),
@@ -650,8 +686,8 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   String _receiver() {
-    return _replyMessageData["messageOwner"] == widget.otherUserId
-        ? specifics.nicknames[widget.otherUserId] as String
+    return _replyMessageData["messageOwner"] == otherUser.uid
+        ? specifics.nicknames[otherUser.uid] as String
         : "myself";
   }
 
@@ -683,7 +719,7 @@ class _ChatInputState extends State<ChatInput> {
         break;
       case MessageType.svg:
         return SvgPicture.asset(
-          _replyMessageData["content"] as String,
+          parseSvg(_replyMessageData["content"] as String),
           width: 50,
           height: 50,
         );
@@ -701,5 +737,17 @@ class _ChatInputState extends State<ChatInput> {
     if (gif != null) {
       onSendMessage(gif.images.original.url, MessageType.gif);
     }
+  }
+
+  void _animateInflableEmoji() {
+    context
+        .bloc<InflatableWidgetBloc>()
+        .add(InflatableWidgetEvent.startAnimation());
+  }
+
+  void _sendInflatedEmoji() {
+    context
+        .bloc<InflatableWidgetBloc>()
+        .add(InflatableWidgetEvent.onLongPressRelease());
   }
 }

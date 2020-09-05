@@ -4,6 +4,7 @@ import 'dart:math' show min;
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:bloc/bloc.dart';
+import 'package:bubble/backend/cloud_data_service.dart';
 import 'package:bubble/core/params/params.dart';
 import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
@@ -46,6 +47,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
     yield* event.when(
       requestMessageStream: (userId, otherUserId) async* {
         yield const ChatScreenState.loading();
+        await _updateConversationSeenStatus(userId);
         final streamOrFailure = await cloudDataService.fetchConversationStream(
             Params.map({
           "limit": _snapshotLimit,
@@ -71,7 +73,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         });
       },
       sendMessage: (Message msg) async* {
-        _playAudio(audioPlayer);
+        await _playAudio(audioPlayer);
         final sentOrFailure =
             await cloudDataService.addMessage(Params.message(msg));
         yield* sentOrFailure.fold((error) async* {
@@ -87,7 +89,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         });
       },
       markAsSeen: (String messageId) async* {
-        cloudDataService.markMessageAsSeen(
+        await cloudDataService.markMessageAsSeen(
             Params.map({"messageId": messageId, "roomId": chatRoomId}));
       },
       cacheConversation: (List<Message> messages) async* {
@@ -116,14 +118,23 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         yield* _executeAndNotify(
             data, cloudDataService.deleteMessage, "Could not delete message");
       },
+      updateConversationLastMessageSeenStatus: (String userId) async* {
+        await _updateConversationSeenStatus(userId);
+      },
     );
+  }
+
+  Future<void> _updateConversationSeenStatus(String userId) {
+    return (cloudDataService as CloudDataService)
+        .markLastMessageInConversationSnapshotAsSeen(
+            Params.map({"uid": userId, "roomId": chatRoomId}));
   }
 
   Future<void> _playAudio(AssetsAudioPlayer player) async {
     //Maybe implemented in a seperate class later if needed be
     final audioIsPlaying = await player.isPlaying.first;
     if (audioIsPlaying) {
-      player.stop();
+      await player.stop();
     }
     await player.open(Audio("assets/sounds/send_message.mp3"), volume: 100);
     return;

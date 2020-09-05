@@ -1,10 +1,11 @@
 import 'package:bubble/bloc/find_user_screen_bloc/find_user_screen_bloc.dart';
-import 'package:bubble/core/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bubble/domain/entities/user.dart';
 
 class FindUserActions extends StatefulWidget {
-  const FindUserActions({Key key}) : super(key: key);
+  final User user;
+  const FindUserActions({Key key, this.user}) : super(key: key);
 
   @override
   _FindUserActionsState createState() => _FindUserActionsState();
@@ -82,7 +83,7 @@ class _FindUserActionsState extends State<FindUserActions> {
             color: Colors.pink,
             onPressed: () => context
                 .bloc<FindUserScreenBloc>()
-                .add(FindUserScreenEvent.random(currentUser(context).uid)),
+                .add(FindUserScreenEvent.random(widget.user.uid)),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15),
               width: MediaQuery.of(context).size.width,

@@ -8,6 +8,7 @@ import 'package:bubble/domain/entities/message.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/frontend/providers/activity_controller_provider.dart';
 import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
+import 'package:bubble/frontend/widgets/inflatable_emoji.dart';
 import 'package:bubble/frontend/widgets/jumping_dots.dart';
 import 'package:bubble/frontend/widgets/message_container.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ChatBody extends StatefulWidget {
-  final User user;
-  final User otherUser;
-  final String roomId;
-  ChatBody({Key key, this.otherUser, this.user})
-      : roomId = getRoomIdFromUIDHashCode(user.uid, otherUser.uid),
-        super(key: key);
+  const ChatBody({Key key}) : super(key: key);
 
   @override
   _ChatBodyState createState() => _ChatBodyState();
@@ -37,7 +33,9 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   StreamSubscription _specificsSubscription;
   ConversationSpecifics specifics;
   RoomActivityController _roomActivityController;
-
+  String roomId;
+  User user;
+  User otherUser;
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _onAppStateChange(state);
@@ -47,14 +45,13 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   void _onAppStateChange(AppLifecycleState state) {
     //If chat screen is resumed, mark user as chatting with other user so that notification won't be sent
     if (state == AppLifecycleState.resumed) {
-      ActivityControllerProvider.of(context)
-          .roomController
-          .joinRoom(widget.roomId);
-      //Otherwise, mark user as not chatting with the other user and let notifications be sent even if app is in chatscreen
+      ActivityControllerProvider.of(context).roomController.joinRoom(roomId);
+      clearNotifications(roomId);
+      context.bloc<ChatScreenBloc>().add(
+          ChatScreenEvent.updateConversationLastMessageSeenStatus(user.uid));
     } else {
-      ActivityControllerProvider.of(context)
-          .roomController
-          .leaveRoom(widget.roomId);
+      //Otherwise, mark user as not chatting with the other user and let notifications be sent even if app is in chatscreen
+      ActivityControllerProvider.of(context).roomController.leaveRoom(roomId);
     }
   }
 
@@ -73,9 +70,12 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    user = chatRoomUser(context);
+    otherUser = chatRoomOtherUser(context);
+    roomId = roomID(context);
     _roomActivityController =
         ActivityControllerProvider.of(context).roomController;
-    _roomActivityController.joinRoom(widget.roomId);
+    _roomActivityController.joinRoom(roomId);
     specifics = ConversationSpecificsProvider.of(context).initialData;
     _specificsSubscription =
         ConversationSpecificsProvider.of(context).stream.listen((value) {
@@ -87,7 +87,7 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
     });
     _keyboardActivityStream = ActivityControllerProvider.of(context)
         .keyboardController
-        .getRoomTypingActivity(widget.roomId);
+        .getRoomTypingActivity(roomId);
   }
 
   bool _reachedTop() {
@@ -141,7 +141,7 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
               return messageList.isNotEmpty
                   ? _buildBody(messageList)
                   : Center(
-                      child: Text("Say hi to ${widget.otherUser.username}"),
+                      child: Text("Say hi to ${otherUser.username}"),
                     );
             }
           },
@@ -156,15 +156,15 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _roomActivityController.leaveRoom(widget.roomId);
-    WidgetsBinding.instance.removeObserver(this);
-    _specificsSubscription.cancel();
-    _controller.dispose();
+    _roomActivityController?.leaveRoom(roomId);
+    WidgetsBinding.instance?.removeObserver(this);
+    _specificsSubscription?.cancel();
+    _controller?.dispose();
     super.dispose();
   }
 
   int _lastSeenMessage(List<Message> messageList) {
-    for (int i = 0; i < messageList.length; i++) {
+    for (var i = 0; i < messageList.length; i++) {
       final message = messageList[i];
       if (!_isFromUser(message) || (_isFromUser(message) && message.seen)) {
         return i;
@@ -173,7 +173,7 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
     return -1;
   }
 
-  bool _isFromUser(Message message) => message.idFrom == widget.user.uid;
+  bool _isFromUser(Message message) => message.idFrom == user.uid;
 
   void _markMessagesAsSeen(List<Message> messageList) {
     for (final message in messageList) {
@@ -186,8 +186,9 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   }
 
   void _loadMoreMessages() {
-    context.bloc<ChatScreenBloc>().add(ChatScreenEvent.requestMessageStream(
-        widget.user.uid, widget.otherUser.uid));
+    context
+        .bloc<ChatScreenBloc>()
+        .add(ChatScreenEvent.requestMessageStream(user.uid, otherUser.uid));
   }
 
   void _saveCurrentMessages(List<Message> messages) {
@@ -212,13 +213,13 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
 
   Widget _buildTyping() {
     return StreamBuilder(
-      initialData: {widget.user.uid: false, widget.otherUser.uid: false},
+      initialData: {user.uid: false, otherUser.uid: false},
       stream: _keyboardActivityStream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return snapshot.data[widget.otherUser.uid] as bool
+          return snapshot.data[otherUser.uid] as bool
               ? JumpingDots(
-                  imageUrl: widget.otherUser.imageUrl,
+                  imageUrl: otherUser.imageUrl,
                   numberOfDots: 3,
                 )
               : const SizedBox();
@@ -230,42 +231,41 @@ class _ChatBodyState extends State<ChatBody> with WidgetsBindingObserver {
   }
 
   Widget _buildBody(List<Message> messages) {
-    return Stack(
-      children: <Widget>[
-        ListView.builder(
-          //Plus 2 here are for jumping dots and loading widgets
-          itemCount: messages.length + 2,
-          padding: const EdgeInsets.all(10.0),
-          reverse: true,
-          controller: _controller,
-          addAutomaticKeepAlives: false,
-          itemBuilder: (context, index) {
-            return index == 0
+    return ListView.builder(
+      //Plus 3 here are for inflatableEmoji, jumping dots and loading widgets
+      itemCount: messages.length + 3,
+      padding: const EdgeInsets.all(10.0),
+      reverse: true,
+      controller: _controller,
+      itemBuilder: (context, index) {
+        final realMessageIndex = index - 2;
+        return index == 0
+            ? InflatableEmoji()
+            : index == 1
                 ? _buildTyping()
-                : index == messages.length + 1
+                : index == messages.length + 2
                     ? _buildLoading()
                     : MessageContainer(
-                        key: ValueKey(messages[index - 1].timestamp),
+                        key: ValueKey(messages[realMessageIndex].timestamp),
                         specifics: specifics,
-                        message: messages[index - 1],
-                        isFromUser: _isFromUser(messages[index - 1]),
-                        isFirstMessage: _isFirst(index - 1, messages),
-                        displaySeen: index - 1 == _lastSeenMessage(messages) ||
-                            index == 1,
-                        otherUserAvatar: widget.otherUser.imageUrl,
-                        displayDetails: index - 1 == _showMessageDetailsIndex,
-                        showDetails: () => _showDetails(index),
+                        message: messages[realMessageIndex],
+                        isFromUser: _isFromUser(messages[realMessageIndex]),
+                        isFirstMessage: _isFirst(realMessageIndex, messages),
+                        displaySeen:
+                            realMessageIndex == _lastSeenMessage(messages) ||
+                                index == 2,
+                        otherUserAvatar: otherUser.imageUrl,
+                        displayDetails:
+                            realMessageIndex == _showMessageDetailsIndex,
+                        showDetails: () => _showDetails(realMessageIndex),
                       );
-          },
-        ),
-      ],
+      },
     );
   }
 
   void _showDetails(int index) {
     return setState(() {
-      _showMessageDetailsIndex =
-          _showMessageDetailsIndex == index - 1 ? -1 : index - 1;
+      _showMessageDetailsIndex = _showMessageDetailsIndex == index ? -1 : index;
     });
   }
 

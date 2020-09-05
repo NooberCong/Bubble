@@ -37,14 +37,10 @@ class NotificationManager {
         return;
       },
       onResume: (Map<String, dynamic> message) async {
-        flutterLocalNotificationsPlugin
-            .cancel((message["data"]["roomId"] as String).hashCode % 1000);
         return _navigateToChatScreen(
             message["data"] as Map<dynamic, dynamic>, context);
       },
       onLaunch: (Map<String, dynamic> message) async {
-        flutterLocalNotificationsPlugin
-            .cancel((message["data"]["roomId"] as String).hashCode % 1000);
         return;
       },
     );
@@ -52,7 +48,7 @@ class NotificationManager {
 
   Future<void> _updateUserToken(String uid) async {
     final deviceToken = await firebaseMessaging.getToken();
-    cloudDataService.updateUserData(Params.map({
+    await cloudDataService.updateUserData(Params.map({
       "uid": uid,
       "data": {"token": deviceToken}
     }));
@@ -81,7 +77,7 @@ class NotificationManager {
     final platformChannelSpecifics =
         NotificationDetails(androidPlatformChannelSpecifics, null);
     return flutterLocalNotificationsPlugin.show(
-      (message["data"]["roomId"] as String).hashCode % 1000,
+      _roomIdToNotificationId(message["data"]["roomId"] as String),
       message["notification"]["title"].toString(),
       message["notification"]["body"].toString(),
       platformChannelSpecifics,
@@ -121,11 +117,11 @@ class NotificationManager {
     return;
   }
 
-  void clearNotifications(String roomId) {
-    flutterLocalNotificationsPlugin.cancel(_roomIdToNotificationId(roomId));
+  Future<void> clearNotifications(String roomId) async {
+    return await flutterLocalNotificationsPlugin.cancelAll();
   }
 
   int _roomIdToNotificationId(String roomId) {
-    return roomId.hashCode % 1000;
+    return int.parse(roomId.split("-").join()) % 1000;
   }
 }

@@ -33,7 +33,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   ) async* {
     yield* event.when(
       setTheme: (themeMode) async* {
-        sharedPreferences.setString(themePrefKey, themeToString[themeMode]);
+        await sharedPreferences.setString(
+            themePrefKey, themeToString[themeMode]);
         yield ThemeState.loaded(themeMode);
       },
       restoreSavedTheme: () async* {

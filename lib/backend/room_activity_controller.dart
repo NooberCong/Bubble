@@ -16,7 +16,7 @@ class RoomActivityController {
     final joinedRooms = userDoc.data["joinedRooms"] as List<dynamic>;
     if (!joinedRooms.contains(roomId)) {
       joinedRooms.add(roomId);
-      userDoc.reference.updateData({"joinedRooms": joinedRooms});
+      await userDoc.reference.updateData({"joinedRooms": joinedRooms});
     }
   }
 
@@ -25,7 +25,7 @@ class RoomActivityController {
     final joinedRooms = userDoc.data["joinedRooms"] as List<dynamic>;
     if (joinedRooms.contains(roomId)) {
       joinedRooms.remove(roomId);
-      userDoc.reference.updateData({"joinedRooms": joinedRooms});
+      await userDoc.reference.updateData({"joinedRooms": joinedRooms});
     }
   }
 

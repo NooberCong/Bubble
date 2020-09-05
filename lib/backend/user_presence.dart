@@ -22,7 +22,7 @@ class UserPresence {
 
     database.reference().child(".info/connected").onValue.listen((event) async {
       if (event.snapshot.value == true) {
-        userStatusDatabaseRef
+        await userStatusDatabaseRef
             .onDisconnect()
             .set(offlineData)
             .then((_) => userStatusDatabaseRef.set(onlineData));

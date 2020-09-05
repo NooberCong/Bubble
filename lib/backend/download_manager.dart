@@ -10,7 +10,7 @@ class DownloadManager {
   static Future<void> enqueDownload(String downloadUrl) async {
     final permissionGranted = await _requestPermission();
     if (!permissionGranted) {
-      Fluttertoast.showToast(msg: "Error: permission not granted");
+      await Fluttertoast.showToast(msg: "Error: permission not granted");
       return;
     }
 
@@ -21,9 +21,9 @@ class DownloadManager {
           Uint8List.fromList(response.data as List<int>),
           quality: 100,
           name: generateRandomNumString());
-      Fluttertoast.showToast(msg: "Image downloaded");
+      await Fluttertoast.showToast(msg: "Image downloaded");
     } on Exception {
-      Fluttertoast.showToast(msg: "Error: download failed");
+      await Fluttertoast.showToast(msg: "Error: download failed");
     }
   }
 

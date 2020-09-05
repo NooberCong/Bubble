@@ -1,15 +1,20 @@
 import 'dart:math';
-import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
+import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/user.dart';
+import 'package:bubble/frontend/providers/conversation_specifics_provider.dart';
+import 'package:bubble/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 String getRoomIdFromUIDHashCode(String idFrom, String idTo) {
   final hashedUIDs = [idFrom, idTo].map((e) => e.hashCode.toString()).toList();
   hashedUIDs.sort();
   return hashedUIDs.join("-");
+}
+
+void clearNotifications(String roomId) {
+  getIt<NotificationManager>().clearNotifications(roomId);
 }
 
 String generateRandomNumString() {
@@ -55,14 +60,28 @@ Future<PickedFile> getGaleryImage() async {
   return imgPicker.getImage(source: ImageSource.gallery);
 }
 
-User currentUser(BuildContext context) {
-  return (context.bloc<SplashScreenBloc>().state
-          as SplashScreenStateAuthenticated)
-      .user;
+User chatRoomUser(BuildContext context) {
+  return ConversationSpecificsProvider.of(context).user;
+}
+
+User chatRoomOtherUser(BuildContext context) {
+  return ConversationSpecificsProvider.of(context).otherUser;
 }
 
 Color grey(BuildContext context) {
   return Theme.of(context).brightness == Brightness.dark
       ? Colors.grey.shade700
       : Colors.grey.shade300;
+}
+
+String roomID(BuildContext context) {
+  return ConversationSpecificsProvider.of(context).roomId;
+}
+
+bool isNotEmpty(String text) {
+  return text.trim().isNotEmpty;
+}
+
+String parseSvg(String src) {
+  return src.split("\$SIZE\$").first;
 }

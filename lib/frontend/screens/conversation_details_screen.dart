@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bubble/bloc/photo_showcase_bloc/conversation_photos_showcase_bloc.dart';
+import 'package:bubble/bloc/splash_screen_bloc/splash_screen_bloc.dart';
 import 'package:bubble/core/util/utils.dart';
 import 'package:bubble/dependencies_injection.dart';
 import 'package:bubble/domain/entities/conversation_specifics.dart';
@@ -40,15 +41,20 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   bool _isLoading = false;
   ScrollController _controller;
   String roomId;
+  User user;
 
   @override
   void initState() {
     specifics = widget.initialSpecifics;
     _specificsSubscription = widget.specificsStream.listen((value) {
-      specifics = value;
+      setState(() {
+        specifics = value;
+      });
     });
-    roomId = getRoomIdFromUIDHashCode(
-        currentUser(context).uid, widget.otherUser.uid);
+    user = (context.bloc<SplashScreenBloc>().state
+            as SplashScreenStateAuthenticated)
+        .user;
+    roomId = getRoomIdFromUIDHashCode(widget.otherUser.uid, user.uid);
     _controller = ScrollController(keepScrollOffset: true);
     super.initState();
   }
@@ -162,8 +168,8 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   }
 
   void _onEditNickname() {
-    _userNicknameController = TextEditingController(
-        text: specifics.nicknames[currentUser(context).uid] as String);
+    _userNicknameController =
+        TextEditingController(text: specifics.nicknames[user.uid] as String);
     _otherUserNicknameController = TextEditingController(
         text: specifics.nicknames[widget.otherUser.uid] as String);
     AwesomeDialog(
@@ -202,16 +208,18 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   }
 
   void _onUpdateNickname() {
-    final user = currentUser(context);
-    final updateData = <String, dynamic>{"nicknames": <String, dynamic>{}};
+    var hasChange = false;
+    final updateData = {"nicknames": specifics.nicknames};
     if (_shouldUpdateUserNickname()) {
       updateData["nicknames"][user.uid] = _userNicknameController.text;
+      hasChange = true;
     }
     if (_shouldUpdateOtherUserNickname()) {
       updateData["nicknames"][widget.otherUser.uid] =
           _otherUserNicknameController.text;
+      hasChange = true;
     }
-    if (updateData.isNotEmpty) {
+    if (hasChange) {
       widget.onConversationDataUpdate({
         "userId": user.uid,
         "otherUserId": widget.otherUser.uid,
@@ -229,8 +237,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
 
   bool _shouldUpdateUserNickname() {
     return _userNicknameController.text.isNotEmpty &&
-        _userNicknameController.text !=
-            specifics.nicknames[currentUser(context).uid];
+        _userNicknameController.text != specifics.nicknames[user.uid];
   }
 
   void _onScroll(BuildContext context) {

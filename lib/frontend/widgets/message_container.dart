@@ -242,14 +242,16 @@ class _MessageContainerState extends State<MessageContainer> {
   }
 
   Widget _buildSvg(BorderRadius borderRadius, BoxConstraints boxConstraints) {
+    final svgFile = widget.message.content.split("\$SIZE\$")[0];
+    final svgSize = double.parse(widget.message.content.split("\$SIZE\$")[1]);
     return SvgPicture.asset(
-      widget.message.content,
+      svgFile,
       color: colorForSvg(
-          widget.message.content,
+          svgFile,
           Color(widget.specifics.themeColorCode)
               .withOpacity(widget.displayDetails ? .75 : 1)),
-      width: 60,
-      height: 60,
+      width: svgSize,
+      height: svgSize,
     );
   }
 
@@ -317,7 +319,7 @@ class _MessageContainerState extends State<MessageContainer> {
                     reactions.length,
                     (index) => InkWell(
                           onTap: () {
-                            final user = currentUser(context);
+                            final user = chatRoomUser(context);
                             context
                                 .bloc<ChatScreenBloc>()
                                 .add(ChatScreenEvent.reactToMessage({
@@ -329,7 +331,7 @@ class _MessageContainerState extends State<MessageContainer> {
                                           : widget.message.idTo],
                                   "imageUrl": user.imageUrl,
                                   "uid": user.uid,
-                                  "roomId": _roomid()
+                                  "roomId": roomID(context)
                                 }));
                             Navigator.of(context, rootNavigator: true).pop();
                           },
@@ -439,7 +441,7 @@ class _MessageContainerState extends State<MessageContainer> {
 
   void _deleteMessage() {
     return context.bloc<ChatScreenBloc>().add(ChatScreenEvent.deleteMessage(
-        {"roomId": _roomid(), "messageId": widget.message.messageId}));
+        {"roomId": roomID(context), "messageId": widget.message.messageId}));
   }
 
   InkWell _dynamicButton(BuildContext context, BoxConstraints boxConstraints) {
@@ -477,10 +479,6 @@ class _MessageContainerState extends State<MessageContainer> {
         ),
       ),
     );
-  }
-
-  String _roomid() {
-    return getRoomIdFromUIDHashCode(widget.message.idFrom, widget.message.idTo);
   }
 
   Widget _buildReactions() {
@@ -584,7 +582,7 @@ class _MessageContainerState extends State<MessageContainer> {
   }
 
   Widget _totalReactions() {
-    int total = 0;
+    var total = 0;
     for (final userReactions in widget.message.reactions.values) {
       total += (userReactions as List<dynamic>).length;
     }
@@ -630,14 +628,16 @@ class _MessageContainerState extends State<MessageContainer> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              CachedNetworkImage(
-                                imageUrl: wInfo.icon,
+                              SizedBox(
                                 width: 50,
                                 height: 50,
-                                fit: BoxFit.contain,
-                                errorWidget: (context, url, error) =>
-                                    Image.asset(
-                                        "assets/images/img_not_available.jpeg"),
+                                child: CachedNetworkImage(
+                                  imageUrl: wInfo.icon,
+                                  fit: BoxFit.contain,
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                          "assets/images/img_not_available.jpeg"),
+                                ),
                               ),
                               Container(
                                 constraints: BoxConstraints(
@@ -670,7 +670,7 @@ class _MessageContainerState extends State<MessageContainer> {
   Future<void> _launchUrl() async {
     final url = parseUrl(widget.message.content);
     if (await canLaunch(url)) {
-      launch(url);
+      await launch(url);
     }
   }
 
@@ -679,7 +679,7 @@ class _MessageContainerState extends State<MessageContainer> {
           "messageType": widget.message.type.toString(),
           "content": widget.message.content,
           "messageOwner": widget.message.idFrom,
-          "roomId": _roomid(),
+          "roomId": roomID(context),
           "messageId": widget.message.messageId
         }));
   }
@@ -707,7 +707,7 @@ class _MessageContainerState extends State<MessageContainer> {
                 width: .5,
               ),
               Text(
-                  "Replied to ${widget.message.referenceTo['messageOwner'] != currentUser(context).uid ? widget.specifics.nicknames[widget.message.referenceTo['messageOwner']] : 'me'}"),
+                  "Replied to ${widget.message.referenceTo['messageOwner'] != chatRoomUser(context).uid ? widget.specifics.nicknames[widget.message.referenceTo['messageOwner']] : 'me'}"),
             ],
           ),
           MessagePreview(

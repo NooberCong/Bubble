@@ -97,12 +97,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             await _controller.takePicture(path);
 
             // If the picture was taken, display it on a new screen.
-            ExtendedNavigator.of(context).pushNamed(Routes.displayPictureScreen,
+            await ExtendedNavigator.of(context).pushNamed(
+                Routes.displayPictureScreen,
                 arguments: DisplayPictureScreenArguments(
                     imagePath: path, onSave: widget.onSave));
           } catch (e) {
             // If an error occurs, log the error to the console.
-            Fluttertoast.showToast(msg: "Could not capture the photo");
+            await Fluttertoast.showToast(msg: "Could not capture the photo");
           }
         },
         child: Container(

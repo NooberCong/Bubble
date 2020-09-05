@@ -29,11 +29,13 @@ class CloudDataService implements ICloudDataService {
         //If message type is image change content from file path to storage path
         await _updateMessageContentToImageUrl(messageJsonData);
       }
+      // ignore: unawaited_futures
       _updateConversationLastMessage(
           message, getRoomIdFromUIDHashCode(message.idFrom, message.idTo));
       final sentMessage = await _saveMessageToCloud(messageJsonData);
       if (message.referenceTo != null) {
-        await _addReference(sentMessage.documentID, message);
+        // ignore: unawaited_futures
+        _addReference(sentMessage.documentID, message);
       }
       return const Right(null);
     } on Exception catch (e) {
@@ -113,7 +115,6 @@ class CloudDataService implements ICloudDataService {
       Params params) async {
     final inputData = (params as ParamsMap).data;
     try {
-      _markLastMessageInConversationSnapshotAsSeen(inputData);
       return Right(store
           .collection("rooms")
           .document(inputData["roomId"] as String)
@@ -294,13 +295,13 @@ class CloudDataService implements ICloudDataService {
     }
   }
 
-  Future<void> _markLastMessageInConversationSnapshotAsSeen(
-      Map<String, dynamic> data) {
+  Future<void> markLastMessageInConversationSnapshotAsSeen(Params params) {
+    final inputData = (params as ParamsMap).data;
     return store
         .collection("users")
-        .document(data["uid"] as String)
+        .document(inputData["uid"] as String)
         .collection("conversations")
-        .document(data["roomId"] as String)
+        .document(inputData["roomId"] as String)
         .updateData({"seen": true});
   }
 
@@ -361,7 +362,8 @@ class CloudDataService implements ICloudDataService {
     } else if (message.type == MessageType.gif) {
       return " sent a gif";
     } else if (message.type == MessageType.svg) {
-      final svgFileName = message.content.split("/").last;
+      final svgFileName =
+          message.content.split("/").last.split("\$SIZE\$").first;
       switch (svgFileName) {
         case "like.svg":
           return ": 👍";
@@ -396,15 +398,14 @@ class CloudDataService implements ICloudDataService {
       Params params) async {
     try {
       final inputData = (params as ParamsMap).data;
-      final Map<String, dynamic> updateData =
-          inputData["updateData"] as Map<String, dynamic>;
+      final updateData = inputData["updateData"] as Map<String, dynamic>;
       await store.runTransaction((transaction) async {
         final userConversation = store
             .collection("users")
             .document(inputData["userId"] as String)
             .collection("conversations")
             .document(inputData["roomId"] as String);
-        transaction.update(userConversation, updateData);
+        await transaction.update(userConversation, updateData);
       });
       //Check if user is chatting with him/herself
       if (inputData["merge"] as bool) {
@@ -415,7 +416,7 @@ class CloudDataService implements ICloudDataService {
               .document(inputData["otherUserId"] as String)
               .collection("conversations")
               .document(inputData["roomId"] as String);
-          transaction.update(userConversation, updateData);
+          await transaction.update(userConversation, updateData);
         });
       }
       return const Right(null);

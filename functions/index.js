@@ -5,12 +5,49 @@ admin.initializeApp();
 exports.onMessageAdded = functions.firestore
   .document("rooms/{roomId}/messages/{messageId}")
   .onCreate((snap, context) => {
-    console.log("----------------start function--------------------");
-
     const doc = snap.data();
-
     sendNotification(doc, context.params.roomId);
     return null;
+  });
+
+exports.onReaction = functions.firestore
+  .document("rooms/{roomId}/messages/{messageId}")
+  .onUpdate(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
+    const reactions = Object.keys(before.reactions);
+
+    for (rct of reactions) {
+      if (before.reactions[rct].length < after.reactions[rct].length) {
+        const target_reaction =
+          after.reactions[rct][after.reactions[rct].length - 1];
+        const message_owner = await admin
+          .firestore()
+          .collection("users")
+          .doc(after.idFrom)
+          .get();
+        if (
+          message_owner.uid == target_reaction.uid ||
+          !message_owner.data().token
+        ) {
+          return;
+        }
+        const reactor = await admin
+          .firestore()
+          .collection("users")
+          .doc(target_reaction.uid)
+          .get();
+        send(
+          target_reaction.username,
+          `${target_reaction.username} reacted ${rct} to a message you sent`,
+          message_owner.data().token,
+          {
+            otherUser: JSON.stringify(reactor.data()),
+            roomId: context.params.roomId,
+          }
+        );
+      }
+    }
   });
 
 exports.onUserStatusChanged = functions.database
@@ -31,7 +68,6 @@ exports.onUserStatusChanged = functions.database
     // and compare the timestamps.
     const statusSnapshot = await change.after.ref.once("value");
     const status = statusSnapshot.val();
-    console.log(status, eventStatus);
     // If the current timestamp for this data is newer than
     // the data that triggered this event, we exit this function.
     if (status.onlineStatusLastChanged > eventStatus.onlineStatusLastChanged) {
@@ -147,26 +183,32 @@ async function sendNotification(messageDoc, roomId) {
       .doc(roomId)
       .get();
 
-    const payload = {
-      notification: {
-        title: senderConversation.data().nicknames[sender.id],
-        body:
-          senderConversation.data().nicknames[sender.id] +
-          parseMessage(messageDoc),
-        badge: "1",
-        sound: "notification.mp3",
-      },
-      data: {
-        click_action: "FLUTTER_NOTIFICATION_CLICK",
-        otherUser: JSON.stringify(sender.data()),
-        roomId: roomId,
-      },
-    };
-    // Let push to the target device
-    admin.messaging().sendToDevice(receiver.data().token, payload);
+    send(
+      senderConversation.data().nicknames[sender.id],
+      senderConversation.data().nicknames[sender.id] + parseMessage(messageDoc),
+      receiver.data().token,
+      { otherUser: JSON.stringify(sender.data()), roomId: roomId }
+    );
   } else {
-    console.log("Can not find pushToken target user");
+    return;
   }
+}
+
+function send(title, body, token, data = {}) {
+  const payload = {
+    notification: {
+      title: title,
+      body: body,
+      badge: "1",
+      sound: "notification.mp3",
+    },
+    data: {
+      click_action: "FLUTTER_NOTIFICATION_CLICK",
+      ...data,
+    },
+  };
+  // Let push to the target device
+  admin.messaging().sendToDevice(token, payload);
 }
 
 function shouldSend(receiver, message, roomId) {
@@ -180,7 +222,7 @@ function shouldSend(receiver, message, roomId) {
 
 function parseMessage(doc) {
   if (doc.type === "MessageType.text" || doc.type === "MessageType.url") {
-    return `: ${doc.content}`;
+    return `${doc.referenceTo != null ? " replied" : ""}: ${doc.content}`;
   } else if (doc.type === "MessageType.image") {
     return " sent a photo";
   } else if (doc.type === "MessageType.gif") {
@@ -188,7 +230,7 @@ function parseMessage(doc) {
   } else {
     //Check if sticker is main emoji
     const parts = doc.content.split("/");
-    const stickerName = parts[parts.length - 1];
+    const stickerName = parts[parts.length - 1].split("$SIZE$")[0];
     switch (stickerName) {
       case "like.svg":
         return ": 👍";

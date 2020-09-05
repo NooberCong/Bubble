@@ -47,9 +47,8 @@ class AuthService implements IAuth {
   Future<Either<AuthFailure, User>> signInWithGoogle(Params _) async {
     AuthCredential credential;
     try {
-      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final googleUser = await _googleSignIn.signIn();
+      final googleAuth = await googleUser.authentication;
 
       credential = GoogleAuthProvider.getCredential(
         accessToken: googleAuth.accessToken,
@@ -61,7 +60,7 @@ class AuthService implements IAuth {
       final userRecord =
           await _store.collection("users").document(createdUser.uid).get();
       if (!userRecord.exists) {
-        _uploadUserDetails(createdUser.toDetails(), createdUser);
+        await _uploadUserDetails(createdUser.toDetails(), createdUser);
       }
       return Right(createdUser.toUser());
     } on PlatformException catch (e) {

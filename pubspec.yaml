@@ -29,7 +29,7 @@ dependencies:
   firebase_auth:
   camera:
   flutter_keyboard_visibility:
-  cached_network_image:
+  cached_network_image: 2.2.0+1
   path:
   dio:
   assets_audio_player:
@@ -70,7 +70,7 @@ dev_dependencies:
   freezed:
   injectable_generator:
   auto_route_generator:
-  lint: ^1.0.0
+  pedantic:
   flutter_test:
     sdk: flutter
 

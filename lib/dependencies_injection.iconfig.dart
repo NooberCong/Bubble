@@ -17,6 +17,7 @@ import 'package:bubble/backend/auth_service.dart';
 import 'package:bubble/domain/i_auth.dart';
 import 'package:bubble/backend/cloud_data_service.dart';
 import 'package:bubble/domain/i_cloud_data_service.dart';
+import 'package:bubble/bloc/inflatable_widget_bloc/inflatable_widget_bloc.dart';
 import 'package:bubble/backend/keyboard_activity_controller.dart';
 import 'package:bubble/domain/entities/user.dart';
 import 'package:bubble/bloc/login_screen_bloc/login_screen_bloc.dart';
@@ -57,6 +58,7 @@ Future<void> $initGetIt(GetIt g, {String environment}) async {
       ));
   g.registerLazySingleton<ICloudDataService>(
       () => CloudDataService(g<Firestore>(), g<FirebaseStorage>()));
+  g.registerFactory<InflatableWidgetBloc>(() => InflatableWidgetBloc());
   g.registerFactoryParam<KeyboardActivityController, User, dynamic>(
       (user, _) => KeyboardActivityController(g<Firestore>(), user));
   g.registerFactory<LoginScreenBloc>(

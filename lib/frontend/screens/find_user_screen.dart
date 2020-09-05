@@ -37,7 +37,9 @@ class _FindUserScreenState extends State<FindUserScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: <Widget>[
-              const FindUserActions(),
+              FindUserActions(
+                user: widget.user,
+              ),
               Expanded(
                 child: BlocConsumer<FindUserScreenBloc, FindUserScreenState>(
                   listenWhen: (_, state) => state.maybeWhen(
